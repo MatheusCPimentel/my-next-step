@@ -40,17 +40,17 @@ All routes are nested under `<Layout>` in `src/App.tsx` using React Router's lay
 
 `src/index.css` uses a single `@theme` block (Tailwind v4) that registers all design tokens as Tailwind utilities:
 
-| Tailwind class | Value |
-|---|---|
-| `bg-background` / `text-background` | `#1a1a18` (page bg) |
-| `bg-surface` | `#222220` (sidebar, cards) |
-| `bg-overlay` | `#2C2C2A` (hover states, avatar bg) |
-| `text-primary` | `#F1EFE8` |
-| `text-secondary` | `#B4B2A9` |
-| `text-muted` | `#888780` |
-| `bg-purple` / `text-purple` | `#534AB7` (primary action) |
-| `bg-teal` / `text-teal` | `#1D9E75` (progress/success) |
-| `border-border` | `rgba(255,255,255,0.08)` |
+| Tailwind class                      | Value                               |
+| ----------------------------------- | ----------------------------------- |
+| `bg-background` / `text-background` | `#1a1a18` (page bg)                 |
+| `bg-surface`                        | `#222220` (sidebar, cards)          |
+| `bg-overlay`                        | `#2C2C2A` (hover states, avatar bg) |
+| `text-primary`                      | `#F1EFE8`                           |
+| `text-secondary`                    | `#B4B2A9`                           |
+| `text-muted`                        | `#888780`                           |
+| `bg-purple` / `text-purple`         | `#534AB7` (primary action)          |
+| `bg-teal` / `text-teal`             | `#1D9E75` (progress/success)        |
+| `border-border`                     | `rgba(255,255,255,0.08)`            |
 
 Use opacity modifiers for tints: `bg-purple/15` = 15% purple.
 
@@ -69,16 +69,17 @@ Use opacity modifiers for tints: `bg-purple/15` = 15% purple.
 - No comments unless logic is genuinely non-obvious
 - Dark mode only; design reference: Linear, Perplexity
 - When changes affect project structure, stack, or conventions, update this file
+- Before building any feature, read PRODUCT.md to understand the full product context, feature rules, and what is already done
 
 ## Pages
 
-| Route | Page | Status |
-|---|---|---|
-| `/` | Dashboard | placeholder |
-| `/board` | Kanban board (Applied → HR → Technical → Offer) | placeholder |
-| `/resume` | Resume Analyzer | placeholder |
-| `/job` | Job Analyzer | placeholder |
-| `/levelup` | LevelUp (interview weak-point tracker) | placeholder |
+| Route      | Page            | Status      |
+| ---------- | --------------- | ----------- |
+| `/`        | Dashboard       | in progress |
+| `/board`   | Board           | in progress |
+| `/resume`  | Resume Analyzer | in progress |
+| `/job`     | Job Match       | not started |
+| `/levelup` | LevelUp         | not started |
 
 ## Backend (not built)
 
