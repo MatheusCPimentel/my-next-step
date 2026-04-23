@@ -51,6 +51,7 @@ All routes are nested under `<Layout>` in `src/App.tsx` using React Router's lay
 | `bg-purple` / `text-purple`         | `#534AB7` (primary action)          |
 | `bg-teal` / `text-teal`             | `#1D9E75` (progress/success)        |
 | `border-border`                     | `rgba(255,255,255,0.08)`            |
+| `border-border-hover`               | `rgba(255,255,255,0.15)`            |
 
 Use opacity modifiers for tints: `bg-purple/15` = 15% purple.
 

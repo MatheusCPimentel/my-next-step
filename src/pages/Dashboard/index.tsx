@@ -1,5 +1,13 @@
 import { Link } from "react-router-dom";
-import { Kanban, FileText, Briefcase, TrendingUp } from "lucide-react";
+import {
+  Kanban,
+  FileText,
+  Briefcase,
+  TrendingUp,
+  ArrowRight,
+  Plus,
+  X,
+} from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 const MOCK_USER = { name: "John" };
@@ -19,27 +27,70 @@ interface QuickAction {
 const QUICK_ACTIONS: QuickAction[] = [
   {
     label: "Board",
-    description: "Track your active applications",
+    description:
+      "Your pipeline at a glance. Drag cards across stages, add new applications, and archive jobs when they close.",
     path: "/board",
     icon: Kanban,
   },
   {
     label: "Resume Analyzer",
-    description: "Get AI feedback on your resume",
+    description:
+      "Upload your resume and get AI feedback on strengths, weaknesses, and ATS compatibility before you apply anywhere.",
     path: "/resume",
     icon: FileText,
   },
   {
     label: "Job Match",
-    description: "Score a job description fit",
+    description:
+      "Paste a job description to score how well it fits your profile, surface red flags, and generate a pitch for outreach.",
     path: "/job",
     icon: Briefcase,
   },
   {
     label: "LevelUp",
-    description: "Close gaps from past interviews",
+    description:
+      "Turn rejected interviews into a study plan. Track the questions that tripped you up and mark them mastered over time.",
     path: "/levelup",
     icon: TrendingUp,
+  },
+];
+
+interface Activity {
+  id: string;
+  kind: "moved" | "added" | "discarded";
+  company: string;
+  target?: string;
+  timeAgo: string;
+}
+
+const MOCK_ACTIVITIES: Activity[] = [
+  {
+    id: "a1",
+    kind: "moved",
+    company: "Stripe",
+    target: "Technical Interview",
+    timeAgo: "2 days ago",
+  },
+  { id: "a2", kind: "added", company: "Linear", timeAgo: "4 days ago" },
+  {
+    id: "a3",
+    kind: "moved",
+    company: "GitHub",
+    target: "HR Interview",
+    timeAgo: "1 week ago",
+  },
+  {
+    id: "a4",
+    kind: "discarded",
+    company: "Acme Corp",
+    timeAgo: "2 weeks ago",
+  },
+  {
+    id: "a5",
+    kind: "moved",
+    company: "Figma",
+    target: "Offer",
+    timeAgo: "3 weeks ago",
   },
 ];
 
@@ -63,22 +114,65 @@ function QuickActionCard({ label, description, path, icon: Icon }: QuickAction) 
   return (
     <Link
       to={path}
-      className="bg-surface border border-border rounded-xl p-5 flex flex-col gap-3 hover:border-border-hover transition-colors"
+      className="bg-surface border border-border rounded-xl p-6 flex flex-col gap-4 hover:border-border-hover transition-colors"
     >
-      <div className="w-9 h-9 rounded-lg bg-purple/10 flex items-center justify-center text-purple">
-        <Icon size={18} />
+      <div className="w-10 h-10 rounded-lg bg-purple/10 flex items-center justify-center text-purple">
+        <Icon size={20} />
       </div>
       <div>
         <p className="text-sm font-medium text-primary">{label}</p>
-        <p className="text-xs text-muted mt-0.5">{description}</p>
+        <p className="text-sm text-secondary mt-1 leading-relaxed">{description}</p>
       </div>
     </Link>
   );
 }
 
+function ActivityRow({ activity }: { activity: Activity }) {
+  const { kind, company, target, timeAgo } = activity;
+
+  const iconWrapperClass =
+    kind === "moved"
+      ? "bg-purple/10 text-purple"
+      : kind === "added"
+        ? "bg-teal/10 text-teal"
+        : "bg-overlay text-muted";
+
+  const Icon = kind === "moved" ? ArrowRight : kind === "added" ? Plus : X;
+
+  return (
+    <div className="bg-surface border border-border rounded-xl p-4 flex items-center gap-3">
+      <div
+        className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${iconWrapperClass}`}
+      >
+        <Icon size={18} />
+      </div>
+      <div className="flex flex-col gap-0.5 min-w-0">
+        <p className="text-sm text-primary">
+          {kind === "moved" && (
+            <>
+              You moved <strong className="font-medium">{company}</strong> to {target}
+            </>
+          )}
+          {kind === "added" && (
+            <>
+              You added <strong className="font-medium">{company}</strong> to Applied
+            </>
+          )}
+          {kind === "discarded" && (
+            <>
+              You discarded <strong className="font-medium">{company}</strong>
+            </>
+          )}
+        </p>
+        <span className="text-xs text-muted">{timeAgo}</span>
+      </div>
+    </div>
+  );
+}
+
 export function Dashboard() {
   return (
-    <div className="max-w-2xl flex flex-col gap-10">
+    <div className="max-w-4xl flex flex-col gap-10">
       <div>
         <h1 className="text-primary">
           {getGreeting()}, {MOCK_USER.name}
@@ -106,9 +200,20 @@ export function Dashboard() {
         <h2 className="text-xs font-medium text-muted uppercase tracking-widest">
           Quick actions
         </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {QUICK_ACTIONS.map((action) => (
             <QuickActionCard key={action.path} {...action} />
+          ))}
+        </div>
+      </section>
+
+      <section className="flex flex-col gap-3">
+        <h2 className="text-xs font-medium text-muted uppercase tracking-widest">
+          Recent activity
+        </h2>
+        <div className="flex flex-col gap-2">
+          {MOCK_ACTIVITIES.map((activity) => (
+            <ActivityRow key={activity.id} activity={activity} />
           ))}
         </div>
       </section>

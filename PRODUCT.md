@@ -15,13 +15,13 @@ When a feature is completed, move it from "Pending" to "Done" in the relevant se
 - Welcome message with time-aware greeting and user name
 - Stats section with Open Processes and Improvement Points cards
 - Quick Actions section with navigation to all pages
+- Add a Recent Activity section below Quick Actions showing the last user actions on the board (e.g. "You moved Stripe to Technical Interview 2 days ago")
+- Quick Action cards should be larger with a better description of what each feature does
 
 ### Pending
 
 - Open Processes count must reflect the actual number of jobs currently on the Board
 - Improvement Points count must reflect unchecked items in LevelUp
-- Add a Recent Activity section below Quick Actions showing the last user actions on the board (e.g. "You moved Stripe to Technical Interview 2 days ago")
-- Quick Action cards should be larger with a better description of what each feature does
 
 ---
 
