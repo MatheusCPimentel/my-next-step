@@ -94,3 +94,7 @@ The current Layout component needs to be rebuilt with the following improvements
 - Server state always managed by TanStack Query
 - All text hardcoded in English for now (i18n will be added later via Claude Code)
 - Always use CSS variables from index.css for colors, never hardcode hex values in components
+- Use Tailwind classes for all styling, never inline styles
+- CSS variables are registered in @theme block in index.css
+- Available classes: bg-purple, bg-bg-primary, bg-bg-secondary, bg-bg-tertiary, text-text-primary, text-text-secondary, text-text-muted, border-border, etc.
+- Do not add comments to the code unless the logic is genuinely complex and non-obvious. Never add comments that just describe what the code is doing.
