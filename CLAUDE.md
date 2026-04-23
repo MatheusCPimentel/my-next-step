@@ -84,3 +84,44 @@ Use opacity modifiers for tints: `bg-purple/15` = 15% purple.
 ## Backend (not built)
 
 NestJS + TypeScript + PostgreSQL · JWT auth with refresh tokens · Anthropic API for AI features. All data is mocked client-side for now.
+
+---
+
+## Technical Decisions
+
+### Drag and Drop
+
+- Library: dnd-kit (@dnd-kit/core + @dnd-kit/sortable)
+- Used for: card movement between columns AND column reordering
+- Not yet installed — install before building Board interactions
+
+### File Upload
+
+- No external library needed for Resume Analyzer upload
+- Use native HTML input[type=file] with drag and drop events
+- PDF validation: check file.type === 'application/pdf' and file.size <= 10MB
+
+### AI Integration
+
+- All AI features use Anthropic API via the backend (NestJS)
+- Frontend never calls Anthropic directly
+- For now all AI responses are mocked on the frontend
+
+### Fit Score Colors
+
+- Not a fit (below 50): red — use text-red-500 / bg-red-500
+- Borderline (50–60): orange — use text-orange-400 / bg-orange-400
+- Partial fit (60–70): yellow — use text-yellow-400 / bg-yellow-400
+- Good fit (70–80): teal — use bg-teal / text-teal
+- Great fit (80–90): teal with higher opacity
+- Excellent fit (90–100): green — use text-green-400 / bg-green-400
+
+### Board Column Limits
+
+- Maximum columns: 20
+- Minimum columns: 2 (Applied + Offer, both fixed)
+
+### Resume Upload Limits
+
+- File type: PDF only
+- Max size: 10MB
