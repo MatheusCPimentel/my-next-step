@@ -30,7 +30,7 @@ const QUICK_ACTIONS: QuickAction[] = [
     icon: FileText,
   },
   {
-    label: "Job Analyzer",
+    label: "Job Match",
     description: "Score a job description fit",
     path: "/job",
     icon: Briefcase,

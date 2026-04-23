@@ -111,9 +111,7 @@ When a feature is completed, move it from "Pending" to "Done" in the relevant se
 
 ## Page: Job Match (/job) — formerly Job Analyzer
 
-### Status: Not started
-
-- Rename all references from "Job Analyzer" to "Job Match" (sidebar, dashboard quick action, page title). Route stays /job.
+### Status: Placeholder (header only)
 
 ### Gate
 
