@@ -1,82 +1,85 @@
-# MyNextStep
+# CLAUDE.md
 
-An AI-powered career hub that helps users track job applications, analyze resumes and job descriptions, and improve based on interview feedback.
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Tech stack
+## What this is
 
-- React + Vite + TypeScript
-- React Router for navigation
-- Tailwind CSS v4 with CSS variables in @theme block in src/index.css
-- Shadcn/ui for components (Radix + Nova preset)
-- React Hook Form + Zod for forms and validation
-- TanStack Query for data fetching and cache
-- Framer Motion for animations
-- Lucide for icons
-
-## Design system
-
-- Dark mode only
-- Style reference: Linear, Perplexity — lightweight + tech feeling
-- Mobile first, sidebar navigation that becomes a hamburger drawer on mobile
-
-## Pages and routes
-
-- / — Dashboard: overview of open processes, improvement points, quick actions
-- /board — Kanban board with stages: Applied, HR Interview, Technical Interview, Offer
-- /resume — Resume Analyzer: user uploads resume, AI analyzes and returns structured feedback
-- /job — Job Analyzer: user pastes a job description, AI returns fit score, missing skills, salary estimate
-- /levelup — LevelUp: tracks weak points from failed interviews, allows study and progress tracking
-
-## Folder structure
-
-src/
-  assets/
-  components/
-    Layout/         # Layout wrapper only
-    Sidebar/        # Sidebar, SidebarItem
-    ui/             # Shadcn components
-  hooks/
-  lib/
-  pages/
-    Dashboard/
-    Board/
-    ResumeAnalyzer/
-    JobAnalyzer/
-    LevelUp/
-  services/
-  types/
-
-## Current state
-
-- Routing configured and working
-- Global styles and CSS variables defined in src/index.css
-- Shadcn installed with Radix + Nova preset
-- Path alias configured (@/ maps to src/)
-- Layout and Sidebar fully built with collapse and mobile drawer
-- All pages returning placeholder content
-- No backend integration yet, all data is mocked
-
-## Backend (not built yet)
-
-- NestJS + TypeScript + PostgreSQL
-- JWT authentication with refresh tokens
-- Each user owns their own data
-- AI integration via Anthropic API
+MyNextStep — an AI-powered career hub for tracking job applications, analyzing resumes/job descriptions, and improving from interview feedback.
 
 ## Commands
 
-- npm run dev — start dev server
-- npm run build — production build
-- npm run lint — run eslint
+```bash
+npm run dev      # start dev server (Vite, http://localhost:5173)
+npm run build    # tsc + vite build
+npm run lint     # eslint
+```
 
-## Rules
+No test framework is set up yet.
 
-- Named exports only, no default exports
-- Each page and component in its own folder with index.tsx
-- Services layer handles all API calls, never call fetch directly from a component
-- Keep components small and focused
-- Forms always use React Hook Form + Zod
-- Server state always managed by TanStack Query
-- All text hardcoded in English for now, i18n will be added later
-- Do not add comments unless the logic is genuinely complex and non-obvious
-- When you make changes that affect project structure, stack, or conventions, update this file if relevant
+To add a shadcn component: `npx shadcn add <component>` (uses `radix-nova` style, see `components.json`).
+
+## Tech stack
+
+React 19 + Vite + TypeScript · React Router v7 · Tailwind CSS v4 · Shadcn/ui (radix-nova preset) · React Hook Form + Zod · TanStack Query · Framer Motion · Lucide icons
+
+## Architecture
+
+### Routing
+
+All routes are nested under `<Layout>` in `src/App.tsx` using React Router's layout route pattern. `Layout` renders `<Outlet />` — adding a new page means adding a `<Route>` inside the existing layout route, never wrapping pages individually.
+
+### Layout + Sidebar
+
+`Layout` (`src/components/Layout/`) owns the mobile drawer state (`drawerOpen`). It renders the desktop `<Sidebar>` and, via `AnimatePresence`, the mobile drawer (a second `<Sidebar isMobileDrawer>`).
+
+`Sidebar` (`src/components/Sidebar/`) owns its own `collapsed` state. It animates its width between 64 px (collapsed) and 220 px (expanded) using Framer Motion `animate={{ width }}` on `motion.aside`.
+
+`SidebarItem` uses a fixed `w-10 h-10` icon wrapper with `mx-auto` for centering. Labels are **always in the DOM** — collapse is achieved by animating `maxWidth` (0 → 200) and `opacity` on a `motion.span` with `flex-1`. This prevents the label from pushing the icon during animation. `AnimatePresence` is not used for nav labels.
+
+### CSS / Design tokens
+
+`src/index.css` uses a single `@theme` block (Tailwind v4) that registers all design tokens as Tailwind utilities:
+
+| Tailwind class | Value |
+|---|---|
+| `bg-background` / `text-background` | `#1a1a18` (page bg) |
+| `bg-surface` | `#222220` (sidebar, cards) |
+| `bg-overlay` | `#2C2C2A` (hover states, avatar bg) |
+| `text-primary` | `#F1EFE8` |
+| `text-secondary` | `#B4B2A9` |
+| `text-muted` | `#888780` |
+| `bg-purple` / `text-purple` | `#534AB7` (primary action) |
+| `bg-teal` / `text-teal` | `#1D9E75` (progress/success) |
+| `border-border` | `rgba(255,255,255,0.08)` |
+
+Use opacity modifiers for tints: `bg-purple/15` = 15% purple.
+
+**Never use inline `style` for colors** — always use Tailwind classes from the tokens above.
+
+### Path alias
+
+`@/` maps to `src/`. Use it for all internal imports.
+
+## Conventions
+
+- Named exports only — no default exports (except `App.tsx` which Vite requires)
+- Each page and component lives in its own folder with `index.tsx`
+- Server state → TanStack Query. Forms → React Hook Form + Zod. Never call `fetch` directly from a component — go through `src/services/`
+- All text hardcoded in English (i18n deferred)
+- No comments unless logic is genuinely non-obvious
+- Dark mode only; design reference: Linear, Perplexity
+- When changes affect project structure, stack, or conventions, update this file
+
+## Pages
+
+| Route | Page | Status |
+|---|---|---|
+| `/` | Dashboard | placeholder |
+| `/board` | Kanban board (Applied → HR → Technical → Offer) | placeholder |
+| `/resume` | Resume Analyzer | placeholder |
+| `/job` | Job Analyzer | placeholder |
+| `/levelup` | LevelUp (interview weak-point tracker) | placeholder |
+
+## Backend (not built)
+
+NestJS + TypeScript + PostgreSQL · JWT auth with refresh tokens · Anthropic API for AI features. All data is mocked client-side for now.
