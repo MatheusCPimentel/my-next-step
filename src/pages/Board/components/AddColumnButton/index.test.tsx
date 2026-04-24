@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { AddColumnButton } from "@/pages/Board/AddColumnButton";
+import { AddColumnButton } from "@/pages/Board/components/AddColumnButton";
 
 describe("AddColumnButton", () => {
   it("renders nothing when disabled (20-column cap)", () => {

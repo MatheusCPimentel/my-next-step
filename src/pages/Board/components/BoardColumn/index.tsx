@@ -12,7 +12,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { JobCard } from "@/pages/Board/JobCard";
+import { JobCard } from "@/pages/Board/components/JobCard";
 import type { Column, Job } from "@/pages/Board/types";
 
 interface BoardColumnProps {

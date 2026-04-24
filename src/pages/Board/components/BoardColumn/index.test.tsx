@@ -3,7 +3,7 @@ import { fireEvent, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { DndContext } from "@dnd-kit/core";
 import { SortableContext } from "@dnd-kit/sortable";
-import { BoardColumn } from "@/pages/Board/BoardColumn";
+import { BoardColumn } from "@/pages/Board/components/BoardColumn";
 import type { Column, Job } from "@/pages/Board/types";
 
 const makeColumn = (overrides: Partial<Column> = {}): Column => ({

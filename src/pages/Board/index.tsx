@@ -15,11 +15,11 @@ import {
   SortableContext,
   horizontalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import { BoardColumn } from "@/pages/Board/BoardColumn";
-import { JobCard } from "@/pages/Board/JobCard";
-import { AddColumnButton } from "@/pages/Board/AddColumnButton";
-import { DiscardZone } from "@/pages/Board/DiscardZone";
-import { DiscardDialog, type DiscardOption } from "@/pages/Board/DiscardDialog";
+import { BoardColumn } from "@/pages/Board/components/BoardColumn";
+import { JobCard } from "@/pages/Board/components/JobCard";
+import { AddColumnButton } from "@/pages/Board/components/AddColumnButton";
+import { DiscardZone } from "@/pages/Board/components/DiscardZone";
+import { DiscardDialog, type DiscardOption } from "@/pages/Board/components/DiscardDialog";
 import {
   INITIAL_COLUMNS,
   INITIAL_JOBS,
