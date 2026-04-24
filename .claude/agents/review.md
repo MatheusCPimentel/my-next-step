@@ -24,6 +24,13 @@ Read CLAUDE.md before doing anything to understand the project conventions and r
 - Missing TypeScript types or use of any
 - Unnecessary comments
 
+### State management
+
+- All local state is reset on every close/cancel path
+- All local state is reset on confirm
+- Component renders correctly on second open with no leftover data
+- Initial state matches the intended default for every field
+
 ## Output format
 
 ### Issues (must fix)
