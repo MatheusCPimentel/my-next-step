@@ -1,4 +1,4 @@
-import { memo, useEffect, useRef, useState } from "react";
+import { memo, useEffect, useMemo, useRef, useState } from "react";
 import { useSortable, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { useDroppable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
@@ -89,7 +89,7 @@ function BoardColumnComponent({
     }
   };
 
-  const jobIds = jobs.map((j) => j.id);
+  const jobIds = useMemo(() => jobs.map((j) => j.id), [jobs]);
 
   return (
     <>

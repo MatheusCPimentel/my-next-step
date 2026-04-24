@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import {
   DndContext,
   DragOverlay,
@@ -32,12 +32,18 @@ type ActiveDrag =
   | { type: "column"; id: string }
   | null;
 
+type DragPreview = {
+  activeJobId: string;
+  overColumnId: string;
+  overJobId: string | null;
+};
+
 export function Board() {
   const [columns, setColumns] = useState<Column[]>(INITIAL_COLUMNS);
   const [jobs, setJobs] = useState<Job[]>(INITIAL_JOBS);
   const [activeDrag, setActiveDrag] = useState<ActiveDrag>(null);
+  const [dragPreview, setDragPreview] = useState<DragPreview | null>(null);
   const [pendingDiscardJob, setPendingDiscardJob] = useState<Job | null>(null);
-  const originalColumnIdRef = useRef<string | null>(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 4 } })
@@ -48,7 +54,7 @@ export function Board() {
     [columns]
   );
 
-  const jobsByColumn = useMemo(() => {
+  const baselineJobsByColumn = useMemo(() => {
     const map = new Map<string, Job[]>();
     columns.forEach((c) => map.set(c.id, []));
     jobs.forEach((j) => {
@@ -58,6 +64,56 @@ export function Board() {
     });
     return map;
   }, [columns, jobs]);
+
+  const jobsByColumn = useMemo(() => {
+    if (!dragPreview) return baselineJobsByColumn;
+
+    const draggedJob = jobs.find((j) => j.id === dragPreview.activeJobId);
+    if (!draggedJob) return baselineJobsByColumn;
+
+    const sourceColumnId = draggedJob.columnId;
+    const targetColumnId = dragPreview.overColumnId;
+
+    const map = new Map(baselineJobsByColumn);
+
+    const previewJob: Job = { ...draggedJob, columnId: targetColumnId };
+
+    if (sourceColumnId === targetColumnId) {
+      const baseList = baselineJobsByColumn.get(targetColumnId) ?? [];
+      const nextList = baseList.filter((j) => j.id !== dragPreview.activeJobId);
+      if (dragPreview.overJobId) {
+        const overIndex = nextList.findIndex(
+          (j) => j.id === dragPreview.overJobId
+        );
+        if (overIndex === -1) nextList.push(previewJob);
+        else nextList.splice(overIndex, 0, previewJob);
+      } else {
+        nextList.push(previewJob);
+      }
+      map.set(targetColumnId, nextList);
+    } else {
+      const sourceBase = baselineJobsByColumn.get(sourceColumnId) ?? [];
+      const nextSource = sourceBase.filter(
+        (j) => j.id !== dragPreview.activeJobId
+      );
+      map.set(sourceColumnId, nextSource);
+
+      const targetBase = baselineJobsByColumn.get(targetColumnId) ?? [];
+      const nextTarget = targetBase.slice();
+      if (dragPreview.overJobId) {
+        const overIndex = nextTarget.findIndex(
+          (j) => j.id === dragPreview.overJobId
+        );
+        if (overIndex === -1) nextTarget.push(previewJob);
+        else nextTarget.splice(overIndex, 0, previewJob);
+      } else {
+        nextTarget.push(previewJob);
+      }
+      map.set(targetColumnId, nextTarget);
+    }
+
+    return map;
+  }, [baselineJobsByColumn, jobs, dragPreview]);
 
   const activeJob = useMemo(
     () =>
@@ -94,14 +150,12 @@ export function Board() {
       const { active } = event;
       const type = active.data.current?.type as "card" | "column" | undefined;
       if (type === "card") {
-        const job = jobs.find((j) => j.id === active.id);
-        if (job) originalColumnIdRef.current = job.columnId;
         setActiveDrag({ type: "card", id: String(active.id) });
       } else if (type === "column") {
         setActiveDrag({ type: "column", id: String(active.id) });
       }
     },
-    [jobs]
+    []
   );
 
   const handleDragOver = useCallback(
@@ -112,33 +166,30 @@ export function Board() {
       if (activeType !== "card") return;
       if (over.id === "discard") return;
 
-      const draggingJob = jobs.find((j) => j.id === active.id);
-      if (!draggingJob) return;
-
-      const targetColumnId = findColumnIdForOver(String(over.id));
+      const activeId = String(active.id);
+      const overId = String(over.id);
+      if (overId === activeId) return;
+      const targetColumnId = findColumnIdForOver(overId);
       if (!targetColumnId) return;
 
-      if (draggingJob.columnId === targetColumnId) {
-        const overIsJob = jobs.some((j) => j.id === over.id);
-        if (!overIsJob) return;
-        setJobs((prev) => {
-          const activeIndex = prev.findIndex((j) => j.id === active.id);
-          const overIndex = prev.findIndex((j) => j.id === over.id);
-          if (activeIndex === -1 || overIndex === -1) return prev;
-          if (activeIndex === overIndex) return prev;
-          const copy = [...prev];
-          const [moved] = copy.splice(activeIndex, 1);
-          copy.splice(overIndex, 0, moved);
-          return copy;
-        });
-        return;
-      }
+      const overIsJob = jobs.some((j) => j.id === overId);
+      const overJobId = overIsJob ? overId : null;
 
-      setJobs((prev) =>
-        prev.map((j) =>
-          j.id === active.id ? { ...j, columnId: targetColumnId } : j
-        )
-      );
+      setDragPreview((prev) => {
+        if (
+          prev &&
+          prev.activeJobId === activeId &&
+          prev.overColumnId === targetColumnId &&
+          prev.overJobId === overJobId
+        ) {
+          return prev;
+        }
+        return {
+          activeJobId: activeId,
+          overColumnId: targetColumnId,
+          overJobId,
+        };
+      });
     },
     [jobs, findColumnIdForOver]
   );
@@ -151,21 +202,39 @@ export function Board() {
       if (activeType === "card") {
         if (over?.id === "discard") {
           const job = jobs.find((j) => j.id === active.id);
-          const originalColumnId = originalColumnIdRef.current;
-          if (job && originalColumnId && job.columnId !== originalColumnId) {
-            setJobs((prev) =>
-              prev.map((j) =>
-                j.id === job.id ? { ...j, columnId: originalColumnId } : j
-              )
-            );
-          }
           if (job) {
-            setPendingDiscardJob(
-              originalColumnId
-                ? { ...job, columnId: originalColumnId }
-                : job
-            );
+            setPendingDiscardJob(job);
           }
+        } else if (dragPreview) {
+          setJobs((prev) => {
+            const activeIndex = prev.findIndex(
+              (j) => j.id === dragPreview.activeJobId
+            );
+            if (activeIndex === -1) return prev;
+            const activeJob = prev[activeIndex];
+            const copy = prev.slice();
+            copy.splice(activeIndex, 1);
+
+            const movedJob: Job = {
+              ...activeJob,
+              columnId: dragPreview.overColumnId,
+            };
+
+            if (dragPreview.overJobId) {
+              const overIndex = copy.findIndex(
+                (j) => j.id === dragPreview.overJobId
+              );
+              if (overIndex === -1) {
+                copy.push(movedJob);
+              } else {
+                copy.splice(overIndex, 0, movedJob);
+              }
+            } else {
+              copy.push(movedJob);
+            }
+
+            return copy;
+          });
         }
       } else if (activeType === "column" && over) {
         const activeId = String(active.id);
@@ -187,11 +256,16 @@ export function Board() {
         }
       }
 
-      originalColumnIdRef.current = null;
       setActiveDrag(null);
+      setDragPreview(null);
     },
-    [jobs, columns]
+    [jobs, columns, dragPreview]
   );
+
+  const handleDragCancel = useCallback(() => {
+    setActiveDrag(null);
+    setDragPreview(null);
+  }, []);
 
   const handleConfirmDiscard = useCallback(
     (option: DiscardOption) => {
@@ -275,6 +349,7 @@ export function Board() {
         onDragStart={handleDragStart}
         onDragOver={handleDragOver}
         onDragEnd={handleDragEnd}
+        onDragCancel={handleDragCancel}
       >
         <SortableContext
           items={sortableColumnIds}
