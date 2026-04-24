@@ -48,12 +48,12 @@ export function Board() {
   const [pendingDiscardJob, setPendingDiscardJob] = useState<Job | null>(null);
 
   const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 4 } })
+    useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
   );
 
   const sortableColumnIds = useMemo(
     () => columns.filter((c) => !c.locked).map((c) => c.id),
-    [columns]
+    [columns],
   );
 
   const baselineJobsByColumn = useMemo(() => {
@@ -85,7 +85,7 @@ export function Board() {
       const nextList = baseList.filter((j) => j.id !== dragPreview.activeJobId);
       if (dragPreview.overJobId) {
         const overIndex = nextList.findIndex(
-          (j) => j.id === dragPreview.overJobId
+          (j) => j.id === dragPreview.overJobId,
         );
         if (overIndex === -1) nextList.push(previewJob);
         else nextList.splice(overIndex, 0, previewJob);
@@ -96,7 +96,7 @@ export function Board() {
     } else {
       const sourceBase = baselineJobsByColumn.get(sourceColumnId) ?? [];
       const nextSource = sourceBase.filter(
-        (j) => j.id !== dragPreview.activeJobId
+        (j) => j.id !== dragPreview.activeJobId,
       );
       map.set(sourceColumnId, nextSource);
 
@@ -104,7 +104,7 @@ export function Board() {
       const nextTarget = targetBase.slice();
       if (dragPreview.overJobId) {
         const overIndex = nextTarget.findIndex(
-          (j) => j.id === dragPreview.overJobId
+          (j) => j.id === dragPreview.overJobId,
         );
         if (overIndex === -1) nextTarget.push(previewJob);
         else nextTarget.splice(overIndex, 0, previewJob);
@@ -120,17 +120,17 @@ export function Board() {
   const activeJob = useMemo(
     () =>
       activeDrag?.type === "card"
-        ? jobs.find((j) => j.id === activeDrag.id) ?? null
+        ? (jobs.find((j) => j.id === activeDrag.id) ?? null)
         : null,
-    [activeDrag, jobs]
+    [activeDrag, jobs],
   );
 
   const activeColumn = useMemo(
     () =>
       activeDrag?.type === "column"
-        ? columns.find((c) => c.id === activeDrag.id) ?? null
+        ? (columns.find((c) => c.id === activeDrag.id) ?? null)
         : null,
-    [activeDrag, columns]
+    [activeDrag, columns],
   );
 
   const findColumnIdForOver = useCallback(
@@ -144,21 +144,18 @@ export function Board() {
       if (byColumn) return byColumn.id;
       return null;
     },
-    [jobs, columns]
+    [jobs, columns],
   );
 
-  const handleDragStart = useCallback(
-    (event: DragStartEvent) => {
-      const { active } = event;
-      const type = active.data.current?.type as "card" | "column" | undefined;
-      if (type === "card") {
-        setActiveDrag({ type: "card", id: String(active.id) });
-      } else if (type === "column") {
-        setActiveDrag({ type: "column", id: String(active.id) });
-      }
-    },
-    []
-  );
+  const handleDragStart = useCallback((event: DragStartEvent) => {
+    const { active } = event;
+    const type = active.data.current?.type as "card" | "column" | undefined;
+    if (type === "card") {
+      setActiveDrag({ type: "card", id: String(active.id) });
+    } else if (type === "column") {
+      setActiveDrag({ type: "column", id: String(active.id) });
+    }
+  }, []);
 
   const handleDragOver = useCallback(
     (event: DragOverEvent) => {
@@ -193,7 +190,7 @@ export function Board() {
         };
       });
     },
-    [jobs, findColumnIdForOver]
+    [jobs, findColumnIdForOver],
   );
 
   const handleDragEnd = useCallback(
@@ -210,7 +207,7 @@ export function Board() {
         } else if (dragPreview) {
           setJobs((prev) => {
             const activeIndex = prev.findIndex(
-              (j) => j.id === dragPreview.activeJobId
+              (j) => j.id === dragPreview.activeJobId,
             );
             if (activeIndex === -1) return prev;
             const activeJob = prev[activeIndex];
@@ -224,7 +221,7 @@ export function Board() {
 
             if (dragPreview.overJobId) {
               const overIndex = copy.findIndex(
-                (j) => j.id === dragPreview.overJobId
+                (j) => j.id === dragPreview.overJobId,
               );
               if (overIndex === -1) {
                 copy.push(movedJob);
@@ -261,7 +258,7 @@ export function Board() {
       setActiveDrag(null);
       setDragPreview(null);
     },
-    [jobs, columns, dragPreview]
+    [jobs, columns, dragPreview],
   );
 
   const handleDragCancel = useCallback(() => {
@@ -285,30 +282,25 @@ export function Board() {
       }
       setPendingDiscardJob(null);
     },
-    [pendingDiscardJob]
+    [pendingDiscardJob],
   );
 
-  const handleAddColumn = useCallback(
-    (insertAt: number, label: string) => {
-      setColumns((prev) => {
-        if (prev.length >= MAX_COLUMNS) return prev;
-        const copy = [...prev];
-        copy.splice(insertAt, 0, {
-          id: newColumnId(),
-          label,
-          locked: false,
-        });
-        return copy;
+  const handleAddColumn = useCallback((insertAt: number, label: string) => {
+    setColumns((prev) => {
+      if (prev.length >= MAX_COLUMNS) return prev;
+      const copy = [...prev];
+      copy.splice(insertAt, 0, {
+        id: newColumnId(),
+        label,
+        locked: false,
       });
-    },
-    []
-  );
+      return copy;
+    });
+  }, []);
 
   const handleRenameColumn = useCallback((id: string, label: string) => {
     if (!label.trim()) return;
-    setColumns((prev) =>
-      prev.map((c) => (c.id === id ? { ...c, label } : c))
-    );
+    setColumns((prev) => prev.map((c) => (c.id === id ? { ...c, label } : c)));
   }, []);
 
   const handleDeleteColumn = useCallback((id: string) => {
@@ -326,7 +318,7 @@ export function Board() {
           insertAt={index}
           onAdd={handleAddColumn}
           disabled={addDisabled}
-        />
+        />,
       );
     }
 
@@ -337,7 +329,7 @@ export function Board() {
         jobs={jobsByColumn.get(column.id) ?? []}
         onRename={handleRenameColumn}
         onDelete={handleDeleteColumn}
-      />
+      />,
     );
   });
 
