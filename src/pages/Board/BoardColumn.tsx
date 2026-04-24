@@ -11,7 +11,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { JobCard } from "@/pages/Board/JobCard";
 import type { Column, Job } from "@/pages/Board/types";
@@ -96,7 +95,7 @@ function BoardColumnComponent({
       <div
         ref={setNodeRef}
         style={style}
-        className="group relative w-[272px] min-w-[272px] shrink-0 bg-surface rounded-xl p-3 flex flex-col gap-3"
+        className="group relative h-full w-[272px] min-w-[272px] shrink-0 bg-surface rounded-xl p-3 flex flex-col gap-3"
       >
         <div className="flex items-center gap-2 px-1 py-1 relative">
           {!column.locked && (
@@ -111,7 +110,7 @@ function BoardColumnComponent({
             </button>
           )}
           {editing ? (
-            <Input
+            <input
               ref={inputRef}
               value={draft}
               onChange={(e) => setDraft(e.target.value)}
@@ -125,7 +124,7 @@ function BoardColumnComponent({
                   cancelRename();
                 }
               }}
-              className="bg-overlay border-border text-primary h-7 flex-1"
+              className="flex-1 min-w-0 bg-transparent text-sm font-medium text-primary outline-none border-b border-border-hover focus:border-purple px-0 py-0.5"
             />
           ) : (
             <span
@@ -160,7 +159,7 @@ function BoardColumnComponent({
         <SortableContext items={jobIds} strategy={verticalListSortingStrategy}>
           <div
             ref={setDroppableRef}
-            className={`flex flex-col gap-2 min-h-[60px] rounded-lg transition-colors ${
+            className={`flex-1 min-h-0 overflow-y-auto flex flex-col gap-2 rounded-lg transition-colors ${
               isOver ? "bg-overlay/40" : ""
             }`}
           >

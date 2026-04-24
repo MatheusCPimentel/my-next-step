@@ -68,7 +68,7 @@ export function AddColumnButton({
       type="button"
       onClick={() => setEditing(true)}
       aria-label="Add column"
-      className="group/add relative self-stretch w-1 shrink-0 flex items-center justify-center"
+      className="group/add relative self-stretch w-12 -mx-[22px] shrink-0 z-10 flex items-center justify-center"
     >
       <span className="absolute inset-y-0 left-1/2 -translate-x-1/2 w-px bg-border opacity-0 group-hover/add:opacity-100 transition-opacity" />
       <span className="relative z-10 flex items-center justify-center w-6 h-6 rounded-full bg-purple text-primary opacity-0 group-hover/add:opacity-100 transition-opacity hover:bg-purple/80">

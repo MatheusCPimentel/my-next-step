@@ -47,3 +47,23 @@
 
   button { cursor: pointer; font-family: var(--font-sans); }
 }
+
+@layer utilities {
+  .board-scroll::-webkit-scrollbar {
+    height: 6px;
+  }
+  .board-scroll::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .board-scroll::-webkit-scrollbar-thumb {
+    background-color: var(--color-border);
+    border-radius: 9999px;
+  }
+  .board-scroll::-webkit-scrollbar-thumb:hover {
+    background-color: var(--color-border-hover);
+  }
+  .board-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-border) transparent;
+  }
+}

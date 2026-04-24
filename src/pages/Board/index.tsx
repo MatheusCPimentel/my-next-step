@@ -1,4 +1,6 @@
 import { useCallback, useMemo, useState } from "react";
+import { Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
   DndContext,
   DragOverlay,
@@ -342,8 +344,17 @@ export function Board() {
   const isCardDragging = activeDrag?.type === "card";
 
   return (
-    <div className="flex flex-col gap-6 -mx-6">
-      <h1 className="text-primary px-6">Board</h1>
+    <div className="flex flex-col gap-4 h-full min-h-0 -mx-6">
+      <div className="flex items-center justify-between px-6">
+        <h1 className="text-primary">Board</h1>
+        <Button
+          onClick={() => {}}
+          className="bg-purple text-primary hover:bg-purple/90 h-9 px-3 gap-2"
+        >
+          <Plus size={16} />
+          Add Job
+        </Button>
+      </div>
       <DndContext
         sensors={sensors}
         onDragStart={handleDragStart}
@@ -355,7 +366,7 @@ export function Board() {
           items={sortableColumnIds}
           strategy={horizontalListSortingStrategy}
         >
-          <div className="w-full overflow-x-auto px-6 pb-2">
+          <div className="board-scroll flex-1 min-h-0 overflow-x-auto px-6 pb-2">
             <div className="flex items-stretch gap-3 w-fit">
               {renderedSlices}
             </div>
