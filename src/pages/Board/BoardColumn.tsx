@@ -2,7 +2,7 @@ import { memo, useEffect, useMemo, useRef, useState } from "react";
 import { useSortable, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { useDroppable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
-import { GripVertical, Trash2 } from "lucide-react";
+import { GripVertical, Inbox, Trash2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -167,9 +167,10 @@ function BoardColumnComponent({
               <JobCard key={job.id} job={job} />
             ))}
             {jobs.length === 0 && (
-              <p className="text-xs text-muted text-center py-8">
-                No applications yet
-              </p>
+              <div className="flex-1 flex flex-col items-center justify-center gap-2 py-10 text-center">
+                <Inbox size={28} className="text-muted" />
+                <span className="text-sm text-secondary">No applications yet</span>
+              </div>
             )}
           </div>
         </SortableContext>
