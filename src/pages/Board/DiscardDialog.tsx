@@ -37,15 +37,20 @@ export function DiscardDialog({
   const [stageId, setStageId] = useState<string | null>(null);
   const [questions, setQuestions] = useState<InterviewQuestion[]>([]);
   const [showErrors, setShowErrors] = useState(false);
-  const visibleStages = columns.filter((c) => !c.locked);
-
-  const handleOpenChange = (next: boolean) => {
-    if (!next) {
+  const [prevOpen, setPrevOpen] = useState(open);
+  if (prevOpen !== open) {
+    setPrevOpen(open);
+    if (!open) {
       setStep("choose");
       setStageId(null);
       setQuestions([]);
       setShowErrors(false);
     }
+  }
+
+  const visibleStages = columns.filter((c) => !c.locked);
+
+  const handleOpenChange = (next: boolean) => {
     onOpenChange(next);
   };
 
