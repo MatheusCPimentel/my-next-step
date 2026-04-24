@@ -17,7 +17,7 @@ You are the orchestrator of a build → review → commit pipeline.
    - Repeat until verdict is APPROVED (max 2 iterations)
    - If after 2 iterations the verdict is still NEEDS CHANGES, stop and report to the user:
      "After 2 review iterations, the following issues remain unresolved: [list issues]. What would you like to do?" 1. Try again 2. Commit anyway (not recommended) 3. Discard
-     f. If verdict is APPROVED: use the committer agent to commit automatically without asking the user.
+     f. If verdict is APPROVED: use the committer agent with low effort to commit automatically without asking the user.
 
 2. After all tasks are done, present a summary of all commits made and ask:
    "All done. Ready to push to main?"
