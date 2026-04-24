@@ -1,11 +1,13 @@
 import { useState } from "react";
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { Menu } from "lucide-react";
 import { Sidebar } from "../Sidebar";
 
 export function Layout() {
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const { pathname } = useLocation();
+  const fullWidth = pathname.startsWith("/board");
 
   return (
     <div className="flex h-screen overflow-hidden">
@@ -57,7 +59,9 @@ export function Layout() {
         </header>
 
         <main className="flex-1 overflow-auto p-6 bg-page">
-          <div className="max-w-7xl mx-auto w-full">
+          <div
+            className={`mx-auto w-full ${fullWidth ? "h-full" : "max-w-7xl"}`}
+          >
             <Outlet />
           </div>
         </main>
