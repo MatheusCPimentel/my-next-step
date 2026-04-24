@@ -42,13 +42,16 @@ All routes are nested under `<Layout>` in `src/App.tsx` using React Router's lay
 
 | Tailwind class                      | Value                               |
 | ----------------------------------- | ----------------------------------- |
-| `bg-background` / `text-background` | `#1a1a18` (page bg)                 |
-| `bg-surface`                        | `#222220` (sidebar, cards)          |
-| `bg-overlay`                        | `#2C2C2A` (hover states, avatar bg) |
+| `bg-background` / `text-background` | `#0f0f0d` (darkest, body bg)        |
+| `bg-page`                           | `#111110` (main content area)       |
+| `bg-surface`                        | `#141412` (sidebar)                 |
+| `bg-overlay`                        | `#1a1a18` (cards, pills, inputs)    |
 | `text-primary`                      | `#F1EFE8`                           |
 | `text-secondary`                    | `#B4B2A9`                           |
 | `text-muted`                        | `#888780`                           |
 | `bg-purple` / `text-purple`         | `#534AB7` (primary action)          |
+| `text-purple-mid`                   | `#7B6FD4` (accent icon)             |
+| `text-purple-soft`                  | `#A89FE8` (active nav text)         |
 | `bg-teal` / `text-teal`             | `#1D9E75` (progress/success)        |
 | `border-border`                     | `rgba(255,255,255,0.08)`            |
 | `border-border-hover`               | `rgba(255,255,255,0.15)`            |

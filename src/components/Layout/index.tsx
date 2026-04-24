@@ -8,10 +8,7 @@ export function Layout() {
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   return (
-    <div
-      className="flex h-screen overflow-hidden"
-      style={{ background: "var(--color-bg-primary)" }}
-    >
+    <div className="flex h-screen overflow-hidden">
       <div className="hidden md:block shrink-0">
         <Sidebar />
       </div>
@@ -50,23 +47,16 @@ export function Layout() {
       </AnimatePresence>
 
       <div className="flex flex-col flex-1 min-w-0 overflow-auto">
-        <header
-          className="flex items-center h-14 px-4 shrink-0 md:hidden"
-          style={{
-            background: "var(--color-bg-secondary)",
-            borderBottom: "1px solid var(--color-border)",
-          }}
-        >
+        <header className="flex items-center h-14 px-4 shrink-0 md:hidden bg-surface border-b border-border">
           <button
             onClick={() => setDrawerOpen(true)}
-            className="flex items-center justify-center w-9 h-9 rounded bg-transparent border-0 cursor-pointer transition-colors hover:bg-[var(--color-bg-tertiary)]"
-            style={{ color: "var(--color-text-primary)" }}
+            className="flex items-center justify-center w-9 h-9 rounded bg-transparent border-0 cursor-pointer transition-colors hover:bg-overlay text-primary"
           >
             <Menu size={20} />
           </button>
         </header>
 
-        <main className="flex-1 overflow-auto p-6">
+        <main className="flex-1 overflow-auto p-6 bg-page">
           <div className="max-w-7xl mx-auto w-full">
             <Outlet />
           </div>

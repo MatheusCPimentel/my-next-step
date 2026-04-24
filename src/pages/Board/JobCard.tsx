@@ -33,10 +33,11 @@ function JobCardComponent({ job, dragging }: JobCardProps) {
       style={style}
       {...attributes}
       {...listeners}
-      className={`bg-overlay border border-border rounded-lg p-4 flex flex-col gap-3 hover:border-border-hover transition-colors ${
+      className={`bg-overlay border border-border rounded-lg relative overflow-hidden p-4 flex flex-col gap-3 hover:border-border-hover transition-colors ${
         dragging ? "cursor-grabbing shadow-lg" : "cursor-grab"
       }`}
     >
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" />
       <div>
         <p className="text-sm font-medium text-primary">{job.company}</p>
         <p className="text-xs text-secondary mt-0.5">{job.title}</p>

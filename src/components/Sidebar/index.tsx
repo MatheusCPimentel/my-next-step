@@ -38,7 +38,7 @@ export function Sidebar({
     <motion.aside
       animate={{ width: effectivelyCollapsed ? 64 : 220 }}
       transition={{ type: "tween", duration: 0.22, ease: "easeInOut" }}
-      className="flex flex-col h-full overflow-hidden shrink-0 bg-surface border-r border-border"
+      className="flex flex-col h-full overflow-hidden shrink-0 bg-surface border-r border-border-hover"
     >
       <header className="flex items-center shrink-0 h-14 border-b border-border">
         <AnimatePresence initial={false}>
@@ -53,8 +53,8 @@ export function Sidebar({
               exit={{ opacity: 0, transition: { duration: 0.05 } }}
               className="flex items-center gap-2 flex-1 pl-4 overflow-hidden min-w-0"
             >
-              <div className="flex items-center justify-center w-6 h-6 rounded-md shrink-0 bg-purple">
-                <span className="text-[11px] font-bold text-primary">M</span>
+              <div className="flex items-center justify-center w-6 h-6 rounded-md shrink-0 bg-gradient-to-br from-purple to-purple-mid">
+                <span className="w-1.5 h-1.5 rounded-full bg-primary" />
               </div>
 
               <span className="font-bold text-[15px] whitespace-nowrap tracking-tight text-primary">
@@ -97,8 +97,8 @@ export function Sidebar({
       <footer className="flex flex-col gap-1 px-2 py-4 shrink-0 border-t border-border">
         <div className="flex items-center h-10 rounded">
           <div className="w-10 h-10 flex items-center justify-center shrink-0 mx-auto">
-            <div className="flex items-center justify-center w-7 h-7 rounded-full bg-overlay border border-border">
-              <User size={14} className="text-muted" />
+            <div className="flex items-center justify-center w-7 h-7 rounded-full bg-purple/30 border border-purple/40">
+              <User size={14} className="text-purple-soft" />
             </div>
           </div>
           <motion.span

@@ -124,11 +124,11 @@ function BoardColumnComponent({
                   cancelRename();
                 }
               }}
-              className="flex-1 min-w-0 bg-transparent text-sm font-medium text-primary outline-none border-b border-border-hover focus:border-purple px-0 py-0.5"
+              className="flex-1 min-w-0 bg-transparent text-xs font-medium uppercase tracking-wide text-primary outline-none border-b border-border-hover focus:border-purple px-0 py-0.5"
             />
           ) : (
             <span
-              className={`text-sm font-medium text-primary select-none flex-1 ${
+              className={`text-xs font-medium uppercase tracking-wide text-muted select-none flex-1 ${
                 column.locked ? "" : "cursor-text"
               }`}
               onDoubleClick={() => {
@@ -141,7 +141,7 @@ function BoardColumnComponent({
               {column.label}
             </span>
           )}
-          <span className="text-xs text-muted bg-overlay px-1.5 py-0.5 rounded tabular-nums">
+          <span className="text-xs text-muted bg-overlay rounded-full px-2 tabular-nums">
             {jobs.length}
           </span>
           {!column.locked && !editing && (
