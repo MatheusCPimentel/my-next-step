@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import type { Job } from "@/pages/Board/types";
@@ -7,7 +8,7 @@ interface JobCardProps {
   dragging?: boolean;
 }
 
-export function JobCard({ job, dragging }: JobCardProps) {
+function JobCardComponent({ job, dragging }: JobCardProps) {
   const {
     attributes,
     listeners,
@@ -53,3 +54,5 @@ export function JobCard({ job, dragging }: JobCardProps) {
     </div>
   );
 }
+
+export const JobCard = memo(JobCardComponent);

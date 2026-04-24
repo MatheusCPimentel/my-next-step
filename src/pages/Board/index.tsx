@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import {
   DndContext,
   DragOverlay,
@@ -43,165 +43,201 @@ export function Board() {
     useSensor(PointerSensor, { activationConstraint: { distance: 4 } })
   );
 
-  const sortableColumnIds = columns.filter((c) => !c.locked).map((c) => c.id);
+  const sortableColumnIds = useMemo(
+    () => columns.filter((c) => !c.locked).map((c) => c.id),
+    [columns]
+  );
 
-  const jobsByColumn = (columnId: string) =>
-    jobs.filter((j) => j.columnId === columnId);
+  const jobsByColumn = useMemo(() => {
+    const map = new Map<string, Job[]>();
+    columns.forEach((c) => map.set(c.id, []));
+    jobs.forEach((j) => {
+      const list = map.get(j.columnId);
+      if (list) list.push(j);
+      else map.set(j.columnId, [j]);
+    });
+    return map;
+  }, [columns, jobs]);
 
-  const activeJob =
-    activeDrag?.type === "card"
-      ? jobs.find((j) => j.id === activeDrag.id) ?? null
-      : null;
-  const activeColumn =
-    activeDrag?.type === "column"
-      ? columns.find((c) => c.id === activeDrag.id) ?? null
-      : null;
+  const activeJob = useMemo(
+    () =>
+      activeDrag?.type === "card"
+        ? jobs.find((j) => j.id === activeDrag.id) ?? null
+        : null,
+    [activeDrag, jobs]
+  );
 
-  const findColumnIdForOver = (overId: string): string | null => {
-    if (overId.startsWith("column-")) {
-      return overId.slice("column-".length);
-    }
-    const byJob = jobs.find((j) => j.id === overId);
-    if (byJob) return byJob.columnId;
-    const byColumn = columns.find((c) => c.id === overId);
-    if (byColumn) return byColumn.id;
-    return null;
-  };
+  const activeColumn = useMemo(
+    () =>
+      activeDrag?.type === "column"
+        ? columns.find((c) => c.id === activeDrag.id) ?? null
+        : null,
+    [activeDrag, columns]
+  );
 
-  const handleDragStart = (event: DragStartEvent) => {
-    const { active } = event;
-    const type = active.data.current?.type as "card" | "column" | undefined;
-    if (type === "card") {
-      const job = jobs.find((j) => j.id === active.id);
-      if (job) originalColumnIdRef.current = job.columnId;
-      setActiveDrag({ type: "card", id: String(active.id) });
-    } else if (type === "column") {
-      setActiveDrag({ type: "column", id: String(active.id) });
-    }
-  };
+  const findColumnIdForOver = useCallback(
+    (overId: string): string | null => {
+      if (overId.startsWith("column-")) {
+        return overId.slice("column-".length);
+      }
+      const byJob = jobs.find((j) => j.id === overId);
+      if (byJob) return byJob.columnId;
+      const byColumn = columns.find((c) => c.id === overId);
+      if (byColumn) return byColumn.id;
+      return null;
+    },
+    [jobs, columns]
+  );
 
-  const handleDragOver = (event: DragOverEvent) => {
-    const { active, over } = event;
-    if (!over) return;
-    const activeType = active.data.current?.type;
-    if (activeType !== "card") return;
-    if (over.id === "discard") return;
+  const handleDragStart = useCallback(
+    (event: DragStartEvent) => {
+      const { active } = event;
+      const type = active.data.current?.type as "card" | "column" | undefined;
+      if (type === "card") {
+        const job = jobs.find((j) => j.id === active.id);
+        if (job) originalColumnIdRef.current = job.columnId;
+        setActiveDrag({ type: "card", id: String(active.id) });
+      } else if (type === "column") {
+        setActiveDrag({ type: "column", id: String(active.id) });
+      }
+    },
+    [jobs]
+  );
 
-    const draggingJob = jobs.find((j) => j.id === active.id);
-    if (!draggingJob) return;
+  const handleDragOver = useCallback(
+    (event: DragOverEvent) => {
+      const { active, over } = event;
+      if (!over) return;
+      const activeType = active.data.current?.type;
+      if (activeType !== "card") return;
+      if (over.id === "discard") return;
 
-    const targetColumnId = findColumnIdForOver(String(over.id));
-    if (!targetColumnId) return;
+      const draggingJob = jobs.find((j) => j.id === active.id);
+      if (!draggingJob) return;
 
-    if (draggingJob.columnId === targetColumnId) {
-      const overIsJob = jobs.some((j) => j.id === over.id);
-      if (!overIsJob) return;
-      setJobs((prev) => {
-        const activeIndex = prev.findIndex((j) => j.id === active.id);
-        const overIndex = prev.findIndex((j) => j.id === over.id);
-        if (activeIndex === -1 || overIndex === -1) return prev;
-        if (activeIndex === overIndex) return prev;
+      const targetColumnId = findColumnIdForOver(String(over.id));
+      if (!targetColumnId) return;
+
+      if (draggingJob.columnId === targetColumnId) {
+        const overIsJob = jobs.some((j) => j.id === over.id);
+        if (!overIsJob) return;
+        setJobs((prev) => {
+          const activeIndex = prev.findIndex((j) => j.id === active.id);
+          const overIndex = prev.findIndex((j) => j.id === over.id);
+          if (activeIndex === -1 || overIndex === -1) return prev;
+          if (activeIndex === overIndex) return prev;
+          const copy = [...prev];
+          const [moved] = copy.splice(activeIndex, 1);
+          copy.splice(overIndex, 0, moved);
+          return copy;
+        });
+        return;
+      }
+
+      setJobs((prev) =>
+        prev.map((j) =>
+          j.id === active.id ? { ...j, columnId: targetColumnId } : j
+        )
+      );
+    },
+    [jobs, findColumnIdForOver]
+  );
+
+  const handleDragEnd = useCallback(
+    (event: DragEndEvent) => {
+      const { active, over } = event;
+      const activeType = active.data.current?.type;
+
+      if (activeType === "card") {
+        if (over?.id === "discard") {
+          const job = jobs.find((j) => j.id === active.id);
+          const originalColumnId = originalColumnIdRef.current;
+          if (job && originalColumnId && job.columnId !== originalColumnId) {
+            setJobs((prev) =>
+              prev.map((j) =>
+                j.id === job.id ? { ...j, columnId: originalColumnId } : j
+              )
+            );
+          }
+          if (job) {
+            setPendingDiscardJob(
+              originalColumnId
+                ? { ...job, columnId: originalColumnId }
+                : job
+            );
+          }
+        }
+      } else if (activeType === "column" && over) {
+        const activeId = String(active.id);
+        const overId = String(over.id);
+        if (activeId !== overId) {
+          const activeCol = columns.find((c) => c.id === activeId);
+          const overCol = columns.find((c) => c.id === overId);
+          if (activeCol && overCol && !activeCol.locked && !overCol.locked) {
+            setColumns((prev) => {
+              const activeIndex = prev.findIndex((c) => c.id === activeId);
+              const overIndex = prev.findIndex((c) => c.id === overId);
+              if (activeIndex === -1 || overIndex === -1) return prev;
+              const copy = [...prev];
+              const [moved] = copy.splice(activeIndex, 1);
+              copy.splice(overIndex, 0, moved);
+              return copy;
+            });
+          }
+        }
+      }
+
+      originalColumnIdRef.current = null;
+      setActiveDrag(null);
+    },
+    [jobs, columns]
+  );
+
+  const handleConfirmDiscard = useCallback(
+    (option: DiscardOption) => {
+      if (pendingDiscardJob) {
+        const payload =
+          option.kind === "rejected"
+            ? {
+                kind: option.kind,
+                stageId: option.stageId,
+                jobId: pendingDiscardJob.id,
+              }
+            : { kind: option.kind, jobId: pendingDiscardJob.id };
+        console.log("discard", payload);
+        setJobs((prev) => prev.filter((j) => j.id !== pendingDiscardJob.id));
+      }
+      setPendingDiscardJob(null);
+    },
+    [pendingDiscardJob]
+  );
+
+  const handleAddColumn = useCallback(
+    (insertAt: number, label: string) => {
+      setColumns((prev) => {
+        if (prev.length >= MAX_COLUMNS) return prev;
         const copy = [...prev];
-        const [moved] = copy.splice(activeIndex, 1);
-        copy.splice(overIndex, 0, moved);
+        copy.splice(insertAt, 0, {
+          id: newColumnId(),
+          label,
+          locked: false,
+        });
         return copy;
       });
-      return;
-    }
+    },
+    []
+  );
 
-    setJobs((prev) =>
-      prev.map((j) =>
-        j.id === active.id ? { ...j, columnId: targetColumnId } : j
-      )
-    );
-  };
-
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    const activeType = active.data.current?.type;
-
-    if (activeType === "card") {
-      if (over?.id === "discard") {
-        const job = jobs.find((j) => j.id === active.id);
-        const originalColumnId = originalColumnIdRef.current;
-        if (job && originalColumnId && job.columnId !== originalColumnId) {
-          setJobs((prev) =>
-            prev.map((j) =>
-              j.id === job.id ? { ...j, columnId: originalColumnId } : j
-            )
-          );
-        }
-        if (job) {
-          setPendingDiscardJob(
-            originalColumnId
-              ? { ...job, columnId: originalColumnId }
-              : job
-          );
-        }
-      }
-    } else if (activeType === "column" && over) {
-      const activeId = String(active.id);
-      const overId = String(over.id);
-      if (activeId !== overId) {
-        const activeCol = columns.find((c) => c.id === activeId);
-        const overCol = columns.find((c) => c.id === overId);
-        if (activeCol && overCol && !activeCol.locked && !overCol.locked) {
-          setColumns((prev) => {
-            const activeIndex = prev.findIndex((c) => c.id === activeId);
-            const overIndex = prev.findIndex((c) => c.id === overId);
-            if (activeIndex === -1 || overIndex === -1) return prev;
-            const copy = [...prev];
-            const [moved] = copy.splice(activeIndex, 1);
-            copy.splice(overIndex, 0, moved);
-            return copy;
-          });
-        }
-      }
-    }
-
-    originalColumnIdRef.current = null;
-    setActiveDrag(null);
-  };
-
-  const handleConfirmDiscard = (option: DiscardOption) => {
-    if (pendingDiscardJob) {
-      const payload =
-        option.kind === "rejected"
-          ? {
-              kind: option.kind,
-              stageId: option.stageId,
-              jobId: pendingDiscardJob.id,
-            }
-          : { kind: option.kind, jobId: pendingDiscardJob.id };
-      console.log("discard", payload);
-      setJobs((prev) => prev.filter((j) => j.id !== pendingDiscardJob.id));
-    }
-    setPendingDiscardJob(null);
-  };
-
-  const handleAddColumn = (insertAt: number, label: string) => {
-    if (columns.length >= MAX_COLUMNS) return;
-    setColumns((prev) => {
-      const copy = [...prev];
-      copy.splice(insertAt, 0, {
-        id: newColumnId(),
-        label,
-        locked: false,
-      });
-      return copy;
-    });
-  };
-
-  const handleRenameColumn = (id: string, label: string) => {
+  const handleRenameColumn = useCallback((id: string, label: string) => {
     if (!label.trim()) return;
     setColumns((prev) =>
       prev.map((c) => (c.id === id ? { ...c, label } : c))
     );
-  };
+  }, []);
 
-  const handleDeleteColumn = (id: string) => {
+  const handleDeleteColumn = useCallback((id: string) => {
     setColumns((prev) => prev.filter((c) => c.id !== id));
-  };
+  }, []);
 
   const addDisabled = columns.length >= MAX_COLUMNS;
 
@@ -222,12 +258,14 @@ export function Board() {
       <BoardColumn
         key={column.id}
         column={column}
-        jobs={jobsByColumn(column.id)}
+        jobs={jobsByColumn.get(column.id) ?? []}
         onRename={handleRenameColumn}
         onDelete={handleDeleteColumn}
       />
     );
   });
+
+  const isCardDragging = activeDrag?.type === "card";
 
   return (
     <div className="flex flex-col gap-6 -mx-6">
@@ -248,11 +286,13 @@ export function Board() {
             </div>
           </div>
         </SortableContext>
-        {activeDrag?.type === "card" && (
-          <div className="px-6">
-            <DiscardZone />
-          </div>
-        )}
+        <div
+          className={`px-6 transition-opacity ${
+            isCardDragging ? "opacity-100" : "opacity-0 pointer-events-none"
+          }`}
+        >
+          <DiscardZone />
+        </div>
         <DragOverlay>
           {activeJob ? <JobCard job={activeJob} dragging /> : null}
           {activeColumn ? (

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 import { useSortable, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { useDroppable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
@@ -23,7 +23,7 @@ interface BoardColumnProps {
   onDelete: (id: string) => void;
 }
 
-export function BoardColumn({
+function BoardColumnComponent({
   column,
   jobs,
   onRename,
@@ -231,3 +231,5 @@ export function BoardColumn({
     </>
   );
 }
+
+export const BoardColumn = memo(BoardColumnComponent);
