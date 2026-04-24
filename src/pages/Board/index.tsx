@@ -341,7 +341,7 @@ export function Board() {
         <h1 className="text-primary">Board</h1>
         <Button
           onClick={() => {}}
-          className="bg-purple text-primary hover:bg-purple/90 h-9 px-3 gap-2"
+          className="bg-transparent border border-border-hover text-primary hover:bg-overlay h-9 px-3 gap-2"
         >
           <Plus size={16} />
           Add Job
