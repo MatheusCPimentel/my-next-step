@@ -311,18 +311,7 @@ export function Board() {
   const addDisabled = columns.length >= MAX_COLUMNS;
 
   const renderedSlices: React.ReactNode[] = [];
-  columns.forEach((column, index) => {
-    if (index > 0) {
-      renderedSlices.push(
-        <AddColumnButton
-          key={`add-${index}`}
-          insertAt={index}
-          onAdd={handleAddColumn}
-          disabled={addDisabled}
-        />,
-      );
-    }
-
+  columns.forEach((column) => {
     renderedSlices.push(
       <BoardColumn
         key={column.id}
@@ -333,6 +322,16 @@ export function Board() {
       />,
     );
   });
+
+  if (!addDisabled) {
+    renderedSlices.push(
+      <AddColumnButton
+        key="add-end"
+        onAdd={(label) => handleAddColumn(columns.length, label)}
+        disabled={addDisabled}
+      />,
+    );
+  }
 
   const isCardDragging = activeDrag?.type === "card";
 

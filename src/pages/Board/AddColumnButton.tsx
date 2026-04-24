@@ -3,16 +3,11 @@ import { Plus } from "lucide-react";
 import { Input } from "@/components/ui/input";
 
 interface AddColumnButtonProps {
-  insertAt: number;
-  onAdd: (insertAt: number, label: string) => void;
+  onAdd: (label: string) => void;
   disabled?: boolean;
 }
 
-export function AddColumnButton({
-  insertAt,
-  onAdd,
-  disabled,
-}: AddColumnButtonProps) {
+export function AddColumnButton({ onAdd, disabled }: AddColumnButtonProps) {
   const [editing, setEditing] = useState(false);
   const [value, setValue] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
@@ -28,7 +23,7 @@ export function AddColumnButton({
   const commit = () => {
     const trimmed = value.trim();
     if (trimmed) {
-      onAdd(insertAt, trimmed);
+      onAdd(trimmed);
     }
     setValue("");
     setEditing(false);
@@ -41,7 +36,7 @@ export function AddColumnButton({
 
   if (editing) {
     return (
-      <div className="w-[272px] min-w-[272px] shrink-0 bg-surface rounded-xl p-3">
+      <div className="h-full w-[272px] min-w-[272px] shrink-0 bg-surface rounded-xl p-3">
         <Input
           ref={inputRef}
           value={value}
@@ -68,12 +63,12 @@ export function AddColumnButton({
       type="button"
       onClick={() => setEditing(true)}
       aria-label="Add column"
-      className="group/add relative self-stretch w-12 -mx-[22px] shrink-0 z-10 flex items-center justify-center"
+      className="group/add h-full w-[272px] min-w-[272px] shrink-0 rounded-xl border border-dashed border-border-hover text-muted hover:border-purple hover:text-purple-soft hover:bg-purple/5 transition-colors flex flex-col items-center justify-center gap-2"
     >
-      <span className="absolute inset-y-0 left-1/2 -translate-x-1/2 w-px bg-border opacity-0 group-hover/add:opacity-100 transition-opacity" />
-      <span className="relative z-10 flex items-center justify-center w-6 h-6 rounded-full bg-purple text-primary opacity-0 group-hover/add:opacity-100 transition-opacity hover:bg-purple/80">
-        <Plus size={14} />
+      <span className="flex items-center justify-center w-8 h-8 rounded-full border border-dashed border-border-hover group-hover/add:border-purple transition-colors">
+        <Plus size={16} />
       </span>
+      <span className="text-xs font-medium uppercase tracking-wide">Add column</span>
     </button>
   );
 }
