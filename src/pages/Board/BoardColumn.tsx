@@ -95,16 +95,16 @@ function BoardColumnComponent({
       <div
         ref={setNodeRef}
         style={style}
-        className="group relative h-full w-[272px] min-w-[272px] shrink-0 bg-surface rounded-xl p-3 flex flex-col gap-3"
+        className="relative h-full w-[272px] min-w-[272px] shrink-0 bg-surface rounded-xl p-3 flex flex-col gap-3"
       >
-        <div className="flex items-center gap-2 px-1 py-1 relative">
+        <div className="group/header flex items-center gap-2 px-1 py-1 relative">
           {!column.locked && (
             <button
               type="button"
               aria-label="Drag column"
               {...attributes}
               {...listeners}
-              className="flex items-center justify-center w-5 h-5 text-muted hover:text-primary opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing"
+              className="flex items-center justify-center w-5 h-5 text-muted hover:text-primary opacity-0 group-hover/header:opacity-100 transition-opacity cursor-grab active:cursor-grabbing"
             >
               <GripVertical size={16} />
             </button>
@@ -149,7 +149,7 @@ function BoardColumnComponent({
               type="button"
               aria-label="Delete column"
               onClick={handleTrashClick}
-              className="flex items-center justify-center w-5 h-5 text-muted hover:text-primary opacity-0 group-hover:opacity-100 transition-opacity"
+              className="flex items-center justify-center w-5 h-5 text-muted hover:text-primary opacity-0 group-hover/header:opacity-100 transition-opacity"
             >
               <Trash2 size={16} />
             </button>
