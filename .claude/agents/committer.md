@@ -21,7 +21,7 @@ Types: feat, fix, style, refactor, chore, docs
 
 Every commit must include:
 
-Co-authored-by: Claude Code <claude.code@anthropic.com>
+Co-authored-by: Claude <noreply@anthropic.com>
 
 ## When done
 
