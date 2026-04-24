@@ -31,31 +31,27 @@ When a feature is completed, move it from "Pending" to "Done" in the relevant se
 
 ### Done
 
-- Kanban layout with 4 mocked columns
+- Kanban layout with mocked columns and jobs
 - Job cards with company name, role and tech stack tags
+- Applied (first) and Offer (last) columns fixed; cannot be moved or deleted
+- Middle columns: add, rename (double-click label), reorder (drag handle), delete (trash icon)
+- Maximum of 20 columns enforced (add buttons hide at the cap)
+- Delete column: trash icon opens a block modal when the column has jobs, or a small confirm dialog when empty
+- Add column: `+` button appears between columns on hover, opens an inline input for the column name
+- Cards drag freely between any columns (dnd-kit)
+- Discard drop zone at the bottom with dashed border; on drop, user picks Discard or Rejected, and Rejected captures the stage
 
 ### Pending
 
 #### Column behavior
 
-- Applied (first) and Offer (last) columns are fixed and cannot be moved or deleted
-- Middle columns are fully customizable: user can add, rename, reorder and delete them
-- Maximum of 20 columns total
-- To delete a column: show a trash icon on hover (top right of column). If the column has jobs, show a modal saying the column cannot be deleted while it has jobs. If empty, ask for confirmation before deleting.
-- To reorder columns: show a drag handle icon (top left) on hoverable columns. Use dnd-kit for drag and drop of both columns and cards.
-- To add a column: show an Add button between columns on hover. Clicking opens a small inline input to name the new column.
-- A /board/settings route (or modal) will allow full board configuration
+- A /board/settings route (or modal) for full board configuration
 
 #### Card behavior
 
-- Cards can be moved between any columns freely, no step-by-step restriction
 - Show match score on each card (see Job Match section for scoring rules)
 - Match score display format: TBD (%, stars, or color indicator)
-- Cards can be dragged to a "Discard" drop zone at the bottom of the board (dashed border, "Drop here to discard")
-- On drop to discard zone, show two options:
-  1. Discard (no longer interested / found something better)
-  2. Rejected (failed at this stage)
-- If Rejected: confirm the stage where rejection happened. If wrong stage, ask user to move card to correct stage first, then try discarding again. If correct, proceed to LevelUp interview debrief flow (see LevelUp section).
+- Rejected flow: currently removes the card after capturing the stage. Wrong-stage re-routing and the LevelUp interview debrief flow are deferred until LevelUp ships.
 
 #### Add new job button
 
