@@ -173,7 +173,7 @@ export function DiscardDialog({
                       aria-invalid={
                         showErrors && !q.question.trim() ? true : undefined
                       }
-                      className="flex-1"
+                      className="flex-1 border-b-0"
                     />
                     <button
                       type="button"
@@ -184,6 +184,7 @@ export function DiscardDialog({
                       <Trash2 size={16} />
                     </button>
                   </div>
+                  <div className="border-b border-border" />
                   <Textarea
                     value={q.answer}
                     onChange={(e) =>
@@ -208,7 +209,15 @@ export function DiscardDialog({
                 Add question
               </button>
             )}
-            <DialogFooter className="border-border bg-transparent">
+            <DialogFooter className="border-border bg-transparent sm:items-center">
+              {showErrors &&
+                questions.some(
+                  (q) => !q.question.trim() || !q.answer.trim(),
+                ) && (
+                  <p className="text-red-500 text-xs sm:mr-auto">
+                    Please fill in all fields before confirming
+                  </p>
+                )}
               <Button
                 onClick={handleConfirm}
                 className="bg-purple hover:bg-purple/90 text-primary"
