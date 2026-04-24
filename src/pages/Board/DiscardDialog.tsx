@@ -68,10 +68,10 @@ export function DiscardDialog({
             <button
               type="button"
               onClick={() => setStep("stage")}
-              className="flex flex-col items-start gap-1 rounded-lg border border-purple/40 bg-purple/15 hover:bg-purple/20 p-4 text-left transition-colors"
+              className="flex flex-col items-start gap-1 rounded-lg border border-purple bg-purple hover:bg-purple/90 p-4 text-left transition-colors"
             >
-              <span className="text-sm font-medium text-purple">Rejected</span>
-              <span className="text-xs text-purple/80">
+              <span className="text-sm font-medium text-primary">Rejected</span>
+              <span className="text-xs text-primary/80">
                 Failed at a stage. We'll capture which one.
               </span>
             </button>

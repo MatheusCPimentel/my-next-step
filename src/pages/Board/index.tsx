@@ -230,8 +230,8 @@ export function Board() {
   });
 
   return (
-    <div className="flex flex-col gap-6">
-      <h1 className="text-primary">Board</h1>
+    <div className="flex flex-col gap-6 -mx-6">
+      <h1 className="text-primary px-6">Board</h1>
       <DndContext
         sensors={sensors}
         onDragStart={handleDragStart}
@@ -242,11 +242,17 @@ export function Board() {
           items={sortableColumnIds}
           strategy={horizontalListSortingStrategy}
         >
-          <div className="flex items-stretch gap-3 overflow-x-auto pb-2">
-            {renderedSlices}
+          <div className="w-full overflow-x-auto px-6 pb-2">
+            <div className="flex items-stretch gap-3 w-fit">
+              {renderedSlices}
+            </div>
           </div>
         </SortableContext>
-        <DiscardZone />
+        {activeDrag?.type === "card" && (
+          <div className="px-6">
+            <DiscardZone />
+          </div>
+        )}
         <DragOverlay>
           {activeJob ? <JobCard job={activeJob} dragging /> : null}
           {activeColumn ? (

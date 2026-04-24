@@ -190,6 +190,7 @@ export function BoardColumn({
             <Button
               variant="secondary"
               onClick={() => setBlockDialogOpen(false)}
+              className="bg-overlay border border-border text-primary hover:bg-overlay/80"
             >
               Close
             </Button>
@@ -200,7 +201,9 @@ export function BoardColumn({
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <DialogContent className="bg-surface border border-border text-primary">
           <DialogHeader>
-            <DialogTitle className="text-primary">Delete column?</DialogTitle>
+            <DialogTitle className="text-primary">
+              Delete "{column.label}"?
+            </DialogTitle>
             <DialogDescription className="text-secondary">
               This can't be undone.
             </DialogDescription>
@@ -209,6 +212,7 @@ export function BoardColumn({
             <Button
               variant="secondary"
               onClick={() => setDeleteDialogOpen(false)}
+              className="bg-overlay border border-border text-primary hover:bg-overlay/80"
             >
               Cancel
             </Button>
