@@ -1,16 +1,22 @@
 import { useState } from "react";
+import { Plus, Trash2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
 import type { Column } from "@/pages/Board/types";
 
+export type InterviewQuestion = { question: string; answer: string };
 export type DiscardOption =
   | { kind: "discard" }
-  | { kind: "rejected"; stageId: string };
+  | { kind: "rejected"; stageId: string; questions: InterviewQuestion[] };
 
 interface DiscardDialogProps {
   open: boolean;
@@ -27,29 +33,74 @@ export function DiscardDialog({
   columns,
   onConfirm,
 }: DiscardDialogProps) {
-  const [step, setStep] = useState<"choose" | "stage">("choose");
+  const [step, setStep] = useState<"choose" | "stage" | "debrief">("choose");
+  const [stageId, setStageId] = useState<string | null>(null);
+  const [questions, setQuestions] = useState<InterviewQuestion[]>([]);
+  const [showErrors, setShowErrors] = useState(false);
   const visibleStages = columns.filter((c) => !c.locked);
 
   const handleOpenChange = (next: boolean) => {
     if (!next) {
       setStep("choose");
+      setStageId(null);
+      setQuestions([]);
+      setShowErrors(false);
     }
     onOpenChange(next);
   };
+
+  const addQuestion = () => {
+    if (questions.length >= 8) return;
+    setQuestions((prev) => [...prev, { question: "", answer: "" }]);
+  };
+
+  const updateQuestion = (
+    index: number,
+    field: "question" | "answer",
+    value: string,
+  ) => {
+    setQuestions((prev) =>
+      prev.map((q, i) => (i === index ? { ...q, [field]: value } : q)),
+    );
+  };
+
+  const removeQuestion = (index: number) => {
+    setQuestions((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleConfirm = () => {
+    const hasInvalid = questions.some(
+      (q) => !q.question.trim() || !q.answer.trim(),
+    );
+    if (hasInvalid) {
+      setShowErrors(true);
+      return;
+    }
+    if (!stageId) return;
+    onConfirm({ kind: "rejected", stageId, questions });
+  };
+
+  const title =
+    step === "choose"
+      ? `Remove ${jobCompany}?`
+      : step === "stage"
+        ? "Which stage were you rejected at?"
+        : "What went wrong?";
+
+  const description =
+    step === "choose"
+      ? "Choose how to archive this job. Rejected will capture the stage for LevelUp."
+      : step === "stage"
+        ? "Pick the stage where the rejection happened."
+        : "Optional. Adding questions helps you improve later in LevelUp. Skip if you don't want to add anything.";
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="bg-surface border border-border text-primary">
         <DialogHeader>
-          <DialogTitle className="text-primary">
-            {step === "choose"
-              ? `Remove ${jobCompany}?`
-              : "Which stage were you rejected at?"}
-          </DialogTitle>
+          <DialogTitle className="text-primary">{title}</DialogTitle>
           <DialogDescription className="text-secondary">
-            {step === "choose"
-              ? "Choose how to archive this job. Rejected will capture the stage for LevelUp."
-              : "Pick the stage where the rejection happened."}
+            {description}
           </DialogDescription>
         </DialogHeader>
 
@@ -76,7 +127,7 @@ export function DiscardDialog({
               </span>
             </button>
           </div>
-        ) : (
+        ) : step === "stage" ? (
           <div className="flex flex-col gap-2 mt-2">
             {visibleStages.length === 0 ? (
               <p className="text-xs text-muted">
@@ -87,9 +138,10 @@ export function DiscardDialog({
                 <button
                   key={column.id}
                   type="button"
-                  onClick={() =>
-                    onConfirm({ kind: "rejected", stageId: column.id })
-                  }
+                  onClick={() => {
+                    setStageId(column.id);
+                    setStep("debrief");
+                  }}
                   className="flex items-center justify-between rounded-lg border border-border bg-overlay hover:bg-overlay/80 px-4 py-3 text-left transition-colors"
                 >
                   <span className="text-sm text-primary">{column.label}</span>
@@ -97,6 +149,68 @@ export function DiscardDialog({
                 </button>
               ))
             )}
+          </div>
+        ) : (
+          <div className="flex flex-col gap-3 mt-2">
+            <div className="flex flex-col gap-3 max-h-[360px] overflow-y-auto pr-1">
+              {questions.map((q, index) => (
+                <div
+                  key={index}
+                  className="rounded-lg border border-border bg-overlay p-3 flex flex-col gap-2"
+                >
+                  <div className="flex items-start gap-2">
+                    <Input
+                      value={q.question}
+                      onChange={(e) =>
+                        updateQuestion(index, "question", e.target.value)
+                      }
+                      placeholder="Question they asked"
+                      aria-invalid={
+                        showErrors && !q.question.trim() ? true : undefined
+                      }
+                      className="flex-1"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeQuestion(index)}
+                      aria-label="Remove question"
+                      className="flex items-center justify-center w-8 h-8 text-muted hover:text-primary shrink-0"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+                  <Textarea
+                    value={q.answer}
+                    onChange={(e) =>
+                      updateQuestion(index, "answer", e.target.value)
+                    }
+                    placeholder="What should the answer have been?"
+                    maxLength={500}
+                    aria-invalid={
+                      showErrors && !q.answer.trim() ? true : undefined
+                    }
+                  />
+                </div>
+              ))}
+            </div>
+            {questions.length < 8 && (
+              <button
+                type="button"
+                onClick={addQuestion}
+                className="self-start inline-flex items-center gap-2 text-sm text-secondary hover:text-primary transition-colors"
+              >
+                <Plus size={14} />
+                Add question
+              </button>
+            )}
+            <DialogFooter className="border-border bg-transparent">
+              <Button
+                onClick={handleConfirm}
+                className="bg-purple hover:bg-purple/90 text-primary"
+              >
+                Confirm
+              </Button>
+            </DialogFooter>
           </div>
         )}
       </DialogContent>

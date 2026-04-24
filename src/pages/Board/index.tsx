@@ -274,6 +274,7 @@ export function Board() {
             ? {
                 kind: option.kind,
                 stageId: option.stageId,
+                questions: option.questions,
                 jobId: pendingDiscardJob.id,
               }
             : { kind: option.kind, jobId: pendingDiscardJob.id };
