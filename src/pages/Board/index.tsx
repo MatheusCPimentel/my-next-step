@@ -371,7 +371,7 @@ export function Board() {
           strategy={horizontalListSortingStrategy}
         >
           <div className="board-scroll flex-1 min-h-0 overflow-x-auto px-6 pb-2">
-            <div className="flex items-stretch gap-3 w-fit">
+            <div className="flex items-stretch gap-3 h-full min-w-full w-fit">
               {renderedSlices}
             </div>
           </div>
