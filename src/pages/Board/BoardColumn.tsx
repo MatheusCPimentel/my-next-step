@@ -2,7 +2,7 @@ import { memo, useEffect, useMemo, useRef, useState } from "react";
 import { useSortable, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { useDroppable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
-import { GripVertical, Inbox, Trash2 } from "lucide-react";
+import { Inbox, Trash2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -97,18 +97,13 @@ function BoardColumnComponent({
         style={style}
         className="relative h-full w-[272px] min-w-[272px] shrink-0 bg-surface rounded-xl p-3 flex flex-col gap-3"
       >
-        <div className="group/header flex items-center gap-2 px-1 py-1 relative">
-          {!column.locked && (
-            <button
-              type="button"
-              aria-label="Drag column"
-              {...attributes}
-              {...listeners}
-              className="flex items-center justify-center w-5 h-5 text-muted hover:text-primary opacity-0 group-hover/header:opacity-100 transition-opacity cursor-grab active:cursor-grabbing"
-            >
-              <GripVertical size={16} />
-            </button>
-          )}
+        <div
+          className={`group/header flex items-center gap-2 px-1 py-1 relative ${
+            column.locked ? "" : "cursor-grab active:cursor-grabbing"
+          }`}
+          {...(column.locked ? {} : attributes)}
+          {...(column.locked ? {} : listeners)}
+        >
           {editing ? (
             <input
               ref={inputRef}
@@ -128,7 +123,7 @@ function BoardColumnComponent({
             />
           ) : (
             <span
-              className={`text-xs font-medium uppercase tracking-wide text-muted select-none flex-1 ${
+              className={`text-xs font-medium uppercase tracking-wide text-muted select-none w-fit ${
                 column.locked ? "" : "cursor-text"
               }`}
               onDoubleClick={() => {
@@ -141,19 +136,27 @@ function BoardColumnComponent({
               {column.label}
             </span>
           )}
-          <span className="text-xs text-muted bg-overlay rounded-full px-2 tabular-nums">
-            {jobs.length}
-          </span>
-          {!column.locked && !editing && (
-            <button
-              type="button"
-              aria-label="Delete column"
-              onClick={handleTrashClick}
-              className="flex items-center justify-center w-5 h-5 text-muted hover:text-primary opacity-0 group-hover/header:opacity-100 transition-opacity"
-            >
-              <Trash2 size={16} />
-            </button>
-          )}
+          <div className="ml-auto w-5 h-5 shrink-0 flex items-center justify-center">
+            {column.locked || editing ? (
+              <span className="w-full h-full rounded-full bg-overlay flex items-center justify-center text-xs text-muted tabular-nums">
+                {jobs.length}
+              </span>
+            ) : (
+              <>
+                <span className="w-full h-full rounded-full bg-overlay flex items-center justify-center text-xs text-muted tabular-nums group-hover/header:hidden">
+                  {jobs.length}
+                </span>
+                <button
+                  type="button"
+                  aria-label="Delete column"
+                  onClick={handleTrashClick}
+                  className="hidden group-hover/header:flex w-full h-full items-center justify-center text-muted hover:text-primary"
+                >
+                  <Trash2 size={14} />
+                </button>
+              </>
+            )}
+          </div>
         </div>
 
         <SortableContext items={jobIds} strategy={verticalListSortingStrategy}>
