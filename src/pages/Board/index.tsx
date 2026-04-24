@@ -309,9 +309,21 @@ export function Board() {
   }, []);
 
   const addDisabled = columns.length >= MAX_COLUMNS;
+  const ghostInsertAt = columns[columns.length - 1]?.locked
+    ? columns.length - 1
+    : columns.length;
 
   const renderedSlices: React.ReactNode[] = [];
-  columns.forEach((column) => {
+  columns.forEach((column, index) => {
+    if (index === ghostInsertAt && !addDisabled) {
+      renderedSlices.push(
+        <AddColumnButton
+          key="add-end"
+          onAdd={(label) => handleAddColumn(ghostInsertAt, label)}
+          disabled={addDisabled}
+        />,
+      );
+    }
     renderedSlices.push(
       <BoardColumn
         key={column.id}
@@ -323,11 +335,11 @@ export function Board() {
     );
   });
 
-  if (!addDisabled) {
+  if (ghostInsertAt === columns.length && !addDisabled) {
     renderedSlices.push(
       <AddColumnButton
         key="add-end"
-        onAdd={(label) => handleAddColumn(columns.length, label)}
+        onAdd={(label) => handleAddColumn(ghostInsertAt, label)}
         disabled={addDisabled}
       />,
     );
