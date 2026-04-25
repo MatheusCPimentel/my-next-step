@@ -97,7 +97,7 @@ function BoardColumnComponent({
       <div
         ref={setNodeRef}
         style={style}
-        className="relative flex-1 min-w-[272px] bg-surface rounded-xl p-3 flex flex-col gap-3"
+        className="relative flex-1 min-w-[272px] min-h-full bg-surface rounded-xl p-3 flex flex-col gap-3"
       >
         <div
           className={`group/header flex items-center gap-2 px-1 py-1 relative ${

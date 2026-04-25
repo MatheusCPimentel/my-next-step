@@ -407,7 +407,7 @@ export function Board() {
           strategy={horizontalListSortingStrategy}
         >
           <div className="board-scroll overflow-x-auto px-6 pb-2">
-            <div className="flex items-start gap-3 min-w-full w-fit">
+            <div className="flex items-stretch gap-3 min-w-full w-fit">
               {renderedSlices}
             </div>
           </div>
