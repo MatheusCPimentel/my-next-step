@@ -41,6 +41,7 @@ export const INITIAL_JOBS: Job[] = [
     updatedAt: "2026-04-15T14:30:00.000Z",
     stageHistory: [{ stage: "Applied", date: "2026-04-15T14:30:00.000Z" }],
     fromJobMatch: false,
+    fitScore: 92,
   },
   {
     id: "3",
@@ -76,6 +77,7 @@ export const INITIAL_JOBS: Job[] = [
       { stage: "HR Interview", date: "2026-04-12T16:45:00.000Z" },
     ],
     fromJobMatch: false,
+    fitScore: 78,
   },
   {
     id: "5",
@@ -95,6 +97,7 @@ export const INITIAL_JOBS: Job[] = [
       { stage: "HR Interview", date: "2026-04-05T13:00:00.000Z" },
     ],
     fromJobMatch: false,
+    fitScore: 65,
   },
   {
     id: "6",
@@ -115,6 +118,7 @@ export const INITIAL_JOBS: Job[] = [
       { stage: "Technical Interview", date: "2026-04-18T15:30:00.000Z" },
     ],
     fromJobMatch: false,
+    fitScore: 55,
   },
   {
     id: "7",
@@ -136,5 +140,6 @@ export const INITIAL_JOBS: Job[] = [
       { stage: "Offer", date: "2026-04-21T17:00:00.000Z" },
     ],
     fromJobMatch: false,
+    fitScore: 88,
   },
 ];

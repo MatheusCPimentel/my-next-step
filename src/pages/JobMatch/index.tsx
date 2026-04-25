@@ -244,10 +244,7 @@ export function JobMatch() {
       </form>
 
       {status === "done" && (
-        <div
-          ref={resultRef}
-          className="flex flex-col gap-6 scroll-mt-8 border-l-2 border-purple/30 pl-4"
-        >
+        <div ref={resultRef} className="flex flex-col gap-6 scroll-mt-8 ">
           <div className="grid grid-cols-2 gap-3">
             <div className="bg-overlay rounded-lg p-4 flex flex-col items-start gap-2">
               <span
@@ -432,6 +429,7 @@ export function JobMatch() {
           salary: MOCK_RESULT.salary,
           benefits: MOCK_RESULT.benefits,
           fromJobMatch: true,
+          fitScore: MOCK_RESULT.fitScore,
           createdAt: "",
           updatedAt: "",
           stageHistory: [],

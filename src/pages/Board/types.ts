@@ -25,6 +25,7 @@ export interface Job {
   jobUrl?: string;
   notes?: string;
   fromJobMatch?: boolean;
+  fitScore?: number;
   columnId: string;
   createdAt: string;
   updatedAt: string;
