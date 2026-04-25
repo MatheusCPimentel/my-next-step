@@ -1,7 +1,7 @@
 import { memo } from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { format, formatDistanceToNow } from "date-fns";
+import { format } from "date-fns";
 import type { Job } from "@/pages/Board/types";
 
 interface JobCardProps {
@@ -47,7 +47,7 @@ function JobCardComponent({ job, dragging, onClick }: JobCardProps) {
         <p className="text-sm font-medium text-primary">{job.company}</p>
         <p className="text-secondary text-sm mt-0.5">{job.title}</p>
       </div>
-      <div className="flex flex-wrap gap-1.5">
+      <div className="flex flex-wrap items-center gap-1.5">
         {job.requiredSkills.map((s, i) => (
           <span
             key={`${s.name}-${i}`}
@@ -56,17 +56,15 @@ function JobCardComponent({ job, dragging, onClick }: JobCardProps) {
             {s.name}
           </span>
         ))}
-      </div>
-      {displayed && (
-        <div className="flex justify-end mt-2 text-xs text-muted">
+        {displayed && (
           <time
             dateTime={displayed}
-            title={format(new Date(displayed), "MMM d, yyyy")}
+            className="text-[10px] text-muted ml-auto flex-shrink-0"
           >
-            {formatDistanceToNow(new Date(displayed), { addSuffix: true })}
+            {format(new Date(displayed), "MMM d")}
           </time>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }
