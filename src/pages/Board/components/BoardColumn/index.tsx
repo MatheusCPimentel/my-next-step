@@ -101,7 +101,7 @@ function BoardColumnComponent({
       >
         <div
           className={`group/header flex items-center gap-2 px-1 py-1 relative ${
-            column.locked ? "" : "cursor-grab active:cursor-grabbing"
+            column.locked ? "" : "cursor-grab active:cursor-grabbing touch-none"
           }`}
           {...(column.locked ? {} : attributes)}
           {...(column.locked ? {} : listeners)}
