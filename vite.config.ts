@@ -5,6 +5,10 @@ import tailwindcss from "@tailwindcss/vite";
 import path from "path";
 
 export default defineConfig({
+  server: {
+    allowedHosts: ["haggler-onshore-unfreeze.ngrok-free.dev"],
+    host: true,
+  },
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
