@@ -48,7 +48,7 @@ export function Layout() {
         )}
       </AnimatePresence>
 
-      <div className="flex flex-col flex-1 min-w-0 overflow-auto">
+      <div className="flex flex-col flex-1 min-w-0 min-h-0">
         <header className="flex items-center h-14 px-4 shrink-0 md:hidden bg-surface border-b border-border">
           <button
             onClick={() => setDrawerOpen(true)}
@@ -58,7 +58,7 @@ export function Layout() {
           </button>
         </header>
 
-        <main className="flex-1 overflow-auto p-6 bg-page">
+        <main className="flex-1 overflow-auto p-6 md:p-10 bg-page">
           <div
             className={`mx-auto w-full ${fullWidth ? "h-full" : "max-w-7xl"}`}
           >

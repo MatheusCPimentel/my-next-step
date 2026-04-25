@@ -406,8 +406,8 @@ export function Board() {
           items={sortableColumnIds}
           strategy={horizontalListSortingStrategy}
         >
-          <div className="board-scroll flex-1 min-h-0 overflow-x-auto px-6 pb-2">
-            <div className="flex items-stretch gap-3 min-w-full w-fit">
+          <div className="board-scroll flex-1 min-h-0 overflow-x-auto overflow-y-hidden px-6 pb-2">
+            <div className="flex items-stretch gap-3 min-w-full w-fit h-full">
               {renderedSlices}
             </div>
           </div>
