@@ -384,7 +384,7 @@ export function JobMatch() {
                       <Info size={14} />
                     </button>
                   </TooltipTrigger>
-                  <TooltipContent className="max-w-xs bg-overlay text-primary border border-border-hover">
+                  <TooltipContent>
                     <p>
                       Generates a personalized answer to the Why are you a good
                       fit? question based on your profile and this job
