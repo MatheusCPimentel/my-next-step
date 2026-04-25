@@ -105,7 +105,7 @@ Route Page Status
 / Dashboard in progress
 /board Board in progress
 /resume Resume Analyzer in progress
-/job Job Match not started
+/job Job Match in progress
 /levelup LevelUp not started
 
 ## Backend (not built)

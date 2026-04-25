@@ -3,7 +3,7 @@ import { Layout } from "./components/Layout";
 import { Dashboard } from "./pages/Dashboard";
 import { Board } from "./pages/Board";
 import { ResumeAnalyzer } from "./pages/ResumeAnalyzer";
-import { JobAnalyzer } from "./pages/JobAnalyzer";
+import { JobMatch } from "./pages/JobMatch";
 import { LevelUp } from "./pages/LevelUp";
 
 function App() {
@@ -13,7 +13,7 @@ function App() {
         <Route path="/" element={<Dashboard />} />
         <Route path="/board" element={<Board />} />
         <Route path="/resume" element={<ResumeAnalyzer />} />
-        <Route path="/job" element={<JobAnalyzer />} />
+        <Route path="/job" element={<JobMatch />} />
         <Route path="/levelup" element={<LevelUp />} />
       </Route>
     </Routes>
