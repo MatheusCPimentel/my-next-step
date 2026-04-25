@@ -2,7 +2,10 @@ import type { Skill } from "@/pages/Board/types";
 
 export const MOCK_RESULT = {
   fitScore: 78,
-  overallScore: 72,
+  environmentScore: 65,
+  opportunityScore: 72,
+  opportunityDescription:
+    "Solid fit with a healthy environment — worth a real application.",
   jobOverview:
     "Senior Frontend Engineer role focused on building scalable web products. Stack is React, TypeScript, and Node.js. Team is fully remote with async-first culture.",
   environmentSignals: [

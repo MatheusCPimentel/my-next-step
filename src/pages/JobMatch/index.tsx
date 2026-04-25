@@ -9,7 +9,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { TagInput } from "@/components/TagInput";
 import { JobDialog } from "@/components/JobDialog";
-import { fitScoreClasses } from "@/lib/fitScore";
 import {
   MOCK_RESULT,
   LOADING_MESSAGES,
@@ -17,6 +16,7 @@ import {
 } from "@/pages/JobMatch/mockData";
 import { signalIconClass } from "@/pages/JobMatch/helpers";
 import { SkillLegend } from "@/pages/JobMatch/components/SkillLegend";
+import { ScoreCard } from "@/pages/JobMatch/components/ScoreCard";
 
 const schema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -100,7 +100,6 @@ export function JobMatch() {
   }, [pitchLoading]);
 
   const sectionLabel = "text-xs text-secondary uppercase tracking-widest";
-  const fit = fitScoreClasses(MOCK_RESULT.fitScore);
 
   return (
     <div className="max-w-2xl mx-auto pb-10 flex flex-col gap-8">
@@ -168,36 +167,15 @@ export function JobMatch() {
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.35, delay: 0 * 0.15 }}
+            transition={{ duration: 0.35, delay: 0 }}
           >
-            <div className="grid grid-cols-2 gap-3">
-              <div className="bg-overlay rounded-lg p-4 flex flex-col items-start gap-2">
-                <span
-                  className={`text-5xl font-medium ${fit.text}`}
-                >
-                  {MOCK_RESULT.fitScore}
-                </span>
-                <span
-                  className={`inline-flex items-center px-2 py-0.5 rounded text-xs ${fit.badge}`}
-                >
-                  {fit.label}
-                </span>
-                <span className="text-xs text-secondary uppercase tracking-widest">
-                  Fit score
-                </span>
-              </div>
-              <div className="bg-overlay rounded-lg p-4 flex flex-col items-start gap-2">
-                <span className="text-4xl font-medium text-secondary">
-                  {MOCK_RESULT.overallScore}
-                </span>
-                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs border border-border text-secondary">
-                  Overall
-                </span>
-                <span className="text-xs text-secondary uppercase tracking-widest">
-                  Combined score
-                </span>
-              </div>
-            </div>
+            <ScoreCard
+              opportunityScore={MOCK_RESULT.opportunityScore}
+              fitScore={MOCK_RESULT.fitScore}
+              environmentScore={MOCK_RESULT.environmentScore}
+              opportunityDescription={MOCK_RESULT.opportunityDescription}
+              finalVerdict={MOCK_RESULT.finalVerdict}
+            />
           </motion.div>
 
           <motion.div
@@ -312,7 +290,7 @@ export function JobMatch() {
                       key={b}
                       className="flex items-center text-sm text-primary"
                     >
-                      <span className="w-1 h-1 rounded-full bg-teal inline-block mr-2 flex-shrink-0" />
+                      <span className="w-1 h-1 rounded-full bg-muted inline-block mr-2 flex-shrink-0" />
                       {b}
                     </li>
                   ))}
@@ -324,21 +302,6 @@ export function JobMatch() {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.35, delay: 7 * 0.15 }}
-          >
-            <div
-              className={`bg-overlay rounded-lg p-4 flex flex-col gap-2 ${fit.border}`}
-            >
-              <span className={sectionLabel}>Final verdict</span>
-              <p className="text-sm text-primary leading-relaxed">
-                {MOCK_RESULT.finalVerdict}
-              </p>
-            </div>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.35, delay: 8 * 0.15 }}
           >
             <div className="flex flex-col sm:flex-row gap-3">
               {MOCK_RESULT.fitScore >= 60 && (
