@@ -2,7 +2,6 @@ import { useLayoutEffect, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { XIcon } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -112,7 +111,7 @@ function ExpandableValue({ value }: { value: string | undefined }) {
         <button
           type="button"
           onClick={() => setExpanded((v) => !v)}
-          className="text-xs text-secondary hover:text-primary transition-colors mt-1 self-start"
+          className="text-xs text-blue-400 hover:text-blue-300 transition-colors mt-1 self-start"
         >
           {expanded ? "Show less" : "Show more"}
         </button>
@@ -127,7 +126,6 @@ export function JobDialog(props: JobDialogProps) {
   const [internalMode, setInternalMode] = useState<Mode>(mode);
   const [prevOpen, setPrevOpen] = useState(open);
   const [prevInternalMode, setPrevInternalMode] = useState<Mode>(mode);
-  const [showDiscardConfirm, setShowDiscardConfirm] = useState(false);
 
   const {
     register,
@@ -146,7 +144,6 @@ export function JobDialog(props: JobDialogProps) {
       setInternalMode(mode);
       setPrevInternalMode(mode);
       reset(defaultsFromJob(job));
-      setShowDiscardConfirm(false);
     }
   }
 
@@ -205,29 +202,7 @@ export function JobDialog(props: JobDialogProps) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         className="bg-surface border border-border text-primary max-w-3xl sm:max-w-3xl"
-        showCloseButton={false}
-        onInteractOutside={(e) => {
-          if (isEditable) e.preventDefault();
-        }}
-        onEscapeKeyDown={(e) => {
-          if (isEditable) e.preventDefault();
-        }}
       >
-        <Button
-          variant="ghost"
-          size="icon-sm"
-          className="absolute top-2 right-2"
-          onClick={() => {
-            if (isEditable) {
-              setShowDiscardConfirm(true);
-            } else {
-              onOpenChange(false);
-            }
-          }}
-          aria-label="Close"
-        >
-          <XIcon />
-        </Button>
         <DialogHeader>
           <DialogTitle className="text-primary">
             {titleForMode(internalMode)}
@@ -242,7 +217,7 @@ export function JobDialog(props: JobDialogProps) {
             <div className={leftClass}>
               <div className="flex flex-col gap-1">
                 <label className={fieldLabel}>
-                  Company <span className="text-red-500">*</span>
+                  Company <span className="text-muted">*</span>
                 </label>
                 {isEditable ? (
                   <>
@@ -258,7 +233,7 @@ export function JobDialog(props: JobDialogProps) {
 
               <div className="flex flex-col gap-1">
                 <label className={fieldLabel}>
-                  Title <span className="text-red-500">*</span>
+                  Title <span className="text-muted">*</span>
                 </label>
                 {isEditable ? (
                   <>
@@ -274,7 +249,7 @@ export function JobDialog(props: JobDialogProps) {
 
               <div className="flex flex-col gap-1">
                 <label className={fieldLabel}>
-                  Description <span className="text-red-500">*</span>
+                  Description <span className="text-muted">*</span>
                 </label>
                 {isEditable ? (
                   <>
@@ -322,7 +297,7 @@ export function JobDialog(props: JobDialogProps) {
             <div className={rightClass}>
               <div className="flex flex-col gap-1">
                 <label className={fieldLabel}>
-                  Required skills <span className="text-red-500">*</span>
+                  Required skills <span className="text-muted">*</span>
                 </label>
                 <Controller
                   name="requiredSkills"
@@ -413,53 +388,37 @@ export function JobDialog(props: JobDialogProps) {
           </div>
         </div>
 
-        {showDiscardConfirm ? (
-          <DialogFooter className="sm:items-center">
-            <span className="text-muted text-sm sm:mr-auto">
-              You have unsaved changes.
+        <DialogFooter className="border-t-0 bg-transparent mx-0 mb-0 p-0 sm:items-center">
+          {internalMode !== "view" && (
+            <span className="text-muted text-xs sm:mr-auto">
+              * Required fields
             </span>
+          )}
+          {internalMode === "view" ? (
             <Button
-              variant="ghost"
-              onClick={() => setShowDiscardConfirm(false)}
+              onClick={() => setInternalMode("edit")}
+              className="bg-purple hover:bg-purple/90 text-primary"
             >
-              Keep editing
+              Edit
             </Button>
-            <Button
-              variant="destructive"
-              onClick={() => onOpenChange(false)}
-            >
-              Discard changes
-            </Button>
-          </DialogFooter>
-        ) : (
-          <DialogFooter className="sm:items-center">
-            {internalMode !== "view" && (
-              <span className="text-muted text-xs sm:mr-auto">
-                * Required fields
-              </span>
-            )}
-            {internalMode === "view" ? (
+          ) : (
+            <>
               <Button
-                onClick={() => setInternalMode("edit")}
+                variant="ghost"
+                onClick={handleCancel}
+                className="border border-border-hover text-primary hover:bg-overlay"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleSubmit(onValid)}
                 className="bg-purple hover:bg-purple/90 text-primary"
               >
-                Edit
+                Save
               </Button>
-            ) : (
-              <>
-                <Button variant="secondary" onClick={handleCancel}>
-                  Cancel
-                </Button>
-                <Button
-                  onClick={handleSubmit(onValid)}
-                  className="bg-purple hover:bg-purple/90 text-primary"
-                >
-                  Save
-                </Button>
-              </>
-            )}
-          </DialogFooter>
-        )}
+            </>
+          )}
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
