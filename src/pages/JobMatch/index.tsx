@@ -26,8 +26,12 @@ const MOCK_RESULT = {
   overallScore: 72,
   jobOverview:
     "Senior Frontend Engineer role focused on building scalable web products. Stack is React, TypeScript, and Node.js. Team is fully remote with async-first culture.",
-  environment:
-    "Positive signals: remote-first, async culture, small team. Mild red flags: fast-paced environment mentioned twice, on-call rotation implied. Overall: decent environment for a senior IC.",
+  environmentSignals: [
+    { type: "positive", text: "Remote-first, async culture, small team" },
+    { type: "positive", text: "Low meeting culture" },
+    { type: "warning", text: "Fast-paced environment mentioned twice" },
+    { type: "warning", text: "On-call rotation implied" },
+  ] as Array<{ type: "positive" | "warning" | "negative"; text: string }>,
   requiredSkills: [
     { name: "React", variant: "success" },
     { name: "TypeScript", variant: "success" },
@@ -67,6 +71,45 @@ function fitScoreLabel(score: number): string {
   if (score < 80) return "Good fit";
   if (score < 90) return "Great fit";
   return "Excellent fit";
+}
+
+function fitScoreBadgeClass(score: number): string {
+  if (score < 50) return "bg-red-500/15 text-red-500";
+  if (score < 60) return "bg-orange-400/15 text-orange-400";
+  if (score < 70) return "bg-yellow-400/15 text-yellow-400";
+  if (score < 90) return "bg-teal/15 text-teal";
+  return "bg-green-400/15 text-green-400";
+}
+
+function signalIconClass(type: "positive" | "warning" | "negative"): string {
+  if (type === "positive") return "bg-teal/15 text-teal";
+  if (type === "warning") return "bg-yellow-400/15 text-yellow-400";
+  return "bg-red-500/15 text-red-500";
+}
+
+function fitScoreBorderClass(score: number): string {
+  if (score < 50) return "border-l-2 border-red-500";
+  if (score < 60) return "border-l-2 border-yellow-400";
+  return "border-l-2 border-teal";
+}
+
+function SkillLegend() {
+  return (
+    <div className="flex flex-wrap gap-3">
+      <span className="inline-flex items-center gap-1.5 text-xs text-secondary">
+        <span className="w-1.5 h-1.5 rounded-full inline-block bg-teal" /> Strong
+        fit
+      </span>
+      <span className="inline-flex items-center gap-1.5 text-xs text-secondary">
+        <span className="w-1.5 h-1.5 rounded-full inline-block bg-yellow-400" />{" "}
+        Partial fit
+      </span>
+      <span className="inline-flex items-center gap-1.5 text-xs text-secondary">
+        <span className="w-1.5 h-1.5 rounded-full inline-block bg-red-500" /> Not
+        a fit
+      </span>
+    </div>
+  );
 }
 
 export function JobMatch() {
@@ -179,42 +222,68 @@ export function JobMatch() {
 
       {status === "done" && (
         <div ref={resultRef} className="flex flex-col gap-6 scroll-mt-8">
-          <div className="flex flex-col gap-1">
-            <div className="flex items-baseline gap-3">
-              <span
-                className={`text-5xl font-medium ${fitScoreColorClass(MOCK_RESULT.fitScore)}`}
-              >
-                {MOCK_RESULT.fitScore}
-              </span>
-              <span
-                className={`text-sm ${fitScoreColorClass(MOCK_RESULT.fitScore)}`}
-              >
-                {fitScoreLabel(MOCK_RESULT.fitScore)}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="bg-overlay rounded-lg p-4 flex flex-col gap-2">
+              <div className="flex items-baseline gap-3">
+                <span
+                  className={`text-5xl font-medium ${fitScoreColorClass(MOCK_RESULT.fitScore)}`}
+                >
+                  {MOCK_RESULT.fitScore}
+                </span>
+                <span
+                  className={`inline-flex items-center px-2 py-0.5 rounded text-xs ${fitScoreBadgeClass(MOCK_RESULT.fitScore)}`}
+                >
+                  {fitScoreLabel(MOCK_RESULT.fitScore)}
+                </span>
+              </div>
+              <span className="text-xs text-secondary uppercase tracking-widest">
+                Fit score
               </span>
             </div>
-            <span className={sectionLabel}>Fit score</span>
-            <span className="text-sm text-secondary mt-1">
-              Overall score:{" "}
-              <span className="text-primary">{MOCK_RESULT.overallScore}</span>
-            </span>
+            <div className="bg-overlay rounded-lg p-4 flex flex-col gap-2">
+              <div className="flex items-baseline gap-3">
+                <span className="text-4xl font-medium text-secondary">
+                  {MOCK_RESULT.overallScore}
+                </span>
+                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs border border-border text-secondary">
+                  Overall
+                </span>
+              </div>
+              <span className="text-xs text-secondary uppercase tracking-widest">
+                Combined score
+              </span>
+            </div>
           </div>
 
-          <div className="flex flex-col gap-2">
+          <div className="bg-overlay rounded-lg p-4 flex flex-col gap-2">
             <span className={sectionLabel}>Job overview</span>
             <p className="text-sm text-primary leading-relaxed">
               {MOCK_RESULT.jobOverview}
             </p>
           </div>
 
-          <div className="flex flex-col gap-2">
+          <div className="bg-overlay rounded-lg p-4 flex flex-col gap-3">
             <span className={sectionLabel}>Environment assessment</span>
-            <p className="text-sm text-primary leading-relaxed">
-              {MOCK_RESULT.environment}
-            </p>
+            <ul className="flex flex-col gap-2">
+              {MOCK_RESULT.environmentSignals.map((s, i) => (
+                <li
+                  key={i}
+                  className="flex items-start gap-2 text-sm text-primary"
+                >
+                  <span
+                    className={`flex-shrink-0 w-5 h-5 rounded-full inline-flex items-center justify-center text-xs font-medium ${signalIconClass(s.type)}`}
+                  >
+                    {s.type === "positive" ? "+" : "!"}
+                  </span>
+                  <span className="leading-relaxed">{s.text}</span>
+                </li>
+              ))}
+            </ul>
           </div>
 
           <div className="flex flex-col gap-2">
             <span className={sectionLabel}>Required skills</span>
+            <SkillLegend />
             <TagInput
               value={MOCK_RESULT.requiredSkills}
               onChange={() => {}}
@@ -224,6 +293,7 @@ export function JobMatch() {
 
           <div className="flex flex-col gap-2">
             <span className={sectionLabel}>Nice to have skills</span>
+            <SkillLegend />
             <TagInput
               value={MOCK_RESULT.niceToHaveSkills}
               onChange={() => {}}
@@ -231,37 +301,60 @@ export function JobMatch() {
             />
           </div>
 
-          <div className="flex flex-col gap-1">
-            <span className={sectionLabel}>Contract type</span>
-            <span className="text-sm text-primary">
-              {MOCK_RESULT.contractType}
-            </span>
-          </div>
-
-          <div className="flex flex-col gap-1">
-            <span className={sectionLabel}>Salary</span>
-            <span className="text-sm text-primary">{MOCK_RESULT.salary}</span>
-          </div>
-
-          <div className="flex flex-col gap-1">
-            <span className={sectionLabel}>Benefits</span>
-            <span className="text-sm text-primary">{MOCK_RESULT.benefits}</span>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="bg-overlay rounded-lg p-3 flex flex-col gap-1">
+              <span className="text-xs text-secondary uppercase tracking-widest">
+                Contract type
+              </span>
+              <span className="text-sm text-primary font-medium">
+                {MOCK_RESULT.contractType}
+              </span>
+            </div>
+            <div className="bg-overlay rounded-lg p-3 flex flex-col gap-1">
+              <span className="text-xs text-secondary uppercase tracking-widest">
+                Salary
+              </span>
+              <span className="text-sm text-primary font-medium">
+                {MOCK_RESULT.salary}
+              </span>
+            </div>
           </div>
 
           <div className="bg-overlay rounded-lg p-4 flex flex-col gap-2">
+            <span className={sectionLabel}>Benefits</span>
+            <ul className="flex flex-col gap-1">
+              {MOCK_RESULT.benefits
+                .split(",")
+                .map((b) => b.trim())
+                .filter(Boolean)
+                .map((b) => (
+                  <li
+                    key={b}
+                    className="flex items-center text-sm text-primary"
+                  >
+                    <span className="w-1 h-1 rounded-full bg-teal inline-block mr-2 flex-shrink-0" />
+                    {b}
+                  </li>
+                ))}
+            </ul>
+          </div>
+
+          <div
+            className={`bg-overlay rounded-lg p-4 flex flex-col gap-2 ${fitScoreBorderClass(MOCK_RESULT.fitScore)}`}
+          >
             <span className={sectionLabel}>Final verdict</span>
             <p className="text-sm text-primary leading-relaxed">
               {MOCK_RESULT.finalVerdict}
             </p>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-3">
+          <div className="flex flex-row gap-3">
             {MOCK_RESULT.fitScore >= 60 && (
               <Button
                 variant="ghost"
                 disabled={pitchLoading}
                 onClick={handleGeneratePitch}
-                className="border border-border-hover text-primary hover:bg-overlay"
+                className="flex-1 h-10 border border-border-hover bg-transparent text-primary hover:bg-overlay"
               >
                 {pitchLoading ? (
                   <>
@@ -275,7 +368,7 @@ export function JobMatch() {
             )}
             <Button
               onClick={() => setDialogOpen(true)}
-              className="bg-purple hover:bg-purple/90 text-primary"
+              className="flex-1 h-10 bg-purple hover:bg-purple/90 text-primary"
             >
               Add to Board
             </Button>
