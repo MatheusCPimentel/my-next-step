@@ -16,7 +16,9 @@ describe("JobMatch", () => {
 
     expect(await screen.findByText("Title is required")).toBeInTheDocument();
     expect(screen.getByText("Description is required")).toBeInTheDocument();
-    expect(screen.queryByText(/analyzing\.\.\./i)).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(/reading job description/i),
+    ).not.toBeInTheDocument();
     expect(screen.queryByText(/final verdict/i)).not.toBeInTheDocument();
   });
 
@@ -43,13 +45,17 @@ describe("JobMatch", () => {
       );
       await user.click(screen.getByRole("button", { name: /^analyze$/i }));
 
-      expect(screen.getByText(/analyzing\.\.\./i)).toBeInTheDocument();
+      expect(
+        screen.getByText(/reading job description/i),
+      ).toBeInTheDocument();
 
       await act(async () => {
         await vi.advanceTimersByTimeAsync(1500);
       });
 
-      expect(screen.queryByText(/analyzing\.\.\./i)).not.toBeInTheDocument();
+      expect(
+        screen.queryByText(/reading job description/i),
+      ).not.toBeInTheDocument();
       expect(screen.getByText("78")).toBeInTheDocument();
       expect(screen.getByText(/Good fit overall/i)).toBeInTheDocument();
     });

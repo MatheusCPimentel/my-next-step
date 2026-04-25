@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Loader2 } from "lucide-react";
+import { Loader2, Sparkles } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -51,6 +51,14 @@ const MOCK_RESULT = {
   finalVerdict:
     "Good fit overall. You cover the core stack well (React + TypeScript), but Node.js is a gap and AWS/GraphQL are missing entirely. The environment looks healthy. Worth applying — address the backend gaps in your cover letter.",
 };
+
+const LOADING_MESSAGES = [
+  "Reading job description...",
+  "Identifying required skills...",
+  "Calculating fit score...",
+  "Assessing environment...",
+  "Preparing your results...",
+];
 
 const PITCH_TEXT =
   "I am a strong fit for this role because of my deep experience with React and TypeScript, having shipped production applications used by thousands of users. While I am still growing my Node.js and AWS skills, I am a fast learner and have worked in similar full-stack environments before.";
@@ -117,6 +125,7 @@ export function JobMatch() {
   const [showPitch, setShowPitch] = useState(false);
   const [pitchLoading, setPitchLoading] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
   const [submittedInput, setSubmittedInput] = useState<{
     title: string;
     description: string;
@@ -151,6 +160,17 @@ export function JobMatch() {
     if (status !== "loading") return;
     const id = setTimeout(() => setStatus("done"), 1500);
     return () => clearTimeout(id);
+  }, [status]);
+
+  useEffect(() => {
+    if (status !== "loading") {
+      setLoadingMessageIndex(0);
+      return;
+    }
+    const id = setInterval(() => {
+      setLoadingMessageIndex((i) => (i + 1) % LOADING_MESSAGES.length);
+    }, 600);
+    return () => clearInterval(id);
   }, [status]);
 
   useEffect(() => {
@@ -212,16 +232,22 @@ export function JobMatch() {
         >
           {status === "loading" ? (
             <>
-              <Loader2 size={16} className="animate-spin mr-2" /> Analyzing...
+              <Loader2 size={16} className="animate-spin mr-2" />{" "}
+              {LOADING_MESSAGES[loadingMessageIndex]}
             </>
           ) : (
-            "Analyze"
+            <>
+              <Sparkles size={14} className="mr-2" /> Analyze
+            </>
           )}
         </Button>
       </form>
 
       {status === "done" && (
-        <div ref={resultRef} className="flex flex-col gap-6 scroll-mt-8">
+        <div
+          ref={resultRef}
+          className="flex flex-col gap-6 scroll-mt-8 border-l-2 border-purple/30 pl-4"
+        >
           <div className="grid grid-cols-2 gap-3">
             <div className="bg-overlay rounded-lg p-4 flex flex-col items-start gap-2">
               <span
@@ -358,7 +384,10 @@ export function JobMatch() {
                     Generating...
                   </>
                 ) : (
-                  "Generate why I am a great fit"
+                  <>
+                    <Sparkles size={14} className="mr-2" /> Generate why I am a
+                    great fit
+                  </>
                 )}
               </Button>
             )}
