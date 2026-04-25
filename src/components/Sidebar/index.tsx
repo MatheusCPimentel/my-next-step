@@ -54,7 +54,7 @@ export function Sidebar({
               className="flex items-center gap-2 flex-1 pl-4 overflow-hidden min-w-0"
             >
               <div className="flex items-center justify-center w-6 h-6 rounded-md shrink-0 bg-linear-to-br from-purple to-purple-mid">
-                <span className="w-1.5 h-1.5 rounded-full bg-primary" />
+                <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
               </div>
 
               <span className="font-bold text-[15px] whitespace-nowrap tracking-tight text-primary">

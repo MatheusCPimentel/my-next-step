@@ -179,6 +179,11 @@ function BoardColumnComponent({
               <div className="flex-1 flex flex-col items-center justify-center gap-2 py-10 text-center">
                 <Inbox size={28} className="text-muted" />
                 <span className="text-sm text-secondary">No applications yet</span>
+                {column.id === "applied" && (
+                  <span className="text-xs text-muted">
+                    Analyze a job in Job Match to get started
+                  </span>
+                )}
               </div>
             )}
           </div>
