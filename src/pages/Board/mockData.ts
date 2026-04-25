@@ -21,6 +21,9 @@ export const INITIAL_JOBS: Job[] = [
     ],
     niceToHaveSkills: [],
     columnId: "applied",
+    createdAt: "2026-04-22T09:00:00.000Z",
+    updatedAt: "2026-04-22T09:00:00.000Z",
+    stageHistory: [{ stage: "Applied", date: "2026-04-22T09:00:00.000Z" }],
   },
   {
     id: "2",
@@ -33,6 +36,9 @@ export const INITIAL_JOBS: Job[] = [
     ],
     niceToHaveSkills: [],
     columnId: "applied",
+    createdAt: "2026-04-15T14:30:00.000Z",
+    updatedAt: "2026-04-15T14:30:00.000Z",
+    stageHistory: [{ stage: "Applied", date: "2026-04-15T14:30:00.000Z" }],
   },
   {
     id: "3",
@@ -45,6 +51,9 @@ export const INITIAL_JOBS: Job[] = [
     ],
     niceToHaveSkills: [],
     columnId: "applied",
+    createdAt: "2026-04-08T11:15:00.000Z",
+    updatedAt: "2026-04-08T11:15:00.000Z",
+    stageHistory: [{ stage: "Applied", date: "2026-04-08T11:15:00.000Z" }],
   },
   {
     id: "4",
@@ -57,6 +66,12 @@ export const INITIAL_JOBS: Job[] = [
     ],
     niceToHaveSkills: [],
     columnId: "hr_interview",
+    createdAt: "2026-03-28T10:00:00.000Z",
+    updatedAt: "2026-04-12T16:45:00.000Z",
+    stageHistory: [
+      { stage: "Applied", date: "2026-03-28T10:00:00.000Z" },
+      { stage: "HR Interview", date: "2026-04-12T16:45:00.000Z" },
+    ],
   },
   {
     id: "5",
@@ -69,6 +84,12 @@ export const INITIAL_JOBS: Job[] = [
     ],
     niceToHaveSkills: [],
     columnId: "hr_interview",
+    createdAt: "2026-03-20T08:30:00.000Z",
+    updatedAt: "2026-04-05T13:00:00.000Z",
+    stageHistory: [
+      { stage: "Applied", date: "2026-03-20T08:30:00.000Z" },
+      { stage: "HR Interview", date: "2026-04-05T13:00:00.000Z" },
+    ],
   },
   {
     id: "6",
@@ -81,6 +102,13 @@ export const INITIAL_JOBS: Job[] = [
     ],
     niceToHaveSkills: [],
     columnId: "technical_interview",
+    createdAt: "2026-03-05T12:00:00.000Z",
+    updatedAt: "2026-04-18T15:30:00.000Z",
+    stageHistory: [
+      { stage: "Applied", date: "2026-03-05T12:00:00.000Z" },
+      { stage: "HR Interview", date: "2026-03-15T10:00:00.000Z" },
+      { stage: "Technical Interview", date: "2026-04-18T15:30:00.000Z" },
+    ],
   },
   {
     id: "7",
@@ -93,5 +121,13 @@ export const INITIAL_JOBS: Job[] = [
     ],
     niceToHaveSkills: [],
     columnId: "offer",
+    createdAt: "2026-02-28T11:00:00.000Z",
+    updatedAt: "2026-04-21T17:00:00.000Z",
+    stageHistory: [
+      { stage: "Applied", date: "2026-02-28T11:00:00.000Z" },
+      { stage: "HR Interview", date: "2026-03-10T14:00:00.000Z" },
+      { stage: "Technical Interview", date: "2026-03-25T16:00:00.000Z" },
+      { stage: "Offer", date: "2026-04-21T17:00:00.000Z" },
+    ],
   },
 ];

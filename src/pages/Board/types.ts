@@ -25,6 +25,9 @@ export interface Job {
   jobUrl?: string;
   notes?: string;
   columnId: string;
+  createdAt: string;
+  updatedAt: string;
+  stageHistory: { stage: string; date: string }[];
 }
 
 export type DragData =
