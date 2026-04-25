@@ -2,15 +2,20 @@ import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vite
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { JobMatch } from "@/pages/JobMatch";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 beforeAll(() => {
   Element.prototype.scrollIntoView = vi.fn();
 });
 
+function renderJobMatch() {
+  return render(<JobMatch />, { wrapper: TooltipProvider });
+}
+
 describe("JobMatch", () => {
   it("shows both validation errors and does not enter loading when submitting empty", async () => {
     const user = userEvent.setup();
-    render(<JobMatch />);
+    renderJobMatch();
 
     await user.click(screen.getByRole("button", { name: /^analyze$/i }));
 
@@ -23,7 +28,7 @@ describe("JobMatch", () => {
   });
 
   it("renders the Additional context textarea on idle", () => {
-    render(<JobMatch />);
+    renderJobMatch();
     expect(
       screen.getByPlaceholderText(
         /Anything the job description doesn't cover/i,
@@ -32,12 +37,12 @@ describe("JobMatch", () => {
   });
 
   it("renders the explainer with 'How it works' on idle", () => {
-    render(<JobMatch />);
+    renderJobMatch();
     expect(screen.getByText("How it works")).toBeInTheDocument();
   });
 
   it("disables the Analyze button when description exceeds 8000 characters", () => {
-    render(<JobMatch />);
+    renderJobMatch();
 
     const description = screen.getByPlaceholderText(
       "Paste the full job description here...",
@@ -58,7 +63,7 @@ describe("JobMatch", () => {
 
     it("shows the loading state then reveals the result section", async () => {
       const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
-      render(<JobMatch />);
+      renderJobMatch();
 
       await user.type(
         screen.getByPlaceholderText("Senior Frontend Engineer at Acme"),
@@ -96,7 +101,7 @@ describe("JobMatch", () => {
 
     it("returns to the form and clears input when 'Analyze another job' is clicked", async () => {
       const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
-      render(<JobMatch />);
+      renderJobMatch();
 
       await user.type(
         screen.getByPlaceholderText("Senior Frontend Engineer at Acme"),
@@ -129,7 +134,7 @@ describe("JobMatch", () => {
 
     it("renders the Add to Board button at the top of the result after analyze", async () => {
       const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
-      render(<JobMatch />);
+      renderJobMatch();
 
       await user.type(
         screen.getByPlaceholderText("Senior Frontend Engineer at Acme"),
@@ -155,7 +160,7 @@ describe("JobMatch", () => {
 
     it("renders the Info trigger beside Generate why I am a great fit", async () => {
       const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
-      render(<JobMatch />);
+      renderJobMatch();
 
       await user.type(
         screen.getByPlaceholderText("Senior Frontend Engineer at Acme"),
@@ -182,7 +187,7 @@ describe("JobMatch", () => {
     // score is hardcoded; only the positive case is exercisable today
     it("renders the 'Generate why I am a great fit' button after analyze", async () => {
       const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
-      render(<JobMatch />);
+      renderJobMatch();
 
       await user.type(
         screen.getByPlaceholderText("Senior Frontend Engineer at Acme"),
@@ -205,7 +210,7 @@ describe("JobMatch", () => {
 
     it("opens JobDialog in create mode pre-filled with the submitted title when 'Add to Board' is clicked", async () => {
       const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
-      render(<JobMatch />);
+      renderJobMatch();
 
       const submittedTitle = "Senior Frontend Engineer";
       await user.type(
@@ -233,7 +238,7 @@ describe("JobMatch", () => {
 
     it("renders the pitch text after Generate why I am a great fit completes", async () => {
       const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
-      render(<JobMatch />);
+      renderJobMatch();
 
       await user.type(
         screen.getByPlaceholderText("Senior Frontend Engineer at Acme"),
@@ -262,7 +267,7 @@ describe("JobMatch", () => {
 
     it("clears the Additional context textarea on 'Analyze another job'", async () => {
       const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
-      render(<JobMatch />);
+      renderJobMatch();
 
       await user.type(
         screen.getByPlaceholderText("Senior Frontend Engineer at Acme"),

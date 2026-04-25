@@ -10,7 +10,6 @@ import { Button } from "@/components/ui/button";
 import {
   Tooltip,
   TooltipContent,
-  TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { TagInput } from "@/components/TagInput";
@@ -179,34 +178,38 @@ export function JobMatch() {
         </div>
       )}
 
-      {status !== "idle" && titleBlock}
-
       {status === "loading" && (
-        <div className="flex flex-col items-center justify-center min-h-[400px] gap-6">
-          <Loader2 size={32} className="animate-spin text-purple" />
-          <span className="text-secondary text-sm">
-            {LOADING_MESSAGES[loadingMessageIndex]}
-          </span>
-        </div>
+        <>
+          {titleBlock}
+          <div className="flex flex-col items-center justify-center min-h-[400px] gap-6">
+            <Loader2 size={32} className="animate-spin text-purple" />
+            <span className="text-secondary text-sm">
+              {LOADING_MESSAGES[loadingMessageIndex]}
+            </span>
+          </div>
+        </>
       )}
 
       {status === "done" && (
         <div className="flex flex-col gap-6">
-          <div className="flex items-center justify-between gap-3">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleReset}
-              className="border border-border-hover bg-transparent text-primary hover:bg-overlay"
-            >
-              Analyze another job
-            </Button>
-            <Button
-              onClick={() => setDialogOpen(true)}
-              className="bg-purple hover:bg-purple/90 text-primary"
-            >
-              Add to Board
-            </Button>
+          <div className="flex items-center justify-between gap-4">
+            {titleBlock}
+            <div className="flex items-center gap-3 shrink-0">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleReset}
+                className="border border-border-hover bg-transparent text-primary hover:bg-overlay"
+              >
+                Analyze another job
+              </Button>
+              <Button
+                onClick={() => setDialogOpen(true)}
+                className="bg-purple hover:bg-purple/90 text-primary"
+              >
+                Add to Board
+              </Button>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-start">
@@ -371,26 +374,24 @@ export function JobMatch() {
                     </>
                   )}
                 </Button>
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button
-                        type="button"
-                        aria-label="What does this generate?"
-                        className="text-muted hover:text-primary transition-colors"
-                      >
-                        <Info size={14} />
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent className="max-w-xs bg-overlay text-primary border border-border-hover">
-                      <p>
-                        Generates a personalized answer to the Why are you a
-                        good fit? question based on your profile and this job
-                        description. Ready to paste into any application form.
-                      </p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      type="button"
+                      aria-label="What does this generate?"
+                      className="text-muted hover:text-primary transition-colors"
+                    >
+                      <Info size={14} />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-xs bg-overlay text-primary border border-border-hover">
+                    <p>
+                      Generates a personalized answer to the Why are you a good
+                      fit? question based on your profile and this job
+                      description. Ready to paste into any application form.
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
               </div>
             )}
             {showPitch && (
