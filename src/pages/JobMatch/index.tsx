@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Info, Loader2, Sparkles } from "lucide-react";
+import { Check, Copy, Info, Loader2, Sparkles } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -39,6 +39,7 @@ export function JobMatch() {
   const [status, setStatus] = useState<Status>("idle");
   const [showPitch, setShowPitch] = useState(false);
   const [pitchLoading, setPitchLoading] = useState(false);
+  const [pitchCopied, setPitchCopied] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
   const [submittedInput, setSubmittedInput] = useState<{
@@ -75,6 +76,17 @@ export function JobMatch() {
   const handleGeneratePitch = () => {
     setPitchLoading(true);
   };
+
+  const handleCopyPitch = async () => {
+    await navigator.clipboard.writeText(PITCH_TEXT);
+    setPitchCopied(true);
+  };
+
+  useEffect(() => {
+    if (!pitchCopied) return;
+    const id = setTimeout(() => setPitchCopied(false), 2000);
+    return () => clearTimeout(id);
+  }, [pitchCopied]);
 
   const handleReset = () => {
     setStatus("idle");
@@ -276,12 +288,29 @@ export function JobMatch() {
                     initial={{ opacity: 0, y: 24 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, ease: "easeOut" }}
-                    className="bg-overlay rounded-lg p-4 border-l-2 border-purple/40"
+                    className="relative bg-overlay rounded-lg p-4 border-l-2 border-purple/40"
                   >
-                    <p className="font-serif italic text-base text-primary leading-relaxed">
-                      <span className="text-4xl text-purple/40 font-serif leading-none mr-1">
-                        “
-                      </span>
+                    <span className="absolute top-2 left-3 text-4xl text-purple/40 font-serif leading-none">
+                      “
+                    </span>
+                    <button
+                      type="button"
+                      onClick={handleCopyPitch}
+                      aria-label={
+                        pitchCopied ? "Pitch copied" : "Copy pitch to clipboard"
+                      }
+                      className="absolute top-2 right-3 transition-colors"
+                    >
+                      {pitchCopied ? (
+                        <Check size={14} className="text-teal" />
+                      ) : (
+                        <Copy
+                          size={14}
+                          className="text-muted hover:text-primary"
+                        />
+                      )}
+                    </button>
+                    <p className="pl-7 pr-7 font-serif italic text-base text-primary leading-relaxed">
                       {PITCH_TEXT}
                     </p>
                   </motion.div>
