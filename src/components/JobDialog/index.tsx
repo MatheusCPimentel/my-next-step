@@ -201,7 +201,7 @@ export function JobDialog(props: JobDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className="bg-surface border border-border text-primary max-w-3xl sm:max-w-3xl"
+        className="bg-surface border border-border text-primary max-w-3xl sm:max-w-3xl max-h-[90dvh] overflow-y-auto pb-[max(1rem,env(safe-area-inset-bottom))]"
       >
         <DialogHeader>
           <DialogTitle className="text-primary">
@@ -212,95 +212,121 @@ export function JobDialog(props: JobDialogProps) {
           </DialogDescription>
         </DialogHeader>
 
-        <div className="max-h-[80vh] overflow-y-auto">
-          <div className="flex flex-col md:flex-row gap-6">
-            <div className={leftClass}>
-              <div className="flex flex-col gap-1">
-                <label className={fieldLabel}>
-                  Company <span className="text-muted">*</span>
-                </label>
-                {isEditable ? (
-                  <>
-                    <Input {...register("company")} placeholder="Company name" />
-                    {errors.company && (
-                      <p className={errorText}>{errors.company.message}</p>
-                    )}
-                  </>
-                ) : (
-                  renderValue(job?.company)
-                )}
-              </div>
-
-              <div className="flex flex-col gap-1">
-                <label className={fieldLabel}>
-                  Title <span className="text-muted">*</span>
-                </label>
-                {isEditable ? (
-                  <>
-                    <Input {...register("title")} placeholder="Job title" />
-                    {errors.title && (
-                      <p className={errorText}>{errors.title.message}</p>
-                    )}
-                  </>
-                ) : (
-                  renderValue(job?.title)
-                )}
-              </div>
-
-              <div className="flex flex-col gap-1">
-                <label className={fieldLabel}>
-                  Description <span className="text-muted">*</span>
-                </label>
-                {isEditable ? (
-                  <>
-                    <Textarea
-                      {...register("description")}
-                      placeholder="What is the role about?"
-                      className="min-h-[200px] border border-border rounded-lg"
-                    />
-                    {errors.description && (
-                      <p className={errorText}>{errors.description.message}</p>
-                    )}
-                  </>
-                ) : (
-                  <ExpandableValue value={job?.description} />
-                )}
-              </div>
-
-              <div className="flex flex-col gap-1">
-                <label className={fieldLabel}>Match verdict</label>
-                {isEditable ? (
-                  <Textarea
-                    {...register("matchVerdict")}
-                    placeholder="Why is this a match?"
-                    className="min-h-[80px] border border-border rounded-lg"
-                  />
-                ) : (
-                  <ExpandableValue value={job?.matchVerdict} />
-                )}
-              </div>
-
-              <div className="flex flex-col gap-1">
-                <label className={fieldLabel}>Notes</label>
-                {isEditable ? (
-                  <Textarea
-                    {...register("notes")}
-                    placeholder="Anything to remember"
-                    className="min-h-[80px] border border-border rounded-lg"
-                  />
-                ) : (
-                  <ExpandableValue value={job?.notes} />
-                )}
-              </div>
+        <div className="flex flex-col md:flex-row gap-6">
+          <div className={leftClass}>
+            <div className="flex flex-col gap-1">
+              <label className={fieldLabel}>
+                Company <span className="text-muted">*</span>
+              </label>
+              {isEditable ? (
+                <>
+                  <Input {...register("company")} placeholder="Company name" />
+                  {errors.company && (
+                    <p className={errorText}>{errors.company.message}</p>
+                  )}
+                </>
+              ) : (
+                renderValue(job?.company)
+              )}
             </div>
 
-            <div className={rightClass}>
-              <div className="flex flex-col gap-1">
-                <label className={fieldLabel}>
-                  Required skills <span className="text-muted">*</span>
-                </label>
+            <div className="flex flex-col gap-1">
+              <label className={fieldLabel}>
+                Title <span className="text-muted">*</span>
+              </label>
+              {isEditable ? (
+                <>
+                  <Input {...register("title")} placeholder="Job title" />
+                  {errors.title && (
+                    <p className={errorText}>{errors.title.message}</p>
+                  )}
+                </>
+              ) : (
+                renderValue(job?.title)
+              )}
+            </div>
+
+            <div className="flex flex-col gap-1">
+              <label className={fieldLabel}>
+                Description <span className="text-muted">*</span>
+              </label>
+              {isEditable ? (
+                <>
+                  <Textarea
+                    {...register("description")}
+                    placeholder="What is the role about?"
+                    className="min-h-[200px] border border-border rounded-lg"
+                  />
+                  {errors.description && (
+                    <p className={errorText}>{errors.description.message}</p>
+                  )}
+                </>
+              ) : (
+                <ExpandableValue value={job?.description} />
+              )}
+            </div>
+
+            <div className="flex flex-col gap-1">
+              <label className={fieldLabel}>Match verdict</label>
+              {isEditable ? (
+                <Textarea
+                  {...register("matchVerdict")}
+                  placeholder="Why is this a match?"
+                  className="min-h-[80px] border border-border rounded-lg"
+                />
+              ) : (
+                <ExpandableValue value={job?.matchVerdict} />
+              )}
+            </div>
+
+            <div className="flex flex-col gap-1">
+              <label className={fieldLabel}>Notes</label>
+              {isEditable ? (
+                <Textarea
+                  {...register("notes")}
+                  placeholder="Anything to remember"
+                  className="min-h-[80px] border border-border rounded-lg"
+                />
+              ) : (
+                <ExpandableValue value={job?.notes} />
+              )}
+            </div>
+          </div>
+
+          <div className={rightClass}>
+            <div className="flex flex-col gap-1">
+              <label className={fieldLabel}>
+                Required skills <span className="text-muted">*</span>
+              </label>
+              <Controller
+                name="requiredSkills"
+                control={control}
+                render={({ field }) => (
+                  <TagInput
+                    value={field.value}
+                    onChange={field.onChange}
+                    isEditable={isEditable}
+                    defaultVariant="neutral"
+                    placeholder="Add a skill"
+                  />
+                )}
+              />
+              {isEditable && errors.requiredSkills && (
+                <p className={errorText}>
+                  {errors.requiredSkills.message as string}
+                </p>
+              )}
+            </div>
+
+            <div className="flex flex-col gap-1">
+              <label className={fieldLabel}>Nice-to-have skills</label>
+              {!isEditable && (job?.niceToHaveSkills?.length ?? 0) === 0 ? (
+                <p className={valueText}>
+                  <span className="text-muted">—</span>
+                </p>
+              ) : (
                 <Controller
-                  name="requiredSkills"
+                  name="niceToHaveSkills"
                   control={control}
                   render={({ field }) => (
                     <TagInput
@@ -312,84 +338,56 @@ export function JobDialog(props: JobDialogProps) {
                     />
                   )}
                 />
-                {isEditable && errors.requiredSkills && (
-                  <p className={errorText}>
-                    {errors.requiredSkills.message as string}
-                  </p>
-                )}
-              </div>
+              )}
+            </div>
 
-              <div className="flex flex-col gap-1">
-                <label className={fieldLabel}>Nice-to-have skills</label>
-                {!isEditable && (job?.niceToHaveSkills?.length ?? 0) === 0 ? (
-                  <p className={valueText}>
-                    <span className="text-muted">—</span>
-                  </p>
-                ) : (
-                  <Controller
-                    name="niceToHaveSkills"
-                    control={control}
-                    render={({ field }) => (
-                      <TagInput
-                        value={field.value}
-                        onChange={field.onChange}
-                        isEditable={isEditable}
-                        defaultVariant="neutral"
-                        placeholder="Add a skill"
-                      />
-                    )}
-                  />
-                )}
-              </div>
+            <div className="flex flex-col gap-1">
+              <label className={fieldLabel}>Contract type</label>
+              {isEditable ? (
+                <Input
+                  {...register("contractType")}
+                  placeholder="Full-time, contract, etc."
+                />
+              ) : (
+                renderValue(job?.contractType)
+              )}
+            </div>
 
-              <div className="flex flex-col gap-1">
-                <label className={fieldLabel}>Contract type</label>
-                {isEditable ? (
-                  <Input
-                    {...register("contractType")}
-                    placeholder="Full-time, contract, etc."
-                  />
-                ) : (
-                  renderValue(job?.contractType)
-                )}
-              </div>
+            <div className="flex flex-col gap-1">
+              <label className={fieldLabel}>Salary</label>
+              {isEditable ? (
+                <Input
+                  {...register("salary")}
+                  placeholder="Salary or range"
+                />
+              ) : (
+                renderValue(job?.salary)
+              )}
+            </div>
 
-              <div className="flex flex-col gap-1">
-                <label className={fieldLabel}>Salary</label>
-                {isEditable ? (
-                  <Input
-                    {...register("salary")}
-                    placeholder="Salary or range"
-                  />
-                ) : (
-                  renderValue(job?.salary)
-                )}
-              </div>
+            <div className="flex flex-col gap-1">
+              <label className={fieldLabel}>Job URL</label>
+              {isEditable ? (
+                <Input
+                  {...register("jobUrl")}
+                  placeholder="https://..."
+                />
+              ) : (
+                renderValue(job?.jobUrl)
+              )}
+            </div>
 
-              <div className="flex flex-col gap-1">
-                <label className={fieldLabel}>Job URL</label>
-                {isEditable ? (
-                  <Input
-                    {...register("jobUrl")}
-                    placeholder="https://..."
-                  />
-                ) : (
-                  renderValue(job?.jobUrl)
-                )}
-              </div>
-
-              <div className="flex flex-col gap-1">
-                <label className={fieldLabel}>Benefits</label>
-                {isEditable ? (
-                  <Textarea
-                    {...register("benefits")}
-                    placeholder="Health, equity, PTO..."
-                    className="min-h-[80px] border border-border rounded-lg"
-                  />
-                ) : (
-                  <ExpandableValue value={job?.benefits} />
-                )}
-              </div>
+            <div className="flex flex-col gap-1">
+              <label className={fieldLabel}>Benefits</label>
+              {isEditable ? (
+                <Textarea
+                  {...register("benefits")}
+                  placeholder="Health, equity, PTO..."
+                  className="min-h-[80px] border border-border rounded-lg"
+                />
+              ) : (
+                <ExpandableValue value={job?.benefits} />
+              )}
             </div>
           </div>
         </div>
