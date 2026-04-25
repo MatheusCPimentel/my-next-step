@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { TagInput } from "@/components/TagInput";
+import { ExpandableValue } from "@/components/ExpandableValue";
 import type { Job } from "@/pages/Board/types";
 
 type Mode = "create" | "view" | "edit";
@@ -80,46 +81,6 @@ function descriptionForMode(mode: Mode): string {
 }
 
 const generateJobId = () => Math.random().toString(36).slice(2, 10);
-
-function ExpandableValue({ value }: { value: string | undefined }) {
-  const [expanded, setExpanded] = useState(false);
-  const [overflowing, setOverflowing] = useState(false);
-  const ref = useRef<HTMLParagraphElement>(null);
-
-  useLayoutEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    setOverflowing(el.scrollHeight > el.clientHeight + 1);
-  }, [value]);
-
-  if (!value) {
-    return (
-      <p className="text-sm text-primary whitespace-pre-wrap">
-        <span className="text-muted">—</span>
-      </p>
-    );
-  }
-
-  return (
-    <>
-      <p
-        ref={ref}
-        className={`text-sm text-primary whitespace-pre-wrap ${expanded ? "" : "line-clamp-4"}`}
-      >
-        {value}
-      </p>
-      {overflowing && (
-        <button
-          type="button"
-          onClick={() => setExpanded((v) => !v)}
-          className="text-xs text-blue-400 hover:text-blue-300 transition-colors mt-1 self-start"
-        >
-          {expanded ? "Show less" : "Show more"}
-        </button>
-      )}
-    </>
-  );
-}
 
 export function JobDialog(props: JobDialogProps) {
   const { mode, job, open, onOpenChange, onSubmit } = props;
