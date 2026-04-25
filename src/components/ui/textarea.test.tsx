@@ -156,13 +156,13 @@ describe("Textarea", () => {
         <Textarea data-testid="ta" maxLength={50} defaultValue="hi" />,
       );
 
-      const counter = screen.getByText("2 / 50");
+      const counterRow = screen.getByText("2 / 50").parentElement!;
       const textarea = screen.getByTestId("ta");
 
-      expect(counter.className).not.toContain("absolute");
-      expect(counter.className).toContain("mt-1");
+      expect(counterRow.className).not.toContain("absolute");
+      expect(counterRow.className).toContain("mt-1");
       expect(container.querySelector(".relative")).toBeNull();
-      expect(textarea.nextElementSibling).toBe(counter);
+      expect(textarea.nextElementSibling).toBe(counterRow);
     });
   });
 });

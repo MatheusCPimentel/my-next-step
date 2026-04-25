@@ -96,15 +96,15 @@ function fitScoreBorderClass(score: number): string {
 function SkillLegend() {
   return (
     <div className="flex flex-wrap gap-3">
-      <span className="inline-flex items-center gap-1.5 text-xs text-secondary">
+      <span className="inline-flex items-center gap-1.5 text-[10px] text-secondary">
         <span className="w-1.5 h-1.5 rounded-full inline-block bg-teal" /> Strong
         fit
       </span>
-      <span className="inline-flex items-center gap-1.5 text-xs text-secondary">
+      <span className="inline-flex items-center gap-1.5 text-[10px] text-secondary">
         <span className="w-1.5 h-1.5 rounded-full inline-block bg-yellow-400" />{" "}
         Partial fit
       </span>
-      <span className="inline-flex items-center gap-1.5 text-xs text-secondary">
+      <span className="inline-flex items-center gap-1.5 text-[10px] text-secondary">
         <span className="w-1.5 h-1.5 rounded-full inline-block bg-red-500" /> Not
         a fit
       </span>
@@ -199,11 +199,9 @@ export function JobMatch() {
             maxLength={8000}
             placeholder="Paste the full job description here..."
             className="min-h-[240px] border border-border rounded-lg"
+            error={errors.description?.message}
             {...register("description")}
           />
-          {errors.description && (
-            <p className="text-red-500 text-xs">{errors.description.message}</p>
-          )}
         </div>
         <Button
           type="submit"
@@ -223,32 +221,28 @@ export function JobMatch() {
       {status === "done" && (
         <div ref={resultRef} className="flex flex-col gap-6 scroll-mt-8">
           <div className="grid grid-cols-2 gap-3">
-            <div className="bg-overlay rounded-lg p-4 flex flex-col gap-2">
-              <div className="flex items-baseline gap-3">
-                <span
-                  className={`text-5xl font-medium ${fitScoreColorClass(MOCK_RESULT.fitScore)}`}
-                >
-                  {MOCK_RESULT.fitScore}
-                </span>
-                <span
-                  className={`inline-flex items-center px-2 py-0.5 rounded text-xs ${fitScoreBadgeClass(MOCK_RESULT.fitScore)}`}
-                >
-                  {fitScoreLabel(MOCK_RESULT.fitScore)}
-                </span>
-              </div>
+            <div className="bg-overlay rounded-lg p-4 flex flex-col items-start gap-2">
+              <span
+                className={`text-5xl font-medium ${fitScoreColorClass(MOCK_RESULT.fitScore)}`}
+              >
+                {MOCK_RESULT.fitScore}
+              </span>
+              <span
+                className={`inline-flex items-center px-2 py-0.5 rounded text-xs ${fitScoreBadgeClass(MOCK_RESULT.fitScore)}`}
+              >
+                {fitScoreLabel(MOCK_RESULT.fitScore)}
+              </span>
               <span className="text-xs text-secondary uppercase tracking-widest">
                 Fit score
               </span>
             </div>
-            <div className="bg-overlay rounded-lg p-4 flex flex-col gap-2">
-              <div className="flex items-baseline gap-3">
-                <span className="text-4xl font-medium text-secondary">
-                  {MOCK_RESULT.overallScore}
-                </span>
-                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs border border-border text-secondary">
-                  Overall
-                </span>
-              </div>
+            <div className="bg-overlay rounded-lg p-4 flex flex-col items-start gap-2">
+              <span className="text-4xl font-medium text-secondary">
+                {MOCK_RESULT.overallScore}
+              </span>
+              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs border border-border text-secondary">
+                Overall
+              </span>
               <span className="text-xs text-secondary uppercase tracking-widest">
                 Combined score
               </span>
@@ -348,7 +342,7 @@ export function JobMatch() {
             </p>
           </div>
 
-          <div className="flex flex-row gap-3">
+          <div className="flex flex-col sm:flex-row gap-3">
             {MOCK_RESULT.fitScore >= 60 && (
               <Button
                 variant="ghost"
