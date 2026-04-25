@@ -20,6 +20,7 @@ import { JobCard } from "@/pages/Board/components/JobCard";
 import { AddColumnButton } from "@/pages/Board/components/AddColumnButton";
 import { DiscardZone } from "@/pages/Board/components/DiscardZone";
 import { DiscardDialog, type DiscardOption } from "@/pages/Board/components/DiscardDialog";
+import { JobDialog } from "@/components/JobDialog";
 import {
   INITIAL_COLUMNS,
   INITIAL_JOBS,
@@ -40,12 +41,18 @@ type DragPreview = {
   overJobId: string | null;
 };
 
+type DialogState =
+  | { kind: "closed" }
+  | { kind: "create"; columnId: string }
+  | { kind: "view-or-edit"; job: Job };
+
 export function Board() {
   const [columns, setColumns] = useState<Column[]>(INITIAL_COLUMNS);
   const [jobs, setJobs] = useState<Job[]>(INITIAL_JOBS);
   const [activeDrag, setActiveDrag] = useState<ActiveDrag>(null);
   const [dragPreview, setDragPreview] = useState<DragPreview | null>(null);
   const [pendingDiscardJob, setPendingDiscardJob] = useState<Job | null>(null);
+  const [dialog, setDialog] = useState<DialogState>({ kind: "closed" });
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
@@ -308,6 +315,20 @@ export function Board() {
     setColumns((prev) => prev.filter((c) => c.id !== id));
   }, []);
 
+  const handleJobClick = useCallback((job: Job) => {
+    setDialog({ kind: "view-or-edit", job });
+  }, []);
+
+  const handleJobSubmit = useCallback((submitted: Job) => {
+    setJobs((prev) => {
+      const i = prev.findIndex((j) => j.id === submitted.id);
+      if (i === -1) return [...prev, submitted];
+      const copy = prev.slice();
+      copy[i] = submitted;
+      return copy;
+    });
+  }, []);
+
   const addDisabled = columns.length >= MAX_COLUMNS;
   const ghostInsertAt = columns[columns.length - 1]?.locked
     ? columns.length - 1
@@ -331,6 +352,7 @@ export function Board() {
         jobs={jobsByColumn.get(column.id) ?? []}
         onRename={handleRenameColumn}
         onDelete={handleDeleteColumn}
+        onJobClick={handleJobClick}
       />,
     );
   });
@@ -352,7 +374,7 @@ export function Board() {
       <div className="flex items-center justify-between px-6">
         <h1 className="text-primary">Board</h1>
         <Button
-          onClick={() => {}}
+          onClick={() => setDialog({ kind: "create", columnId: "applied" })}
           className="bg-transparent border border-border-hover text-primary hover:bg-overlay h-9 px-3 gap-2"
         >
           <Plus size={16} />
@@ -404,6 +426,16 @@ export function Board() {
         jobCompany={pendingDiscardJob?.title ?? ""}
         columns={columns}
         onConfirm={handleConfirmDiscard}
+      />
+      <JobDialog
+        mode={dialog.kind === "create" ? "create" : "view"}
+        job={dialog.kind === "view-or-edit" ? dialog.job : undefined}
+        columnId={dialog.kind === "create" ? dialog.columnId : undefined}
+        open={dialog.kind !== "closed"}
+        onOpenChange={(open) => {
+          if (!open) setDialog({ kind: "closed" });
+        }}
+        onSubmit={handleJobSubmit}
       />
     </div>
   );
