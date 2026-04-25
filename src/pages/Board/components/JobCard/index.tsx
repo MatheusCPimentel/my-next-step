@@ -1,6 +1,7 @@
 import { memo } from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { format, formatDistanceToNow } from "date-fns";
 import type { Job } from "@/pages/Board/types";
 
 interface JobCardProps {
@@ -28,6 +29,8 @@ function JobCardComponent({ job, dragging, onClick }: JobCardProps) {
     opacity: isDragging ? 0.4 : 1,
   };
 
+  const displayed = job.updatedAt ?? job.createdAt;
+
   return (
     <div
       ref={setNodeRef}
@@ -54,6 +57,16 @@ function JobCardComponent({ job, dragging, onClick }: JobCardProps) {
           </span>
         ))}
       </div>
+      {displayed && (
+        <div className="flex justify-end mt-2 text-xs text-muted">
+          <time
+            dateTime={displayed}
+            title={format(new Date(displayed), "MMM d, yyyy")}
+          >
+            {formatDistanceToNow(new Date(displayed), { addSuffix: true })}
+          </time>
+        </div>
+      )}
     </div>
   );
 }
