@@ -73,7 +73,7 @@ export function TagInput({
       <div
         className={
           isEditable
-            ? "flex flex-wrap gap-1.5 mt-2 min-h-[52px]"
+            ? "flex flex-wrap gap-1.5 mt-2"
             : "flex flex-wrap gap-1.5"
         }
       >
