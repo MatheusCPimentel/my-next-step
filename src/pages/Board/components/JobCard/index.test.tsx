@@ -31,33 +31,17 @@ function renderCard(job: Job) {
 }
 
 describe("JobCard", () => {
-  it("shows the AI analyzed pill when fromJobMatch is true", () => {
-    renderCard(makeJob({ fromJobMatch: true }));
+  it("shows the fit score pill when fitScore is set", () => {
+    renderCard(makeJob({ fitScore: 78 }));
 
-    expect(screen.getByText("AI analyzed")).toBeInTheDocument();
+    expect(screen.getByText("78% fit")).toBeInTheDocument();
     expect(screen.queryByText("Not analyzed")).not.toBeInTheDocument();
   });
 
-  it("shows the AI analyzed pill when fromJobMatch is false but fitScore is set", () => {
-    renderCard(makeJob({ fromJobMatch: false, fitScore: 78 }));
+  it("shows the Not analyzed pill when fitScore is missing", () => {
+    renderCard(makeJob({ fitScore: undefined }));
 
-    expect(screen.getByText("AI analyzed")).toBeInTheDocument();
-    expect(screen.queryByText("Not analyzed")).not.toBeInTheDocument();
-  });
-
-  it("shows the Not analyzed pill when fromJobMatch is false or undefined", () => {
-    const { rerender } = renderCard(makeJob({ fromJobMatch: false }));
     expect(screen.getByText("Not analyzed")).toBeInTheDocument();
-    expect(screen.queryByText("AI analyzed")).not.toBeInTheDocument();
-
-    rerender(
-      <DndContext>
-        <SortableContext items={["job-1"]}>
-          <JobCard job={makeJob({ fromJobMatch: undefined })} />
-        </SortableContext>
-      </DndContext>,
-    );
-    expect(screen.getByText("Not analyzed")).toBeInTheDocument();
-    expect(screen.queryByText("AI analyzed")).not.toBeInTheDocument();
+    expect(screen.queryByText(/% fit/)).not.toBeInTheDocument();
   });
 });

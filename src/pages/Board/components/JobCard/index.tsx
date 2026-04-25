@@ -4,12 +4,31 @@ import { CSS } from "@dnd-kit/utilities";
 import { format } from "date-fns";
 import type { Job } from "@/pages/Board/types";
 
-function fitScoreColorClass(score: number): string {
-  if (score < 50) return "text-red-500";
-  if (score < 60) return "text-orange-400";
-  if (score < 70) return "text-yellow-400";
-  if (score < 90) return "text-teal";
-  return "text-green-400";
+function fitScorePillClasses(score: number): { pill: string; dot: string } {
+  if (score < 50)
+    return {
+      pill: "bg-red-500/10 border-red-500/20 text-red-500",
+      dot: "bg-red-500",
+    };
+  if (score < 60)
+    return {
+      pill: "bg-orange-400/10 border-orange-400/20 text-orange-400",
+      dot: "bg-orange-400",
+    };
+  if (score < 70)
+    return {
+      pill: "bg-yellow-400/10 border-yellow-400/20 text-yellow-400",
+      dot: "bg-yellow-400",
+    };
+  if (score < 80)
+    return {
+      pill: "bg-teal/10 border-teal/20 text-teal",
+      dot: "bg-teal",
+    };
+  return {
+    pill: "bg-green-400/10 border-green-400/20 text-green-400",
+    dot: "bg-green-400",
+  };
 }
 
 interface JobCardProps {
@@ -38,6 +57,10 @@ function JobCardComponent({ job, dragging, onClick }: JobCardProps) {
   };
 
   const displayed = job.updatedAt ?? job.createdAt;
+  const fitScoreClasses =
+    typeof job.fitScore === "number"
+      ? fitScorePillClasses(job.fitScore)
+      : null;
 
   return (
     <div
@@ -50,13 +73,6 @@ function JobCardComponent({ job, dragging, onClick }: JobCardProps) {
         dragging ? "cursor-grabbing shadow-lg" : "cursor-grab"
       }`}
     >
-      {typeof job.fitScore === "number" && (
-        <span
-          className={`absolute top-2 right-2 text-xs font-medium ${fitScoreColorClass(job.fitScore)}`}
-        >
-          {job.fitScore}%
-        </span>
-      )}
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" />
       <div>
         <p className="text-sm font-medium text-primary">{job.company}</p>
@@ -73,11 +89,15 @@ function JobCardComponent({ job, dragging, onClick }: JobCardProps) {
             </span>
           ))}
         </div>
-        <div className="flex justify-between items-center">
-          {typeof job.fitScore === "number" || job.fromJobMatch ? (
-            <span className="inline-flex items-center gap-1 bg-purple/10 border border-purple/20 text-purple-soft text-[10px] px-1.5 py-0.5 rounded-full">
-              <span className="w-1.5 h-1.5 rounded-full bg-purple animate-pulse" />
-              AI analyzed
+        <div className="mt-1 flex justify-between items-center">
+          {fitScoreClasses ? (
+            <span
+              className={`inline-flex items-center gap-1 border text-[10px] px-1.5 py-0.5 rounded-full ${fitScoreClasses.pill}`}
+            >
+              <span
+                className={`w-1.5 h-1.5 rounded-full animate-pulse ${fitScoreClasses.dot}`}
+              />
+              {job.fitScore}% fit
             </span>
           ) : (
             <span className="inline-flex items-center gap-1 bg-red-500/10 border border-red-500/20 text-red-400 text-[10px] px-1.5 py-0.5 rounded-full">
