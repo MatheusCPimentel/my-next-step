@@ -2,90 +2,97 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+When a feature ships, remove its entry from PRODUCT.md — git history is the record. PRODUCT.md only tracks what is still pending, technical debt, and V2 ideas.
+Agents must update this file whenever project structure, stack, or conventions change.
+
 ## What this is
 
 MyNextStep — an AI-powered career hub for tracking job applications, analyzing resumes/job descriptions, and improving from interview feedback.
 
 ## Commands
 
-```bash
-npm run dev      # start dev server (Vite, http://localhost:5173)
-npm run build    # tsc + vite build
-npm run lint     # eslint
-```
+npm run dev # start dev server (Vite, http://localhost:5173)
+npm run build # tsc + vite build
+npm run lint # eslint
+npm run test # vitest watch mode
+npm run test:run # vitest one-shot (CI)
 
 For testing conventions, read .claude/rules/testing.md before writing any test.
 
-To add a shadcn component: `npx shadcn add <component>` (uses `radix-nova` style, see `components.json`).
+To add a shadcn component: npx shadcn add <component> (uses radix-nova style, see components.json).
 
 ## Tech stack
 
-React 19 + Vite + TypeScript · React Router v7 · Tailwind CSS v4 · Shadcn/ui (radix-nova preset) · React Hook Form + Zod · TanStack Query · Framer Motion · Lucide icons
+React 19 + Vite + TypeScript · React Router v7 · Tailwind CSS v4 · Shadcn/ui (radix-nova preset) · React Hook Form + Zod · TanStack Query · Framer Motion · Lucide icons · dnd-kit · Vitest + React Testing Library
 
 ## Architecture
 
 ### Routing
 
-All routes are nested under `<Layout>` in `src/App.tsx` using React Router's layout route pattern. `Layout` renders `<Outlet />` — adding a new page means adding a `<Route>` inside the existing layout route, never wrapping pages individually.
+All routes are nested under <Layout> in src/App.tsx using React Router's layout route pattern. Layout renders <Outlet /> — adding a new page means adding a <Route> inside the existing layout route, never wrapping pages individually.
 
 ### Layout + Sidebar
 
-`Layout` (`src/components/Layout/`) owns the mobile drawer state (`drawerOpen`). It renders the desktop `<Sidebar>` and, via `AnimatePresence`, the mobile drawer (a second `<Sidebar isMobileDrawer>`).
+Layout (src/components/Layout/) owns the mobile drawer state (drawerOpen). It renders the desktop <Sidebar> and, via AnimatePresence, the mobile drawer (a second <Sidebar isMobileDrawer>).
 
-`Sidebar` (`src/components/Sidebar/`) owns its own `collapsed` state. It animates its width between 64 px (collapsed) and 220 px (expanded) using Framer Motion `animate={{ width }}` on `motion.aside`.
+Sidebar (src/components/Sidebar/) owns its own collapsed state. It animates its width between 64px (collapsed) and 220px (expanded) using Framer Motion animate={{ width }} on motion.aside.
 
-`SidebarItem` uses a fixed `w-10 h-10` icon wrapper with `mx-auto` for centering. Labels are **always in the DOM** — collapse is achieved by animating `maxWidth` (0 → 200) and `opacity` on a `motion.span` with `flex-1`. This prevents the label from pushing the icon during animation. `AnimatePresence` is not used for nav labels.
+SidebarItem uses a fixed w-10 h-10 icon wrapper with mx-auto for centering. Labels are always in the DOM — collapse is achieved by animating maxWidth (0 → 200) and opacity on a motion.span with flex-1. This prevents the label from pushing the icon during animation. AnimatePresence is not used for nav labels.
 
 ### Page structure
 
-Pages live in `src/pages/<PageName>/index.tsx`. Sub-components used only by that page nest under `src/pages/<PageName>/components/<ComponentName>/index.tsx`, with a co-located `index.test.tsx` when it exists. Shared page data/types stay at the page root (e.g. `types.ts`, `mockData.ts`). Current Board layout:
+Pages live in src/pages/<PageName>/index.tsx. Sub-components used only by that page nest under src/pages/<PageName>/components/<ComponentName>/index.tsx, with a co-located index.test.tsx when it exists. Shared page data/types stay at the page root (e.g. types.ts, mockData.ts).
 
-```
+Current Board layout:
 src/pages/Board/
-  components/
-    AddColumnButton/{index.tsx, index.test.tsx}
-    BoardColumn/{index.tsx, index.test.tsx}
-    DiscardDialog/{index.tsx, index.test.tsx}
-    DiscardZone/index.tsx
-    JobCard/index.tsx
-  index.tsx
-  mockData.ts
-  types.ts
-```
+components/
+AddColumnButton/{index.tsx, index.test.tsx}
+BoardColumn/{index.tsx, index.test.tsx}
+DiscardDialog/{index.tsx, index.test.tsx}
+DiscardZone/index.tsx
+JobCard/index.tsx
+index.tsx
+mockData.ts
+types.ts
+
+Shared components live in src/components/<ComponentName>/index.tsx:
+src/components/
+JobDialog/{index.tsx, index.test.tsx}
+TagInput/{index.tsx, index.test.tsx}
+Layout/
+Sidebar/
+ui/ (shadcn primitives)
 
 ### CSS / Design tokens
 
-`src/index.css` uses a single `@theme` block (Tailwind v4) that registers all design tokens as Tailwind utilities:
+src/index.css uses a single @theme block (Tailwind v4) that registers all design tokens as Tailwind utilities:
 
-| Tailwind class                      | Value                            |
-| ----------------------------------- | -------------------------------- |
-| `bg-background` / `text-background` | `#0f0f0d` (darkest, body bg)     |
-| `bg-page`                           | `#111110` (main content area)    |
-| `bg-surface`                        | `#141412` (sidebar)              |
-| `bg-overlay`                        | `#1a1a18` (cards, pills, inputs) |
-| `text-primary`                      | `#F1EFE8`                        |
-| `text-secondary`                    | `#B4B2A9`                        |
-| `text-muted`                        | `#888780`                        |
-| `bg-purple` / `text-purple`         | `#534AB7` (primary action)       |
-| `text-purple-mid`                   | `#7B6FD4` (accent icon)          |
-| `text-purple-soft`                  | `#A89FE8` (active nav text)      |
-| `bg-teal` / `text-teal`             | `#1D9E75` (progress/success)     |
-| `border-border`                     | `rgba(255,255,255,0.08)`         |
-| `border-border-hover`               | `rgba(255,255,255,0.15)`         |
+bg-background / text-background — #0f0f0d (darkest, body bg)
+bg-page — #111110 (main content area)
+bg-surface — #141412 (sidebar)
+bg-overlay — #1a1a18 (cards, pills, inputs)
+text-primary — #F1EFE8
+text-secondary — #B4B2A9
+text-muted — #888780
+bg-purple / text-purple — #534AB7 (primary action)
+text-purple-mid — #7B6FD4 (accent icon)
+text-purple-soft — #A89FE8 (active nav text)
+bg-teal / text-teal — #1D9E75 (progress/success)
+border-border — rgba(255,255,255,0.08)
+border-border-hover — rgba(255,255,255,0.15)
 
-Use opacity modifiers for tints: `bg-purple/15` = 15% purple.
-
-**Never use inline `style` for colors** — always use Tailwind classes from the tokens above.
+Use opacity modifiers for tints: bg-purple/15 = 15% purple.
+Never use inline style for colors — always use Tailwind classes from the tokens above.
 
 ### Path alias
 
-`@/` maps to `src/`. Use it for all internal imports.
+@/ maps to src/. Use it for all internal imports.
 
 ## Conventions
 
-- Named exports only — no default exports (except `App.tsx` which Vite requires)
-- Each page and component lives in its own folder with `index.tsx`
-- Server state → TanStack Query. Forms → React Hook Form + Zod. Never call `fetch` directly from a component — go through `src/services/`
+- Named exports only — no default exports (except App.tsx which Vite requires)
+- Each page and component lives in its own folder with index.tsx
+- Server state → TanStack Query. Forms → React Hook Form + Zod. Never call fetch directly from a component — go through src/services/
 - All text hardcoded in English (i18n deferred)
 - No comments unless logic is genuinely non-obvious
 - Dark mode only; design reference: Linear, Perplexity
@@ -94,19 +101,16 @@ Use opacity modifiers for tints: `bg-purple/15` = 15% purple.
 
 ## Pages
 
-| Route      | Page            | Status      |
-| ---------- | --------------- | ----------- |
-| `/`        | Dashboard       | in progress |
-| `/board`   | Board           | in progress |
-| `/resume`  | Resume Analyzer | in progress |
-| `/job`     | Job Match       | not started |
-| `/levelup` | LevelUp         | not started |
+Route Page Status
+/ Dashboard in progress
+/board Board in progress
+/resume Resume Analyzer in progress
+/job Job Match not started
+/levelup LevelUp not started
 
 ## Backend (not built)
 
 NestJS + TypeScript + PostgreSQL · JWT auth with refresh tokens · Anthropic API for AI features. All data is mocked client-side for now.
-
----
 
 ## Technical Decisions
 
@@ -114,7 +118,6 @@ NestJS + TypeScript + PostgreSQL · JWT auth with refresh tokens · Anthropic AP
 
 - Library: dnd-kit (@dnd-kit/core + @dnd-kit/sortable)
 - Used for: card movement between columns AND column reordering
-- Not yet installed — install before building Board interactions
 
 ### File Upload
 
@@ -127,15 +130,6 @@ NestJS + TypeScript + PostgreSQL · JWT auth with refresh tokens · Anthropic AP
 - All AI features use Anthropic API via the backend (NestJS)
 - Frontend never calls Anthropic directly
 - For now all AI responses are mocked on the frontend
-
-### Fit Score Colors
-
-- Not a fit (below 50): red — use text-red-500 / bg-red-500
-- Borderline (50–60): orange — use text-orange-400 / bg-orange-400
-- Partial fit (60–70): yellow — use text-yellow-400 / bg-yellow-400
-- Good fit (70–80): teal — use bg-teal / text-teal
-- Great fit (80–90): teal with higher opacity
-- Excellent fit (90–100): green — use text-green-400 / bg-green-400
 
 ### Board Column Limits
 

@@ -1,22 +1,12 @@
 # PRODUCT.md — MyNextStep Product Specification
 
-This file describes the full product vision, feature details, and current build status.
-Agents must read this file before building any feature.
-When a feature is completed, move it from "Pending" to "Done" in the relevant section.
+This file tracks what is still pending, technical debt, and V2 ideas. Agents must read it before building any feature.
+
+When a feature ships, remove its entry — git history is the record of what was built. Update this file when product decisions change or when a pending item is delivered.
 
 ---
 
 ## Page: Dashboard
-
-### Status: Partially done
-
-### Done
-
-- Welcome message with time-aware greeting and user name
-- Stats section with Open Processes and Improvement Points cards
-- Quick Actions section with navigation to all pages
-- Add a Recent Activity section below Quick Actions showing the last user actions on the board (e.g. "You moved Stripe to Technical Interview 2 days ago")
-- Quick Action cards should be larger with a better description of what each feature does
 
 ### Pending
 
@@ -26,20 +16,6 @@ When a feature is completed, move it from "Pending" to "Done" in the relevant se
 ---
 
 ## Page: Board (/board)
-
-### Status: Partially done
-
-### Done
-
-- Kanban layout with mocked columns and jobs
-- Job cards with company name, role and tech stack tags
-- Applied (first) and Offer (last) columns fixed; cannot be moved or deleted
-- Middle columns: add, rename (double-click label), reorder (drag handle), delete (trash icon)
-- Maximum of 20 columns enforced (add buttons hide at the cap)
-- Delete column: trash icon opens a block modal when the column has jobs, or a small confirm dialog when empty
-- Add column: `+` button appears between columns on hover, opens an inline input for the column name
-- Cards drag freely between any columns (dnd-kit)
-- Discard drop zone at the bottom with dashed border; on drop, user picks Discard or Rejected, and Rejected captures the stage
 
 ### Pending
 
@@ -53,11 +29,6 @@ When a feature is completed, move it from "Pending" to "Done" in the relevant se
 - Match score display format: TBD (%, stars, or color indicator)
 - Rejected flow: currently removes the card after capturing the stage. Wrong-stage re-routing and the LevelUp interview debrief flow are deferred until LevelUp ships.
 
-#### Add new job button
-
-- Top right of the board header
-- Opens the same Job creation form as adding from Job Match (see Job Match section)
-
 #### Mobile
 
 - Kanban on mobile is a challenge. Display one column at a time with horizontal swipe navigation between columns. TBD on final approach.
@@ -65,13 +36,6 @@ When a feature is completed, move it from "Pending" to "Done" in the relevant se
 ---
 
 ## Page: Resume Analyzer (/resume)
-
-### Status: Partially done (UI only, no real AI)
-
-### Done
-
-- File upload area with drag and drop
-- Mocked analysis result with sections
 
 ### Pending
 
@@ -107,8 +71,6 @@ When a feature is completed, move it from "Pending" to "Done" in the relevant se
 
 ## Page: Job Match (/job) — formerly Job Analyzer
 
-### Status: Placeholder (header only)
-
 ### Gate
 
 - If user has not completed Resume Analyzer and saved their profile: show a blurred background with a centered message explaining that the Resume Analyzer must be completed first. Show a CTA button "Analyze my resume".
@@ -143,6 +105,15 @@ When a feature is completed, move it from "Pending" to "Done" in the relevant se
 9. Benefits
 10. Final verdict — combines fit score, environment, company size research, and generalist warning if role asks for too many unrelated skills
 
+### Fit score color mapping
+
+- Below 50: red — text-red-500 / bg-red-500
+- 50–60: orange — text-orange-400 / bg-orange-400
+- 60–70: yellow — text-yellow-400 / bg-yellow-400
+- 70–80: teal — bg-teal / text-teal
+- 80–90: teal with higher opacity
+- 90–100: green — text-green-400 / bg-green-400
+
 ### Post-analysis actions
 
 - If fit score >= 60: show "Generate why I'm a great fit" button — generates a short, natural-sounding message for LinkedIn Top Choice or recruiter outreach
@@ -169,8 +140,6 @@ On confirm: job is added to Board as "Applied", show success toast with options 
 
 ## Page: LevelUp (/levelup)
 
-### Status: Not started
-
 ### Purpose
 
 Track interview failures and turn them into a structured study plan.
@@ -192,6 +161,22 @@ Track interview failures and turn them into a structured study plan.
   - A checkbox to mark as "mastered"
 - Mastered items are never deleted, just visually checked off and moved to a "Mastered" section
 - User can always uncheck if they want to revisit
+
+## Technical Debt
+
+Items known to need improvement but deferred intentionally.
+
+### JobDialog
+
+- **Layout shift (view → edit):** switching from view to edit mode causes visible reflow because textarea heights differ between the two modes. Needs a fixed-height strategy or animated transition.
+- **Layout shift (required skills / nice-to-have):** adding the first tag to either TagInput causes the right column to grow, shifting the layout. Needs reserved minimum height that matches the expected tag row height.
+- **Layout shift (validation errors):** when required field errors appear on submit, the modal grows to accommodate them. Needs reserved space below each field.
+- **Show more baque:** if a textarea value is very long, clicking "Show more" expands the content abruptly. Needs a smooth expand animation or a paginated approach.
+- **Salary field:** currently a free-text string. Should be structured as currency + value in the future. Consider fetching available currencies from an API and combining with a numeric input.
+
+### Board
+
+- **Mobile kanban:** no solution implemented yet. Planned approach is one column at a time with horizontal swipe, but UX is TBD.
 
 ---
 
