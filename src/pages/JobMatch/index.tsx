@@ -100,58 +100,48 @@ export function JobMatch() {
 
   const sectionLabel = "text-xs text-secondary uppercase tracking-widest";
 
-  const titleBlock = (
-    <div>
-      <h1 className="text-primary text-2xl md:text-3xl lg:text-4xl">
-        Job Match
-      </h1>
-      <p className="text-secondary mt-1">
-        Paste a job description and find out how well it fits your profile.
-      </p>
-    </div>
-  );
-
   return (
-    <div className="mx-auto w-full pb-10 flex flex-col gap-8">
-      {status === "idle" && (
-        <div className="max-w-2xl w-full mx-auto flex flex-col gap-8">
-          {titleBlock}
-          <form
-            onSubmit={handleSubmit(onValid)}
-            className="flex flex-col gap-4"
-          >
-            <div className="flex flex-col gap-1">
-              <label className="text-xs text-secondary">Job title</label>
-              <Input
-                placeholder="Senior Frontend Engineer at Acme"
-                {...register("title")}
-              />
-              {errors.title && (
-                <p className="text-red-500 text-xs">{errors.title.message}</p>
-              )}
-            </div>
-            <div className="flex flex-col gap-1">
-              <label className="text-xs text-secondary">Job description</label>
-              <Textarea
-                maxLength={8000}
-                placeholder="Paste the full job description here..."
-                className="min-h-[240px] border border-border rounded-lg"
-                error={errors.description?.message}
-                {...register("description")}
-              />
-            </div>
-            <Button
-              type="submit"
-              disabled={isDescriptionOverLimit}
-              className="bg-purple hover:bg-purple/90 text-primary w-full"
-            >
-              <Sparkles size={14} className="mr-2" /> Analyze
-            </Button>
-          </form>
-        </div>
-      )}
+    <div className="max-w-2xl mx-auto pb-10 flex flex-col gap-8">
+      <div>
+        <h1 className="text-primary text-2xl md:text-3xl lg:text-4xl">
+          Job Match
+        </h1>
+        <p className="text-secondary mt-1">
+          Paste a job description and find out how well it fits your profile.
+        </p>
+      </div>
 
-      {status !== "idle" && titleBlock}
+      {status === "idle" && (
+        <form onSubmit={handleSubmit(onValid)} className="flex flex-col gap-4">
+          <div className="flex flex-col gap-1">
+            <label className="text-xs text-secondary">Job title</label>
+            <Input
+              placeholder="Senior Frontend Engineer at Acme"
+              {...register("title")}
+            />
+            {errors.title && (
+              <p className="text-red-500 text-xs">{errors.title.message}</p>
+            )}
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-xs text-secondary">Job description</label>
+            <Textarea
+              maxLength={8000}
+              placeholder="Paste the full job description here..."
+              className="min-h-[240px] border border-border rounded-lg"
+              error={errors.description?.message}
+              {...register("description")}
+            />
+          </div>
+          <Button
+            type="submit"
+            disabled={isDescriptionOverLimit}
+            className="bg-purple hover:bg-purple/90 text-primary w-full"
+          >
+            <Sparkles size={14} className="mr-2" /> Analyze
+          </Button>
+        </form>
+      )}
 
       {status === "loading" && (
         <div className="flex flex-col items-center justify-center min-h-[400px] gap-6">
