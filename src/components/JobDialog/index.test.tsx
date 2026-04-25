@@ -226,9 +226,6 @@ describe("JobDialog", () => {
       const user = userEvent.setup();
       const onSubmit = vi.fn();
 
-      const ref: { setOpen: ((open: boolean) => void) | null } = {
-        setOpen: null,
-      };
       const onOpenChange = vi.fn();
       const job = makeJob({
         title: "Original Title",
@@ -237,7 +234,6 @@ describe("JobDialog", () => {
 
       function Wrapper() {
         const [open, setOpen] = useState(true);
-        ref.setOpen = setOpen;
         return (
           <JobDialog
             mode="view"
