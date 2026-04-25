@@ -21,6 +21,9 @@ const makeJob = (overrides: Partial<Job> = {}): Job => ({
   requiredSkills: [],
   niceToHaveSkills: [],
   columnId: "col-1",
+  createdAt: "2026-04-01T00:00:00.000Z",
+  updatedAt: "2026-04-01T00:00:00.000Z",
+  stageHistory: [{ stage: "Applied", date: "2026-04-01T00:00:00.000Z" }],
   ...overrides,
 });
 
