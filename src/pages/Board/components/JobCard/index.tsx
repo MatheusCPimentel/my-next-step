@@ -74,46 +74,44 @@ function JobCardComponent({ job, dragging, onClick }: JobCardProps) {
       }`}
     >
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" />
+      <div className="absolute top-2 right-2">
+        {fitScoreClasses ? (
+          <span
+            className={`inline-flex items-center gap-1 border text-[10px] px-1.5 py-0.5 rounded-full ${fitScoreClasses.pill}`}
+          >
+            <span
+              className={`w-1.5 h-1.5 rounded-full animate-pulse ${fitScoreClasses.dot}`}
+            />
+            {job.fitScore}% fit
+          </span>
+        ) : (
+          <span className="inline-flex items-center gap-1 bg-red-500/10 border border-red-500/20 text-red-400 text-[10px] px-1.5 py-0.5 rounded-full">
+            <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
+            Not analyzed
+          </span>
+        )}
+      </div>
       <div>
         <p className="text-sm font-medium text-primary">{job.company}</p>
         <p className="text-secondary text-sm mt-0.5">{job.title}</p>
       </div>
-      <div className="flex flex-col gap-1">
-        <div className="flex flex-wrap items-center gap-1.5">
-          {job.requiredSkills.map((s, i) => (
-            <span
-              key={`${s.name}-${i}`}
-              className="px-2 py-0.5 bg-surface rounded text-xs text-muted"
-            >
-              {s.name}
-            </span>
-          ))}
-        </div>
-        <div className="mt-1 flex justify-between items-center">
-          {fitScoreClasses ? (
-            <span
-              className={`inline-flex items-center gap-1 border text-[10px] px-1.5 py-0.5 rounded-full ${fitScoreClasses.pill}`}
-            >
-              <span
-                className={`w-1.5 h-1.5 rounded-full animate-pulse ${fitScoreClasses.dot}`}
-              />
-              {job.fitScore}% fit
-            </span>
-          ) : (
-            <span className="inline-flex items-center gap-1 bg-red-500/10 border border-red-500/20 text-red-400 text-[10px] px-1.5 py-0.5 rounded-full">
-              <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
-              Not analyzed
-            </span>
-          )}
-          {displayed && (
-            <time
-              dateTime={displayed}
-              className="text-[10px] text-muted flex-shrink-0"
-            >
-              {format(new Date(displayed), "MMM d")}
-            </time>
-          )}
-        </div>
+      <div className="flex flex-wrap items-center gap-1.5">
+        {job.requiredSkills.map((s, i) => (
+          <span
+            key={`${s.name}-${i}`}
+            className="px-2 py-0.5 bg-surface rounded text-xs text-muted"
+          >
+            {s.name}
+          </span>
+        ))}
+        {displayed && (
+          <time
+            dateTime={displayed}
+            className="text-[10px] text-muted ml-auto flex-shrink-0"
+          >
+            {format(new Date(displayed), "MMM d")}
+          </time>
+        )}
       </div>
     </div>
   );
