@@ -134,23 +134,21 @@ The JobDialog already pre-fills these fields from the analysis (Job title, Job d
 
 Track interview failures and turn them into a structured study plan.
 
-### Data source
+### Pending
+
+- **Wire to Board's Rejected flow.** The page currently renders mock weak points. The data source described below isn't yet connected — discarding a Rejected job from the Board doesn't create LevelUp entries. The rejection capture flow itself (asking which questions tripped the user up + the correct answer + question type) also needs to be built before this can connect.
+- **Mastered ordering / dedicated section.** Mastered items are visually checked off (line-through, dimmed) and stay in place. Moving them to a separate "Mastered" section at the bottom is deferred until persistence lands — ordering is more of a backend concern.
+- **Reach-back / un-master.** Already supported (the checkbox toggles both ways), but the UX confirmation isn't designed yet — fine for now.
+
+### Data source (target, not yet wired)
 
 - Populated when user discards a job as "Rejected" from the Board
 - During the rejection flow, user is asked: what questions did you struggle with? What was the correct answer?
 - Each question has a type: Behavioral, Conceptual (e.g. "how does virtual DOM work"), or Algorithm (user can paste code)
 
-### Display
+### Out of scope (V2)
 
-- Group weak points by category, not by job
-  - e.g. "Algorithms (3)", "System Design (1)", "Behavioral (2)"
-- Clicking a category expands to show each weak point with:
-  - The question asked
-  - The correct answer / what should have been said
-  - The job it came from (for context)
-  - A checkbox to mark as "mastered"
-- Mastered items are never deleted, just visually checked off and moved to a "Mastered" section
-- User can always uncheck if they want to revisit
+- **Manual add.** Adding a weak point not tied to a Rejected job is V2 — the primary loop is rejection → study plan.
 
 ## Technical Debt
 
