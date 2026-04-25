@@ -11,15 +11,15 @@ MyNextStep — an AI-powered career hub for tracking job applications, analyzing
 
 ## Commands
 
-npm run dev # start dev server (Vite, http://localhost:5173)
-npm run build # tsc + vite build
-npm run lint # eslint
-npm run test # vitest watch mode
-npm run test:run # vitest one-shot (CI)
+pnpm dev # start dev server (Vite, http://localhost:5173)
+pnpm build # tsc + vite build
+pnpm lint # eslint
+pnpm test # vitest watch mode
+pnpm test:run # vitest one-shot (CI)
 
 For testing conventions, read .claude/rules/testing.md before writing any test.
 
-To add a shadcn component: npx shadcn add <component> (uses radix-nova style, see components.json).
+To add a shadcn component: pnpm dlx shadcn add <component> (uses radix-nova style, see components.json).
 
 ## Tech stack
 
