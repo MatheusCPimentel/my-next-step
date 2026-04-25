@@ -127,6 +127,58 @@ describe("JobMatch", () => {
       ).not.toBeInTheDocument();
     });
 
+    it("renders the Add to Board button at the top of the result after analyze", async () => {
+      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+      render(<JobMatch />);
+
+      await user.type(
+        screen.getByPlaceholderText("Senior Frontend Engineer at Acme"),
+        "Senior Frontend Engineer",
+      );
+      await user.type(
+        screen.getByPlaceholderText("Paste the full job description here..."),
+        "Build great products with React and TypeScript.",
+      );
+      await user.click(screen.getByRole("button", { name: /^analyze$/i }));
+
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(1500);
+      });
+
+      expect(
+        screen.getByRole("button", { name: /add to board/i }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: /analyze another job/i }),
+      ).toBeInTheDocument();
+    });
+
+    it("renders the Info trigger beside Generate why I am a great fit", async () => {
+      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+      render(<JobMatch />);
+
+      await user.type(
+        screen.getByPlaceholderText("Senior Frontend Engineer at Acme"),
+        "Senior Frontend Engineer",
+      );
+      await user.type(
+        screen.getByPlaceholderText("Paste the full job description here..."),
+        "Build great products with React and TypeScript.",
+      );
+      await user.click(screen.getByRole("button", { name: /^analyze$/i }));
+
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(1500);
+      });
+
+      expect(
+        screen.getByRole("button", { name: /generate why i am a great fit/i }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: /what does this generate/i }),
+      ).toBeInTheDocument();
+    });
+
     // score is hardcoded; only the positive case is exercisable today
     it("renders the 'Generate why I am a great fit' button after analyze", async () => {
       const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });

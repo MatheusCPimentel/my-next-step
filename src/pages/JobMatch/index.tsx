@@ -2,11 +2,17 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Loader2, Sparkles } from "lucide-react";
+import { Info, Loader2, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { TagInput } from "@/components/TagInput";
 import { JobDialog } from "@/components/JobDialog";
 import {
@@ -109,7 +115,9 @@ export function JobMatch() {
 
   const titleBlock = (
     <div>
-      <h1 className="text-primary text-2xl md:text-3xl lg:text-4xl">Job Match</h1>
+      <h1 className="text-primary text-2xl md:text-3xl lg:text-4xl">
+        Job Match
+      </h1>
       <p className="text-secondary mt-1">
         Paste a job description and find out how well it fits your profile.
       </p>
@@ -119,10 +127,13 @@ export function JobMatch() {
   return (
     <div className="mx-auto w-full pb-10 flex flex-col gap-8">
       {status === "idle" && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
-          <div className="flex flex-col gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
+          <div className="flex flex-col gap-8 md:col-span-2">
             {titleBlock}
-            <form onSubmit={handleSubmit(onValid)} className="flex flex-col gap-4">
+            <form
+              onSubmit={handleSubmit(onValid)}
+              className="flex flex-col gap-4"
+            >
               <div className="flex flex-col gap-1">
                 <label className="text-xs text-secondary">Job title</label>
                 <Input
@@ -134,7 +145,9 @@ export function JobMatch() {
                 )}
               </div>
               <div className="flex flex-col gap-1">
-                <label className="text-xs text-secondary">Job description</label>
+                <label className="text-xs text-secondary">
+                  Job description
+                </label>
                 <Textarea
                   maxLength={8000}
                   placeholder="Paste the full job description here..."
@@ -144,7 +157,9 @@ export function JobMatch() {
                 />
               </div>
               <div className="flex flex-col gap-1">
-                <label className="text-xs text-secondary">Additional context</label>
+                <label className="text-xs text-secondary">
+                  Additional context
+                </label>
                 <Textarea
                   placeholder="Anything the job description doesn't cover — recruiter info, company culture impressions, why you're interested..."
                   className="min-h-[80px] border border-border rounded-lg"
@@ -177,14 +192,22 @@ export function JobMatch() {
 
       {status === "done" && (
         <div className="flex flex-col gap-6">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleReset}
-            className="w-fit border border-border-hover bg-transparent text-primary hover:bg-overlay"
-          >
-            Analyze another job
-          </Button>
+          <div className="flex items-center justify-between gap-3">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleReset}
+              className="border border-border-hover bg-transparent text-primary hover:bg-overlay"
+            >
+              Analyze another job
+            </Button>
+            <Button
+              onClick={() => setDialogOpen(true)}
+              className="bg-purple hover:bg-purple/90 text-primary"
+            >
+              Add to Board
+            </Button>
+          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-start">
             <div className="md:col-span-2 flex flex-col gap-6">
@@ -328,8 +351,8 @@ export function JobMatch() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.35, delay: 7 * 0.15 }}
           >
-            <div className="flex gap-2">
-              {MOCK_RESULT.fitScore >= 60 && (
+            {MOCK_RESULT.fitScore >= 60 && (
+              <div className="flex items-center gap-2">
                 <Button
                   variant="ghost"
                   disabled={pitchLoading}
@@ -348,14 +371,28 @@ export function JobMatch() {
                     </>
                   )}
                 </Button>
-              )}
-              <Button
-                onClick={() => setDialogOpen(true)}
-                className="bg-purple hover:bg-purple/90 text-primary"
-              >
-                Add to Board
-              </Button>
-            </div>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button
+                        type="button"
+                        aria-label="What does this generate?"
+                        className="text-muted hover:text-primary transition-colors"
+                      >
+                        <Info size={14} />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-xs bg-overlay text-primary border border-border-hover">
+                      <p>
+                        Generates a personalized answer to the Why are you a
+                        good fit? question based on your profile and this job
+                        description. Ready to paste into any application form.
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+            )}
             {showPitch && (
               <div className="bg-overlay rounded-lg p-4 text-sm text-primary leading-relaxed">
                 {PITCH_TEXT}
