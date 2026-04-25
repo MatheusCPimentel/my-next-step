@@ -25,8 +25,6 @@ When a feature ships, remove its entry — git history is the record of what was
 
 #### Card behavior
 
-- Show match score on each card (see Job Match section for scoring rules)
-- Match score display format: TBD (%, stars, or color indicator)
 - Rejected flow: currently removes the card after capturing the stage. Wrong-stage re-routing and the LevelUp interview debrief flow are deferred until LevelUp ships.
 
 #### Mobile
@@ -88,13 +86,14 @@ When a feature ships, remove its entry — git history is the record of what was
 
 ### AI Output structure (in order)
 
+The result UI renders all of the items below from mocked data; the eventual real-AI version (backend, not built) must produce the same shape.
+
 1. Fit score (0–100)
    - Below 50: not a fit
    - 50–60: borderline
    - 60–70: partial fit
    - 70–80: good fit
-   - 80–90: great fit
-   - 90–100: excellent fit
+   - 80+: excellent fit
 2. Overall score (fit + environment combined) — separate from fit score
 3. Job overview (what the role involves, stack summary)
 4. Environment assessment (red flags, culture signals, work pace)
@@ -110,31 +109,22 @@ When a feature ships, remove its entry — git history is the record of what was
 - Below 50: red — text-red-500 / bg-red-500
 - 50–60: orange — text-orange-400 / bg-orange-400
 - 60–70: yellow — text-yellow-400 / bg-yellow-400
-- 70–80: teal — bg-teal / text-teal
-- 80–90: teal with higher opacity
-- 90–100: green — text-green-400 / bg-green-400
+- 70–80: teal — text-teal / bg-teal
+- 80+: green — text-green-400 / bg-green-400
 
 ### Post-analysis actions
 
-- If fit score >= 60: show "Generate why I'm a great fit" button — generates a short, natural-sounding message for LinkedIn Top Choice or recruiter outreach
-- "Add to Board" button — opens a pre-filled job creation form (see below)
+- "Add to Board" button is wired to open a pre-filled JobDialog, but the resulting job does not yet flow into Board state — persistence still needs to be implemented (call Board's `handleJobSubmit` from JobMatch's `onSubmit`).
+- On confirm: job should be added to Board as "Applied", followed by a success toast with options to "Add another job" or "Go to Board" (success toast not yet implemented).
 
-### Add to Board form (modal/drawer)
+### Add to Board form (pending wiring)
 
-Fields (pre-filled from analysis where available):
+The JobDialog already pre-fills these fields from the analysis (Job title, Job description, Match verdict, Required skills, Nice to have skills, Contract type, Salary, Benefits) and tags the resulting job with `fromJobMatch: true` and `fitScore`. Still missing:
 
-- Job title
-- Job description (from textarea)
-- Match verdict (from AI output)
-- Required skills (editable tags)
-- Nice to have skills (editable tags)
-- Contract type
-- Salary
-- Benefits
-- Job URL (optional, free text)
-- Notes (free text, user's own observations)
-
-On confirm: job is added to Board as "Applied", show success toast with options to "Add another job" or "Go to Board".
+- Job URL (optional, free text) — not in the prefilled object
+- Notes (free text) — not in the prefilled object
+- Persistence into Board state on confirm
+- Success toast with "Add another job" / "Go to Board" actions
 
 ---
 
