@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -81,6 +81,46 @@ function descriptionForMode(mode: Mode): string {
 
 const generateJobId = () => Math.random().toString(36).slice(2, 10);
 
+function ExpandableValue({ value }: { value: string | undefined }) {
+  const [expanded, setExpanded] = useState(false);
+  const [overflowing, setOverflowing] = useState(false);
+  const ref = useRef<HTMLParagraphElement>(null);
+
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    setOverflowing(el.scrollHeight > el.clientHeight + 1);
+  }, [value]);
+
+  if (!value) {
+    return (
+      <p className="text-sm text-primary whitespace-pre-wrap">
+        <span className="text-muted">—</span>
+      </p>
+    );
+  }
+
+  return (
+    <>
+      <p
+        ref={ref}
+        className={`text-sm text-primary whitespace-pre-wrap ${expanded ? "" : "line-clamp-4"}`}
+      >
+        {value}
+      </p>
+      {overflowing && (
+        <button
+          type="button"
+          onClick={() => setExpanded((v) => !v)}
+          className="text-xs text-secondary hover:text-primary transition-colors mt-1 self-start"
+        >
+          {expanded ? "Show less" : "Show more"}
+        </button>
+      )}
+    </>
+  );
+}
+
 export function JobDialog(props: JobDialogProps) {
   const { mode, job, open, onOpenChange, onSubmit } = props;
 
@@ -116,6 +156,15 @@ export function JobDialog(props: JobDialogProps) {
   }
 
   const isEditable = internalMode !== "view";
+
+  const leftClass =
+    internalMode === "view"
+      ? "flex-[2] flex flex-col gap-4"
+      : "flex-1 flex flex-col gap-4";
+  const rightClass =
+    internalMode === "view"
+      ? "flex-[1] flex flex-col gap-4"
+      : "flex-1 flex flex-col gap-4";
 
   const onValid = (values: FormValues) => {
     const submitted: Job =
@@ -190,7 +239,7 @@ export function JobDialog(props: JobDialogProps) {
 
         <div className="max-h-[80vh] overflow-y-auto">
           <div className="flex flex-col md:flex-row gap-6">
-            <div className="flex-1 flex flex-col gap-4">
+            <div className={leftClass}>
               <div className="flex flex-col gap-1">
                 <label className={fieldLabel}>
                   Company <span className="text-red-500">*</span>
@@ -239,7 +288,7 @@ export function JobDialog(props: JobDialogProps) {
                     )}
                   </>
                 ) : (
-                  renderValue(job?.description)
+                  <ExpandableValue value={job?.description} />
                 )}
               </div>
 
@@ -252,7 +301,7 @@ export function JobDialog(props: JobDialogProps) {
                     className="min-h-[80px] border border-border rounded-lg"
                   />
                 ) : (
-                  renderValue(job?.matchVerdict)
+                  <ExpandableValue value={job?.matchVerdict} />
                 )}
               </div>
 
@@ -265,12 +314,12 @@ export function JobDialog(props: JobDialogProps) {
                     className="min-h-[80px] border border-border rounded-lg"
                   />
                 ) : (
-                  renderValue(job?.notes)
+                  <ExpandableValue value={job?.notes} />
                 )}
               </div>
             </div>
 
-            <div className="flex-1 flex flex-col gap-4">
+            <div className={rightClass}>
               <div className="flex flex-col gap-1">
                 <label className={fieldLabel}>
                   Required skills <span className="text-red-500">*</span>
@@ -357,7 +406,7 @@ export function JobDialog(props: JobDialogProps) {
                     className="min-h-[80px] border border-border rounded-lg"
                   />
                 ) : (
-                  renderValue(job?.benefits)
+                  <ExpandableValue value={job?.benefits} />
                 )}
               </div>
             </div>
