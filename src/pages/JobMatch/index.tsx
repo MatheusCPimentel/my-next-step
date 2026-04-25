@@ -101,7 +101,9 @@ export function JobMatch() {
   const sectionLabel = "text-xs text-secondary uppercase tracking-widest";
 
   return (
-    <div className="max-w-2xl mx-auto pb-10 flex flex-col gap-8">
+    <div
+      className={`${status === "done" ? "max-w-none" : "max-w-2xl"} mx-auto w-full pb-10 flex flex-col gap-8`}
+    >
       <div>
         <h1 className="text-primary text-2xl md:text-3xl lg:text-4xl">
           Job Match
@@ -163,8 +165,8 @@ export function JobMatch() {
             Analyze another job
           </Button>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 items-start">
-            <div className="flex flex-col gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-start">
+            <div className="md:col-span-2 flex flex-col gap-6">
               <motion.div
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -214,48 +216,13 @@ export function JobMatch() {
                   </ul>
                 </div>
               </motion.div>
+            </div>
 
+            <div className="md:col-span-1 flex flex-col gap-6">
               <motion.div
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.35, delay: 3 * 0.15 }}
-              >
-                <div className="flex gap-2">
-                  {MOCK_RESULT.fitScore >= 60 && (
-                    <Button
-                      variant="ghost"
-                      disabled={pitchLoading}
-                      onClick={handleGeneratePitch}
-                      className="border border-border-hover bg-transparent text-primary hover:bg-overlay"
-                    >
-                      {pitchLoading ? (
-                        <>
-                          <Loader2 size={16} className="animate-spin mr-2" />{" "}
-                          Generating...
-                        </>
-                      ) : (
-                        <>
-                          <Sparkles size={14} className="mr-2" /> Generate why I
-                          am a great fit
-                        </>
-                      )}
-                    </Button>
-                  )}
-                  <Button
-                    onClick={() => setDialogOpen(true)}
-                    className="bg-purple hover:bg-purple/90 text-primary"
-                  >
-                    Add to Board
-                  </Button>
-                </div>
-              </motion.div>
-            </div>
-
-            <div className="flex flex-col gap-6">
-              <motion.div
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.35, delay: 4 * 0.15 }}
               >
                 <div className="flex flex-col gap-2">
                   <span className={sectionLabel}>Required skills</span>
@@ -270,7 +237,7 @@ export function JobMatch() {
               <motion.div
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.35, delay: 5 * 0.15 }}
+                transition={{ duration: 0.35, delay: 4 * 0.15 }}
               >
                 <div className="flex flex-col gap-2">
                   <span className={sectionLabel}>Nice to have skills</span>
@@ -285,7 +252,7 @@ export function JobMatch() {
               <motion.div
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.35, delay: 6 * 0.15 }}
+                transition={{ duration: 0.35, delay: 5 * 0.15 }}
               >
                 <div className="grid grid-cols-2 gap-3">
                   <div className="bg-overlay rounded-lg p-3 flex flex-col gap-1">
@@ -310,7 +277,7 @@ export function JobMatch() {
               <motion.div
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.35, delay: 7 * 0.15 }}
+                transition={{ duration: 0.35, delay: 6 * 0.15 }}
               >
                 <div className="bg-overlay rounded-lg p-4 flex flex-col gap-2">
                   <span className={sectionLabel}>Benefits</span>
@@ -334,11 +301,46 @@ export function JobMatch() {
             </div>
           </div>
 
-          {showPitch && (
-            <div className="bg-overlay rounded-lg p-4 text-sm text-primary leading-relaxed">
-              {PITCH_TEXT}
+          <motion.div
+            className="mt-6 flex flex-col gap-4"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.35, delay: 7 * 0.15 }}
+          >
+            <div className="flex gap-2">
+              {MOCK_RESULT.fitScore >= 60 && (
+                <Button
+                  variant="ghost"
+                  disabled={pitchLoading}
+                  onClick={handleGeneratePitch}
+                  className="border border-border-hover bg-transparent text-primary hover:bg-overlay"
+                >
+                  {pitchLoading ? (
+                    <>
+                      <Loader2 size={16} className="animate-spin mr-2" />{" "}
+                      Generating...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles size={14} className="mr-2" /> Generate why I am
+                      a great fit
+                    </>
+                  )}
+                </Button>
+              )}
+              <Button
+                onClick={() => setDialogOpen(true)}
+                className="bg-purple hover:bg-purple/90 text-primary"
+              >
+                Add to Board
+              </Button>
             </div>
-          )}
+            {showPitch && (
+              <div className="bg-overlay rounded-lg p-4 text-sm text-primary leading-relaxed">
+                {PITCH_TEXT}
+              </div>
+            )}
+          </motion.div>
         </div>
       )}
 
