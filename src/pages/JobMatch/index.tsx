@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { TagInput } from "@/components/TagInput";
 import { JobDialog } from "@/components/JobDialog";
+import { fitScoreClasses } from "@/lib/fitScore";
 import type { Skill } from "@/pages/Board/types";
 
 const schema = z.object({
@@ -64,40 +65,10 @@ const LOADING_MESSAGES = [
 const PITCH_TEXT =
   "I am a strong fit for this role because of my deep experience with React and TypeScript, having shipped production applications used by thousands of users. While I am still growing my Node.js and AWS skills, I am a fast learner and have worked in similar full-stack environments before.";
 
-function fitScoreColorClass(score: number): string {
-  if (score < 50) return "text-red-500";
-  if (score < 60) return "text-orange-400";
-  if (score < 70) return "text-yellow-400";
-  if (score < 80) return "text-teal";
-  return "text-green-400";
-}
-
-function fitScoreLabel(score: number): string {
-  if (score < 50) return "Not a fit";
-  if (score < 60) return "Borderline";
-  if (score < 70) return "Partial fit";
-  if (score < 80) return "Good fit";
-  return "Excellent fit";
-}
-
-function fitScoreBadgeClass(score: number): string {
-  if (score < 50) return "bg-red-500/15 text-red-500";
-  if (score < 60) return "bg-orange-400/15 text-orange-400";
-  if (score < 70) return "bg-yellow-400/15 text-yellow-400";
-  if (score < 80) return "bg-teal/15 text-teal";
-  return "bg-green-400/15 text-green-400";
-}
-
 function signalIconClass(type: "positive" | "warning" | "negative"): string {
   if (type === "positive") return "bg-teal/15 text-teal";
   if (type === "warning") return "bg-yellow-400/15 text-yellow-400";
   return "bg-red-500/15 text-red-500";
-}
-
-function fitScoreBorderClass(score: number): string {
-  if (score < 50) return "border-l-2 border-red-500";
-  if (score < 60) return "border-l-2 border-yellow-400";
-  return "border-l-2 border-teal";
 }
 
 function SkillLegend() {
@@ -190,6 +161,7 @@ export function JobMatch() {
   }, [pitchLoading]);
 
   const sectionLabel = "text-xs text-secondary uppercase tracking-widest";
+  const fit = fitScoreClasses(MOCK_RESULT.fitScore);
 
   return (
     <div className="max-w-2xl mx-auto pb-10 flex flex-col gap-8">
@@ -262,14 +234,14 @@ export function JobMatch() {
             <div className="grid grid-cols-2 gap-3">
               <div className="bg-overlay rounded-lg p-4 flex flex-col items-start gap-2">
                 <span
-                  className={`text-5xl font-medium ${fitScoreColorClass(MOCK_RESULT.fitScore)}`}
+                  className={`text-5xl font-medium ${fit.text}`}
                 >
                   {MOCK_RESULT.fitScore}
                 </span>
                 <span
-                  className={`inline-flex items-center px-2 py-0.5 rounded text-xs ${fitScoreBadgeClass(MOCK_RESULT.fitScore)}`}
+                  className={`inline-flex items-center px-2 py-0.5 rounded text-xs ${fit.badge}`}
                 >
-                  {fitScoreLabel(MOCK_RESULT.fitScore)}
+                  {fit.label}
                 </span>
                 <span className="text-xs text-secondary uppercase tracking-widest">
                   Fit score
@@ -415,7 +387,7 @@ export function JobMatch() {
             transition={{ duration: 0.35, delay: 7 * 0.15 }}
           >
             <div
-              className={`bg-overlay rounded-lg p-4 flex flex-col gap-2 ${fitScoreBorderClass(MOCK_RESULT.fitScore)}`}
+              className={`bg-overlay rounded-lg p-4 flex flex-col gap-2 ${fit.border}`}
             >
               <span className={sectionLabel}>Final verdict</span>
               <p className="text-sm text-primary leading-relaxed">
