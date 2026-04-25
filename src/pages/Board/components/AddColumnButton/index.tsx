@@ -36,7 +36,7 @@ export function AddColumnButton({ onAdd, disabled }: AddColumnButtonProps) {
 
   if (editing) {
     return (
-      <div className="h-[calc(100vh-180px)] w-[272px] shrink-0 bg-surface rounded-xl p-3">
+      <div className="h-full min-h-0 w-[272px] shrink-0 bg-surface rounded-xl p-3">
         <Input
           ref={inputRef}
           value={value}
@@ -63,7 +63,7 @@ export function AddColumnButton({ onAdd, disabled }: AddColumnButtonProps) {
       type="button"
       onClick={() => setEditing(true)}
       aria-label="Add column"
-      className="group/add h-[calc(100vh-180px)] w-[272px] shrink-0 rounded-xl border border-dashed border-border-hover text-muted hover:border-purple hover:text-purple-soft hover:bg-purple/5 transition-colors flex flex-col items-center justify-center gap-2 p-3"
+      className="group/add h-full min-h-0 w-[272px] shrink-0 rounded-xl border border-dashed border-border-hover text-muted hover:border-purple hover:text-purple-soft hover:bg-purple/5 transition-colors flex flex-col items-center justify-center gap-2 p-3"
     >
       <span className="flex items-center justify-center w-8 h-8 rounded-full border border-dashed border-border-hover group-hover/add:border-purple transition-colors">
         <Plus size={16} />

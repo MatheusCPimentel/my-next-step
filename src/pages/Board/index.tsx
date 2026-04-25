@@ -384,7 +384,7 @@ export function Board() {
   const isCardDragging = activeDrag?.type === "card";
 
   return (
-    <div className="flex flex-col gap-4 -mx-6">
+    <div className="flex flex-col gap-4 -mx-6 h-full min-h-0">
       <div className="flex items-center justify-between px-6">
         <h1 className="text-primary">Board</h1>
         <Button
@@ -406,7 +406,7 @@ export function Board() {
           items={sortableColumnIds}
           strategy={horizontalListSortingStrategy}
         >
-          <div className="board-scroll overflow-x-auto px-6 pb-2">
+          <div className="board-scroll flex-1 min-h-0 overflow-x-auto px-6 pb-2">
             <div className="flex items-stretch gap-3 min-w-full w-fit">
               {renderedSlices}
             </div>
