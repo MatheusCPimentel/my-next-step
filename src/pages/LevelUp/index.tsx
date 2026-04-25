@@ -96,33 +96,37 @@ function WeakPointItem({
       </button>
 
       <div className="flex-1 min-w-0 flex flex-col gap-1.5">
-        <div className="flex items-start justify-between gap-2">
-          <p
-            className={`text-sm font-medium ${
-              weakPoint.mastered ? "line-through text-secondary" : "text-primary"
-            }`}
-          >
-            {weakPoint.question}
-          </p>
-          <div className="flex items-center gap-2 shrink-0">
-            <button
-              type="button"
-              aria-label={`Edit "${weakPoint.question}"`}
-              onClick={handleStartEdit}
-              className="text-muted hover:text-primary transition-colors"
+        {!isEditing && (
+          <div className="flex items-start justify-between gap-2">
+            <p
+              className={`text-sm font-medium ${
+                weakPoint.mastered
+                  ? "line-through text-secondary"
+                  : "text-primary"
+              }`}
             >
-              <Pencil size={14} />
-            </button>
-            <button
-              type="button"
-              aria-label={`Remove "${weakPoint.question}"`}
-              onClick={() => onRemove(weakPoint.id)}
-              className="text-muted hover:text-red-400 transition-colors"
-            >
-              <Trash2 size={14} />
-            </button>
+              {weakPoint.question}
+            </p>
+            <div className="flex items-center gap-2 shrink-0">
+              <button
+                type="button"
+                aria-label={`Edit "${weakPoint.question}"`}
+                onClick={handleStartEdit}
+                className="text-muted hover:text-primary transition-colors"
+              >
+                <Pencil size={14} />
+              </button>
+              <button
+                type="button"
+                aria-label={`Remove "${weakPoint.question}"`}
+                onClick={() => onRemove(weakPoint.id)}
+                className="text-muted hover:text-red-400 transition-colors"
+              >
+                <Trash2 size={14} />
+              </button>
+            </div>
           </div>
-        </div>
+        )}
 
         {isEditing ? (
           <div className="flex flex-col gap-3 mt-1">
@@ -141,7 +145,23 @@ function WeakPointItem({
                 className="min-h-[100px] border border-border rounded-lg"
               />
             </div>
-            <div className="flex justify-end gap-2">
+          </div>
+        ) : (
+          <p
+            className={`text-sm text-secondary leading-relaxed ${
+              weakPoint.mastered ? "opacity-50" : ""
+            }`}
+          >
+            {weakPoint.answer}
+          </p>
+        )}
+
+        <div className="flex items-center justify-between gap-3">
+          <span className="inline-flex items-center text-[10px] text-muted bg-overlay border border-border px-1.5 py-0.5 rounded-full">
+            from: {weakPoint.sourceJob}
+          </span>
+          {isEditing && (
+            <div className="flex items-center gap-2">
               <Button
                 variant="ghost"
                 onClick={onCancelEdit}
@@ -156,21 +176,7 @@ function WeakPointItem({
                 Save
               </Button>
             </div>
-          </div>
-        ) : (
-          <p
-            className={`text-sm text-secondary leading-relaxed ${
-              weakPoint.mastered ? "opacity-50" : ""
-            }`}
-          >
-            {weakPoint.answer}
-          </p>
-        )}
-
-        <div>
-          <span className="inline-flex items-center text-[10px] text-muted bg-overlay border border-border px-1.5 py-0.5 rounded-full">
-            from: {weakPoint.sourceJob}
-          </span>
+          )}
         </div>
       </div>
     </div>
@@ -337,7 +343,7 @@ export function LevelUp() {
 
       <div className="flex flex-col gap-3">
         <span className="text-xs text-secondary uppercase tracking-widest">
-          Pending
+          To review
         </span>
         <div className="flex flex-col gap-3">
           {INITIAL_CATEGORIES.map((category) => (
