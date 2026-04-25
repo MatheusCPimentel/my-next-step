@@ -9,6 +9,7 @@ import {
   INITIAL_WEAK_POINTS,
 } from "@/pages/LevelUp/mockData";
 import type { WeakPoint, WeakPointCategory } from "@/pages/LevelUp/types";
+import { cn } from "@/lib/utils";
 
 const COLOR_DOT: Record<WeakPointCategory["color"], string> = {
   coral: "bg-[#D85A30]",
@@ -19,14 +20,25 @@ const COLOR_DOT: Record<WeakPointCategory["color"], string> = {
 };
 
 interface StatCardProps {
+  containerClassName?: string;
   label: string;
   value: number;
   valueClass: string;
 }
 
-function StatCard({ label, value, valueClass }: StatCardProps) {
+function StatCard({
+  containerClassName,
+  label,
+  value,
+  valueClass,
+}: StatCardProps) {
   return (
-    <div className="flex-1 bg-surface rounded-lg p-4 flex flex-col gap-1">
+    <div
+      className={cn(
+        "flex-1 bg-surface rounded-lg p-4 flex flex-col gap-1",
+        containerClassName,
+      )}
+    >
       <span className="text-xs text-secondary uppercase tracking-widest">
         {label}
       </span>
@@ -324,7 +336,7 @@ export function LevelUp() {
         </p>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+      <div className="grid  grid-cols-2 md:grid-cols-3 gap-3">
         <StatCard
           label="Open points"
           value={openCount}
@@ -339,6 +351,7 @@ export function LevelUp() {
           label="From rejections"
           value={weakPoints.length}
           valueClass="text-primary"
+          containerClassName="col-span-2 md:col-span-1"
         />
       </div>
 

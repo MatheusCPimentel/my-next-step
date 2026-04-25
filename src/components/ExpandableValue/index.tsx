@@ -31,17 +31,14 @@ export function ExpandableValue({
 
   return (
     <>
-      <p
-        ref={ref}
-        className={`${className} ${expanded ? "" : "line-clamp-4"}`}
-      >
+      <p ref={ref} className={`${className} ${expanded ? "" : "line-clamp-4"}`}>
         {value}
       </p>
       {overflowing && (
         <button
           type="button"
           onClick={() => setExpanded((v) => !v)}
-          className="text-xs text-blue-400 hover:text-blue-300 transition-colors mt-1 self-start"
+          className="text-xs text-blue-400 hover:text-blue-300 transition-colors self-start"
         >
           {expanded ? "Show less" : "Show more"}
         </button>
