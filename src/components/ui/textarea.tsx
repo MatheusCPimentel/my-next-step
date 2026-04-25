@@ -35,21 +35,21 @@ function CountedTextarea({
     onChange?.(e)
   }
 
-  const isWarning = count >= maxLength * 0.9
+  const isAtOrOver = count >= maxLength
+  const isOver = count > maxLength
 
   return (
-    <div className="relative">
+    <div className={cn("relative", isOver && "border border-red-500 rounded-lg")}>
       <textarea
         data-slot="textarea"
         className={cn(BASE_CLASSES, className)}
-        maxLength={maxLength}
         {...props}
         onChange={handleChange}
       />
       <span
         className={cn(
           "absolute bottom-2 right-2 text-xs pointer-events-none",
-          isWarning ? "text-red-500" : "text-muted"
+          isAtOrOver ? "text-red-500" : "text-muted"
         )}
       >
         {count} / {maxLength}

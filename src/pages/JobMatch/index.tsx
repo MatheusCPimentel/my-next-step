@@ -12,7 +12,10 @@ import type { Skill } from "@/pages/Board/types";
 
 const schema = z.object({
   title: z.string().min(1, "Title is required"),
-  description: z.string().min(1, "Description is required"),
+  description: z
+    .string()
+    .min(1, "Description is required")
+    .max(8000, "Description must be under 8000 characters"),
 });
 type FormValues = z.infer<typeof schema>;
 
@@ -80,11 +83,15 @@ export function JobMatch() {
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors },
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: { title: "", description: "" },
   });
+
+  const descriptionValue = watch("description") ?? "";
+  const isDescriptionOverLimit = descriptionValue.length > 8000;
 
   const onValid = (values: FormValues) => {
     setSubmittedInput({ title: values.title, description: values.description });
@@ -157,7 +164,7 @@ export function JobMatch() {
         </div>
         <Button
           type="submit"
-          disabled={status === "loading"}
+          disabled={status === "loading" || isDescriptionOverLimit}
           className="bg-purple hover:bg-purple/90 text-primary w-full"
         >
           {status === "loading" ? (
@@ -171,7 +178,7 @@ export function JobMatch() {
       </form>
 
       {status === "done" && (
-        <div ref={resultRef} className="flex flex-col gap-6">
+        <div ref={resultRef} className="flex flex-col gap-6 scroll-mt-8">
           <div className="flex flex-col gap-1">
             <div className="flex items-baseline gap-3">
               <span
@@ -295,8 +302,14 @@ export function JobMatch() {
           title: submittedInput?.title ?? "",
           description: submittedInput?.description ?? "",
           matchVerdict: MOCK_RESULT.finalVerdict,
-          requiredSkills: MOCK_RESULT.requiredSkills,
-          niceToHaveSkills: MOCK_RESULT.niceToHaveSkills,
+          requiredSkills: MOCK_RESULT.requiredSkills.map((s) => ({
+            name: s.name,
+            variant: "neutral",
+          })),
+          niceToHaveSkills: MOCK_RESULT.niceToHaveSkills.map((s) => ({
+            name: s.name,
+            variant: "neutral",
+          })),
           contractType: MOCK_RESULT.contractType,
           salary: MOCK_RESULT.salary,
           benefits: MOCK_RESULT.benefits,

@@ -172,7 +172,7 @@ function ActivityRow({ activity }: { activity: Activity }) {
 
 export function Dashboard() {
   return (
-    <div className="max-w-4xl mx-auto flex flex-col gap-10">
+    <div className="max-w-3xl mx-auto flex flex-col gap-10">
       <div>
         <h1 className="text-primary">
           {getGreeting()}, {MOCK_USER.name}

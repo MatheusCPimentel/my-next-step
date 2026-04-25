@@ -83,31 +83,60 @@ describe("Textarea", () => {
       expect(screen.getByText("2 / 50")).toBeInTheDocument();
     });
 
-    it("applies the warning color class when count reaches 90% of the limit", async () => {
+    it("applies the warning color class when count reaches the limit exactly", async () => {
       const user = userEvent.setup();
       render(<Textarea maxLength={10} />);
 
-      await user.type(screen.getByRole("textbox"), "123456789");
+      await user.type(screen.getByRole("textbox"), "1234567890");
 
-      const counter = screen.getByText("9 / 10");
+      const counter = screen.getByText("10 / 10");
       expect(counter.className).toContain("text-red-500");
     });
 
-    it("uses the muted color class when count is below 90% of the limit", async () => {
+    it("uses the muted color class when count is below the limit", async () => {
       const user = userEvent.setup();
       render(<Textarea maxLength={10} />);
 
-      await user.type(screen.getByRole("textbox"), "12345");
+      await user.type(screen.getByRole("textbox"), "12345678");
 
-      const counter = screen.getByText("5 / 10");
+      const counter = screen.getByText("8 / 10");
       expect(counter.className).toContain("text-muted");
       expect(counter.className).not.toContain("text-red-500");
     });
 
-    it("passes maxLength to the native textarea so the browser caps input", () => {
-      render(<Textarea maxLength={25} />);
+    it("does not pass the native maxLength attribute (allows over-typing)", async () => {
+      const user = userEvent.setup();
+      render(<Textarea maxLength={5} />);
 
-      expect(screen.getByRole("textbox")).toHaveAttribute("maxlength", "25");
+      const textarea = screen.getByRole("textbox");
+      expect(textarea).not.toHaveAttribute("maxlength");
+
+      await user.type(textarea, "abcdefgh");
+
+      expect(screen.getByText("8 / 5")).toBeInTheDocument();
+      expect((textarea as HTMLTextAreaElement).value).toBe("abcdefgh");
+    });
+
+    it("adds a red border to the wrapper when count exceeds the limit", async () => {
+      const user = userEvent.setup();
+      render(<Textarea data-testid="ta" maxLength={3} />);
+
+      const textarea = screen.getByTestId("ta");
+      await user.type(textarea, "abcd");
+
+      const wrapper = textarea.parentElement!;
+      expect(wrapper.className).toContain("border-red-500");
+    });
+
+    it("does not add the red border when count is exactly at the limit", async () => {
+      const user = userEvent.setup();
+      render(<Textarea data-testid="ta" maxLength={3} />);
+
+      const textarea = screen.getByTestId("ta");
+      await user.type(textarea, "abc");
+
+      const wrapper = textarea.parentElement!;
+      expect(wrapper.className).not.toContain("border-red-500");
     });
   });
 });

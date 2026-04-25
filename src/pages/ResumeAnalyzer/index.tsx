@@ -301,7 +301,7 @@ export function ResumeAnalyzer() {
   }, []);
 
   return (
-    <div className="max-w-2xl mx-auto flex flex-col gap-8">
+    <div className="max-w-3xl mx-auto flex flex-col gap-8">
       <div>
         <h1 className="text-primary">Resume Analyzer</h1>
         <p className="text-secondary mt-1">
