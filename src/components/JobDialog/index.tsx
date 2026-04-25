@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { XIcon } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -86,6 +87,7 @@ export function JobDialog(props: JobDialogProps) {
   const [internalMode, setInternalMode] = useState<Mode>(mode);
   const [prevOpen, setPrevOpen] = useState(open);
   const [prevInternalMode, setPrevInternalMode] = useState<Mode>(mode);
+  const [showDiscardConfirm, setShowDiscardConfirm] = useState(false);
 
   const {
     register,
@@ -104,6 +106,7 @@ export function JobDialog(props: JobDialogProps) {
       setInternalMode(mode);
       setPrevInternalMode(mode);
       reset(defaultsFromJob(job));
+      setShowDiscardConfirm(false);
     }
   }
 
@@ -151,7 +154,31 @@ export function JobDialog(props: JobDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-surface border border-border text-primary max-w-3xl sm:max-w-3xl">
+      <DialogContent
+        className="bg-surface border border-border text-primary max-w-3xl sm:max-w-3xl"
+        showCloseButton={false}
+        onInteractOutside={(e) => {
+          if (isEditable) e.preventDefault();
+        }}
+        onEscapeKeyDown={(e) => {
+          if (isEditable) e.preventDefault();
+        }}
+      >
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          className="absolute top-2 right-2"
+          onClick={() => {
+            if (isEditable) {
+              setShowDiscardConfirm(true);
+            } else {
+              onOpenChange(false);
+            }
+          }}
+          aria-label="Close"
+        >
+          <XIcon />
+        </Button>
         <DialogHeader>
           <DialogTitle className="text-primary">
             {titleForMode(internalMode)}
@@ -337,33 +364,53 @@ export function JobDialog(props: JobDialogProps) {
           </div>
         </div>
 
-        <DialogFooter className="sm:items-center">
-          {internalMode !== "view" && (
-            <span className="text-muted text-xs sm:mr-auto">
-              * Required fields
+        {showDiscardConfirm ? (
+          <DialogFooter className="sm:items-center">
+            <span className="text-muted text-sm sm:mr-auto">
+              You have unsaved changes.
             </span>
-          )}
-          {internalMode === "view" ? (
             <Button
-              onClick={() => setInternalMode("edit")}
-              className="bg-purple hover:bg-purple/90 text-primary"
+              variant="ghost"
+              onClick={() => setShowDiscardConfirm(false)}
             >
-              Edit
+              Keep editing
             </Button>
-          ) : (
-            <>
-              <Button variant="secondary" onClick={handleCancel}>
-                Cancel
-              </Button>
+            <Button
+              variant="destructive"
+              onClick={() => onOpenChange(false)}
+            >
+              Discard changes
+            </Button>
+          </DialogFooter>
+        ) : (
+          <DialogFooter className="sm:items-center">
+            {internalMode !== "view" && (
+              <span className="text-muted text-xs sm:mr-auto">
+                * Required fields
+              </span>
+            )}
+            {internalMode === "view" ? (
               <Button
-                onClick={handleSubmit(onValid)}
+                onClick={() => setInternalMode("edit")}
                 className="bg-purple hover:bg-purple/90 text-primary"
               >
-                Save
+                Edit
               </Button>
-            </>
-          )}
-        </DialogFooter>
+            ) : (
+              <>
+                <Button variant="secondary" onClick={handleCancel}>
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleSubmit(onValid)}
+                  className="bg-purple hover:bg-purple/90 text-primary"
+                >
+                  Save
+                </Button>
+              </>
+            )}
+          </DialogFooter>
+        )}
       </DialogContent>
     </Dialog>
   );
