@@ -156,22 +156,26 @@ function WeakPointItem({
           />
         )}
 
-        <div className="flex items-center justify-between mt-1">
-          <span className="inline-flex items-center text-[10px] text-muted bg-overlay border border-border px-1.5 py-0.5 rounded-full">
+        <div className="flex items-center justify-between gap-3 mt-1">
+          <span
+            className={`${
+              isEditing ? "hidden md:block" : "inline-flex items-center"
+            } text-[10px] text-muted bg-overlay border border-border px-1.5 py-0.5 rounded-full`}
+          >
             from: {weakPoint.sourceJob}
           </span>
           {isEditing && (
-            <div className="flex items-center gap-2">
+            <div className="ml-auto w-full md:w-auto flex items-center gap-2">
               <Button
                 variant="ghost"
                 onClick={onCancelEdit}
-                className="border border-border-hover text-primary hover:bg-overlay"
+                className="flex-1 md:flex-initial border border-border-hover text-primary hover:bg-overlay"
               >
                 Cancel
               </Button>
               <Button
                 onClick={handleSave}
-                className="bg-purple hover:bg-purple/90 text-primary"
+                className="flex-1 md:flex-initial bg-purple hover:bg-purple/90 text-primary"
               >
                 Save
               </Button>
@@ -320,7 +324,7 @@ export function LevelUp() {
         </p>
       </div>
 
-      <div className="flex gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
         <StatCard
           label="Open points"
           value={openCount}
