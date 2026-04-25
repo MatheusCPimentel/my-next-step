@@ -19,7 +19,21 @@ describe("JobMatch", () => {
     expect(
       screen.queryByText(/reading job description/i),
     ).not.toBeInTheDocument();
-    expect(screen.queryByText(/final verdict/i)).not.toBeInTheDocument();
+    expect(screen.queryByText("Final verdict")).not.toBeInTheDocument();
+  });
+
+  it("renders the Additional context textarea on idle", () => {
+    render(<JobMatch />);
+    expect(
+      screen.getByPlaceholderText(
+        /Anything the job description doesn't cover/i,
+      ),
+    ).toBeInTheDocument();
+  });
+
+  it("renders the explainer with 'How it works' on idle", () => {
+    render(<JobMatch />);
+    expect(screen.getByText("How it works")).toBeInTheDocument();
   });
 
   describe("with fake timers", () => {

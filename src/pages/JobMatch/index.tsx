@@ -16,6 +16,7 @@ import {
 } from "@/pages/JobMatch/mockData";
 import { signalDotClass } from "@/pages/JobMatch/helpers";
 import { ScoreCard } from "@/pages/JobMatch/components/ScoreCard";
+import { Explainer } from "@/pages/JobMatch/components/Explainer";
 
 const schema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -23,6 +24,7 @@ const schema = z.object({
     .string()
     .min(1, "Description is required")
     .max(8000, "Description must be under 8000 characters"),
+  additionalContext: z.string().optional(),
 });
 type FormValues = z.infer<typeof schema>;
 
@@ -37,6 +39,7 @@ export function JobMatch() {
   const [submittedInput, setSubmittedInput] = useState<{
     title: string;
     description: string;
+    additionalContext: string;
   } | null>(null);
 
   const {
@@ -47,14 +50,18 @@ export function JobMatch() {
     formState: { errors },
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { title: "", description: "" },
+    defaultValues: { title: "", description: "", additionalContext: "" },
   });
 
   const descriptionValue = watch("description") ?? "";
   const isDescriptionOverLimit = descriptionValue.length > 8000;
 
   const onValid = (values: FormValues) => {
-    setSubmittedInput({ title: values.title, description: values.description });
+    setSubmittedInput({
+      title: values.title,
+      description: values.description,
+      additionalContext: values.additionalContext ?? "",
+    });
     setShowPitch(false);
     setPitchLoading(false);
     setStatus("loading");
@@ -69,7 +76,7 @@ export function JobMatch() {
     setShowPitch(false);
     setPitchLoading(false);
     setSubmittedInput(null);
-    reset({ title: "", description: "" });
+    reset({ title: "", description: "", additionalContext: "" });
   };
 
   useEffect(() => {
@@ -100,48 +107,64 @@ export function JobMatch() {
 
   const sectionLabel = "text-xs text-secondary uppercase tracking-widest";
 
-  return (
-    <div className="max-w-2xl mx-auto pb-10 flex flex-col gap-8">
-      <div>
-        <h1 className="text-primary text-2xl md:text-3xl lg:text-4xl">
-          Job Match
-        </h1>
-        <p className="text-secondary mt-1">
-          Paste a job description and find out how well it fits your profile.
-        </p>
-      </div>
+  const titleBlock = (
+    <div>
+      <h1 className="text-primary text-2xl md:text-3xl lg:text-4xl">Job Match</h1>
+      <p className="text-secondary mt-1">
+        Paste a job description and find out how well it fits your profile.
+      </p>
+    </div>
+  );
 
+  return (
+    <div className="mx-auto w-full pb-10 flex flex-col gap-8">
       {status === "idle" && (
-        <form onSubmit={handleSubmit(onValid)} className="flex flex-col gap-4">
-          <div className="flex flex-col gap-1">
-            <label className="text-xs text-secondary">Job title</label>
-            <Input
-              placeholder="Senior Frontend Engineer at Acme"
-              {...register("title")}
-            />
-            {errors.title && (
-              <p className="text-red-500 text-xs">{errors.title.message}</p>
-            )}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+          <div className="flex flex-col gap-8">
+            {titleBlock}
+            <form onSubmit={handleSubmit(onValid)} className="flex flex-col gap-4">
+              <div className="flex flex-col gap-1">
+                <label className="text-xs text-secondary">Job title</label>
+                <Input
+                  placeholder="Senior Frontend Engineer at Acme"
+                  {...register("title")}
+                />
+                {errors.title && (
+                  <p className="text-red-500 text-xs">{errors.title.message}</p>
+                )}
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-xs text-secondary">Job description</label>
+                <Textarea
+                  maxLength={8000}
+                  placeholder="Paste the full job description here..."
+                  className="min-h-[240px] border border-border rounded-lg"
+                  error={errors.description?.message}
+                  {...register("description")}
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-xs text-secondary">Additional context</label>
+                <Textarea
+                  placeholder="Anything the job description doesn't cover — recruiter info, company culture impressions, why you're interested..."
+                  className="min-h-[80px] border border-border rounded-lg"
+                  {...register("additionalContext")}
+                />
+              </div>
+              <Button
+                type="submit"
+                disabled={isDescriptionOverLimit}
+                className="bg-purple hover:bg-purple/90 text-primary w-full"
+              >
+                <Sparkles size={14} className="mr-2" /> Analyze
+              </Button>
+            </form>
           </div>
-          <div className="flex flex-col gap-1">
-            <label className="text-xs text-secondary">Job description</label>
-            <Textarea
-              maxLength={8000}
-              placeholder="Paste the full job description here..."
-              className="min-h-[240px] border border-border rounded-lg"
-              error={errors.description?.message}
-              {...register("description")}
-            />
-          </div>
-          <Button
-            type="submit"
-            disabled={isDescriptionOverLimit}
-            className="bg-purple hover:bg-purple/90 text-primary w-full"
-          >
-            <Sparkles size={14} className="mr-2" /> Analyze
-          </Button>
-        </form>
+          <Explainer />
+        </div>
       )}
+
+      {status !== "idle" && titleBlock}
 
       {status === "loading" && (
         <div className="flex flex-col items-center justify-center min-h-[400px] gap-6">

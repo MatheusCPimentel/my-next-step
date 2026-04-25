@@ -1,4 +1,5 @@
 import { fitScoreClasses } from "@/lib/fitScore";
+import { ScoreBar } from "@/pages/JobMatch/components/ScoreBar";
 
 interface ScoreCardProps {
   opportunityScore: number;
@@ -81,40 +82,9 @@ export function ScoreCard({
       <div className="h-px bg-border" />
 
       <div className="flex flex-col gap-3">
-        <div className="flex items-center gap-3">
-          <div className="w-32 shrink-0 flex flex-col">
-            <span className="text-sm text-primary">Fit score</span>
-            <span className="text-xs text-muted">Skills match</span>
-          </div>
-          <div className="flex-1 h-1.5 bg-border rounded-full overflow-hidden">
-            <div
-              className="h-full rounded-full bg-teal"
-              style={{ width: `${fitScore}%` }}
-            />
-          </div>
-          <span className="w-10 text-right text-sm text-primary tabular-nums">
-            {fitScore}
-          </span>
-        </div>
-
+        <ScoreBar label="Fit score" sublabel="Skills match" value={fitScore} barClass="bg-teal" />
         {showEnvironment && (
-          <div className="flex items-center gap-3">
-            <div className="w-32 shrink-0 flex flex-col">
-              <span className="text-sm text-primary">Environment</span>
-              <span className="text-xs text-muted">
-                How healthy is this place
-              </span>
-            </div>
-            <div className="flex-1 h-1.5 bg-border rounded-full overflow-hidden">
-              <div
-                className="h-full rounded-full bg-muted"
-                style={{ width: `${environmentScore}%` }}
-              />
-            </div>
-            <span className="w-10 text-right text-sm text-primary tabular-nums">
-              {environmentScore}
-            </span>
-          </div>
+          <ScoreBar label="Environment" sublabel="How healthy is this place" value={environmentScore} barClass="bg-muted" />
         )}
       </div>
 
