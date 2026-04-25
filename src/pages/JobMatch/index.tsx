@@ -77,7 +77,6 @@ function fitScoreLabel(score: number): string {
   if (score < 60) return "Borderline";
   if (score < 70) return "Partial fit";
   if (score < 80) return "Good fit";
-  if (score < 90) return "Great fit";
   return "Excellent fit";
 }
 
@@ -85,7 +84,7 @@ function fitScoreBadgeClass(score: number): string {
   if (score < 50) return "bg-red-500/15 text-red-500";
   if (score < 60) return "bg-orange-400/15 text-orange-400";
   if (score < 70) return "bg-yellow-400/15 text-yellow-400";
-  if (score < 90) return "bg-teal/15 text-teal";
+  if (score < 80) return "bg-teal/15 text-teal";
   return "bg-green-400/15 text-green-400";
 }
 
