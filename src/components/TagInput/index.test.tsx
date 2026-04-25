@@ -179,4 +179,71 @@ describe("TagInput", () => {
 
     expect(container).toBeEmptyDOMElement();
   });
+
+  describe("duplicate prevention", () => {
+    it("does not append a tag when the same name is submitted twice in a row", async () => {
+      const user = userEvent.setup();
+      const onChange = vi.fn();
+      render(<Harness onChange={onChange} placeholder="Add skill" />);
+
+      const input = screen.getByPlaceholderText("Add skill");
+      await user.type(input, "React{Enter}");
+      await user.type(input, "React{Enter}");
+
+      expect(onChange).toHaveBeenCalledTimes(1);
+      expect(onChange).toHaveBeenLastCalledWith([
+        { name: "React", variant: "neutral" },
+      ]);
+    });
+
+    it("treats names as case-insensitive when checking for duplicates", async () => {
+      const user = userEvent.setup();
+      const onChange = vi.fn();
+      render(
+        <Harness
+          initial={[makeSkill({ name: "react" })]}
+          onChange={onChange}
+          placeholder="Add skill"
+        />,
+      );
+
+      await user.type(screen.getByPlaceholderText("Add skill"), "REACT{Enter}");
+
+      expect(onChange).not.toHaveBeenCalled();
+    });
+
+    it("ignores surrounding whitespace when checking for duplicates", async () => {
+      const user = userEvent.setup();
+      const onChange = vi.fn();
+      render(
+        <Harness
+          initial={[makeSkill({ name: "react" })]}
+          onChange={onChange}
+          placeholder="Add skill"
+        />,
+      );
+
+      await user.type(
+        screen.getByPlaceholderText("Add skill"),
+        "  react  {Enter}",
+      );
+
+      expect(onChange).not.toHaveBeenCalled();
+    });
+
+    it("clears the input draft after a duplicate submission", async () => {
+      const user = userEvent.setup();
+      render(
+        <Harness
+          initial={[makeSkill({ name: "React" })]}
+          placeholder="Add skill"
+        />,
+      );
+
+      const input = screen.getByPlaceholderText("Add skill") as HTMLInputElement;
+      await user.type(input, "React{Enter}");
+
+      expect(input.value).toBe("");
+    });
+  });
 });

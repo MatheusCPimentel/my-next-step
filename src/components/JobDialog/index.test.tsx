@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { useState } from "react";
-import { act, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { JobDialog } from "@/components/JobDialog";
 import type { Job } from "@/pages/Board/types";
@@ -338,6 +338,212 @@ describe("JobDialog", () => {
       expect(submitted.description).toBe(job.description);
 
       expect(onOpenChange).toHaveBeenCalledWith(false);
+    });
+  });
+
+  describe("company validation", () => {
+    it("shows 'Company is required' and does not call onSubmit when company is empty", async () => {
+      const user = userEvent.setup();
+      const onSubmit = vi.fn();
+      render(<Harness mode="create" columnId="applied" onSubmit={onSubmit} />);
+
+      await user.type(
+        screen.getByPlaceholderText("Job title"),
+        "Senior Engineer",
+      );
+      await user.type(
+        screen.getByPlaceholderText("What is the role about?"),
+        "A description",
+      );
+      const skillInputs = screen.getAllByPlaceholderText("Add a skill");
+      await user.type(skillInputs[0], "React{Enter}");
+
+      await user.click(screen.getByRole("button", { name: /^save$/i }));
+
+      expect(await screen.findByText("Company is required")).toBeInTheDocument();
+      expect(onSubmit).not.toHaveBeenCalled();
+    });
+
+    it("includes the typed company in the submitted Job when all required fields are filled", async () => {
+      const user = userEvent.setup();
+      const onSubmit = vi.fn();
+      render(<Harness mode="create" columnId="applied" onSubmit={onSubmit} />);
+
+      await user.type(screen.getByPlaceholderText("Company name"), "Stripe");
+      await user.type(
+        screen.getByPlaceholderText("Job title"),
+        "Senior Engineer",
+      );
+      await user.type(
+        screen.getByPlaceholderText("What is the role about?"),
+        "Build great products",
+      );
+      const skillInputs = screen.getAllByPlaceholderText("Add a skill");
+      await user.type(skillInputs[0], "React{Enter}");
+
+      await user.click(screen.getByRole("button", { name: /^save$/i }));
+
+      expect(onSubmit).toHaveBeenCalledTimes(1);
+      const submitted = onSubmit.mock.calls[0][0] as Job;
+      expect(submitted.company).toBe("Stripe");
+    });
+  });
+
+  describe("unsaved changes protection", () => {
+    it("does not close the dialog when the close X is clicked in create mode", async () => {
+      const user = userEvent.setup();
+      const onOpenChange = vi.fn();
+      const onSubmit = vi.fn();
+
+      function Wrapper() {
+        const [open, setOpen] = useState(true);
+        return (
+          <JobDialog
+            mode="create"
+            columnId="applied"
+            open={open}
+            onOpenChange={(next) => {
+              onOpenChange(next);
+              setOpen(next);
+            }}
+            onSubmit={onSubmit}
+          />
+        );
+      }
+
+      render(<Wrapper />);
+
+      await user.type(screen.getByPlaceholderText("Company name"), "Acme");
+
+      fireEvent.click(screen.getByRole("button", { name: /close/i }));
+
+      expect(onOpenChange).not.toHaveBeenCalled();
+      expect(
+        screen.getByText("You have unsaved changes."),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: /keep editing/i }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: /discard changes/i }),
+      ).toBeInTheDocument();
+      expect(
+        screen.queryByRole("button", { name: /^save$/i }),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole("button", { name: /^cancel$/i }),
+      ).not.toBeInTheDocument();
+    });
+
+    it("hides the discard confirm and preserves the form when 'Keep editing' is clicked", async () => {
+      const user = userEvent.setup();
+      const onOpenChange = vi.fn();
+
+      function Wrapper() {
+        const [open, setOpen] = useState(true);
+        return (
+          <JobDialog
+            mode="create"
+            columnId="applied"
+            open={open}
+            onOpenChange={(next) => {
+              onOpenChange(next);
+              setOpen(next);
+            }}
+            onSubmit={vi.fn()}
+          />
+        );
+      }
+
+      render(<Wrapper />);
+
+      const companyInput = screen.getByPlaceholderText(
+        "Company name",
+      ) as HTMLInputElement;
+      await user.type(companyInput, "Acme");
+
+      fireEvent.click(screen.getByRole("button", { name: /close/i }));
+
+      expect(
+        screen.getByText("You have unsaved changes."),
+      ).toBeInTheDocument();
+
+      fireEvent.click(screen.getByRole("button", { name: /keep editing/i }));
+
+      expect(
+        screen.queryByText("You have unsaved changes."),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: /^cancel$/i }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: /^save$/i }),
+      ).toBeInTheDocument();
+
+      const reopenedCompany = screen.getByPlaceholderText(
+        "Company name",
+      ) as HTMLInputElement;
+      expect(reopenedCompany.value).toBe("Acme");
+      expect(onOpenChange).not.toHaveBeenCalled();
+    });
+
+    it("calls onOpenChange(false) when 'Discard changes' is clicked", async () => {
+      const user = userEvent.setup();
+      const onOpenChange = vi.fn();
+
+      function Wrapper() {
+        const [open, setOpen] = useState(true);
+        return (
+          <JobDialog
+            mode="create"
+            columnId="applied"
+            open={open}
+            onOpenChange={(next) => {
+              onOpenChange(next);
+              setOpen(next);
+            }}
+            onSubmit={vi.fn()}
+          />
+        );
+      }
+
+      render(<Wrapper />);
+
+      await user.type(screen.getByPlaceholderText("Company name"), "Acme");
+
+      fireEvent.click(screen.getByRole("button", { name: /close/i }));
+      fireEvent.click(screen.getByRole("button", { name: /discard changes/i }));
+
+      expect(onOpenChange).toHaveBeenCalledWith(false);
+    });
+
+    it("closes the dialog directly when the close X is clicked in view mode", async () => {
+      const onOpenChange = vi.fn();
+
+      function Wrapper() {
+        const [open, setOpen] = useState(true);
+        return (
+          <JobDialog
+            mode="view"
+            job={makeJob()}
+            open={open}
+            onOpenChange={(next) => {
+              onOpenChange(next);
+              setOpen(next);
+            }}
+            onSubmit={vi.fn()}
+          />
+        );
+      }
+
+      render(<Wrapper />);
+
+      fireEvent.click(screen.getByRole("button", { name: /close/i }));
+
+      expect(onOpenChange).toHaveBeenCalledWith(false);
+      expect(
+        screen.queryByText("You have unsaved changes."),
+      ).not.toBeInTheDocument();
     });
   });
 });
