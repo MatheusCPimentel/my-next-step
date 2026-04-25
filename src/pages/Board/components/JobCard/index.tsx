@@ -6,9 +6,10 @@ import type { Job } from "@/pages/Board/types";
 interface JobCardProps {
   job: Job;
   dragging?: boolean;
+  onClick?: () => void;
 }
 
-function JobCardComponent({ job, dragging }: JobCardProps) {
+function JobCardComponent({ job, dragging, onClick }: JobCardProps) {
   const {
     attributes,
     listeners,
@@ -33,22 +34,22 @@ function JobCardComponent({ job, dragging }: JobCardProps) {
       style={style}
       {...attributes}
       {...listeners}
+      onClick={onClick}
       className={`bg-overlay border border-border rounded-lg relative overflow-hidden p-4 flex flex-col gap-3 hover:border-border-hover transition-colors ${
         dragging ? "cursor-grabbing shadow-lg" : "cursor-grab"
       }`}
     >
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" />
       <div>
-        <p className="text-sm font-medium text-primary">{job.company}</p>
-        <p className="text-xs text-secondary mt-0.5">{job.title}</p>
+        <p className="text-sm font-medium text-primary">{job.title}</p>
       </div>
       <div className="flex flex-wrap gap-1.5">
-        {job.tags.map((tag, i) => (
+        {job.requiredSkills.map((s, i) => (
           <span
-            key={`${tag}-${i}`}
+            key={`${s.name}-${i}`}
             className="px-2 py-0.5 bg-surface rounded text-xs text-muted"
           >
-            {tag}
+            {s.name}
           </span>
         ))}
       </div>

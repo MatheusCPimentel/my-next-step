@@ -401,7 +401,7 @@ export function Board() {
         onOpenChange={(open) => {
           if (!open) setPendingDiscardJob(null);
         }}
-        jobCompany={pendingDiscardJob?.company ?? ""}
+        jobCompany={pendingDiscardJob?.title ?? ""}
         columns={columns}
         onConfirm={handleConfirmDiscard}
       />

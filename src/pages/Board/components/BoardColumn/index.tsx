@@ -20,6 +20,7 @@ interface BoardColumnProps {
   jobs: Job[];
   onRename: (id: string, label: string) => void;
   onDelete: (id: string) => void;
+  onJobClick?: (job: Job) => void;
 }
 
 function BoardColumnComponent({
@@ -27,6 +28,7 @@ function BoardColumnComponent({
   jobs,
   onRename,
   onDelete,
+  onJobClick,
 }: BoardColumnProps) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(column.label);
@@ -167,7 +169,11 @@ function BoardColumnComponent({
             }`}
           >
             {jobs.map((job) => (
-              <JobCard key={job.id} job={job} />
+              <JobCard
+                key={job.id}
+                job={job}
+                onClick={onJobClick ? () => onJobClick(job) : undefined}
+              />
             ))}
             {jobs.length === 0 && (
               <div className="flex-1 flex flex-col items-center justify-center gap-2 py-10 text-center">

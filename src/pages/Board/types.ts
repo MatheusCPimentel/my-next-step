@@ -4,11 +4,25 @@ export interface Column {
   locked: boolean;
 }
 
+export type SkillVariant = "neutral" | "success" | "warning" | "danger";
+
+export interface Skill {
+  name: string;
+  variant: SkillVariant;
+}
+
 export interface Job {
   id: string;
-  company: string;
   title: string;
-  tags: string[];
+  description: string;
+  requiredSkills: Skill[];
+  niceToHaveSkills: Skill[];
+  matchVerdict?: string;
+  contractType?: string;
+  salary?: string;
+  benefits?: string;
+  jobUrl?: string;
+  notes?: string;
   columnId: string;
 }
 
