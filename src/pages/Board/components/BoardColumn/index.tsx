@@ -97,7 +97,7 @@ function BoardColumnComponent({
       <div
         ref={setNodeRef}
         style={style}
-        className="relative flex-1 min-w-[272px] min-h-full bg-surface rounded-xl p-3 flex flex-col gap-3"
+        className="relative flex-1 min-w-[272px] h-[calc(100vh-180px)] bg-surface rounded-xl p-3 flex flex-col gap-3"
       >
         <div
           className={`group/header flex items-center gap-2 px-1 py-1 relative ${
@@ -164,7 +164,7 @@ function BoardColumnComponent({
         <SortableContext items={jobIds} strategy={verticalListSortingStrategy}>
           <div
             ref={setDroppableRef}
-            className={`flex flex-col gap-2 rounded-lg transition-colors ${
+            className={`flex-1 min-h-0 overflow-y-auto flex flex-col gap-2 rounded-lg transition-colors ${
               isOver ? "bg-overlay/40" : ""
             }`}
           >
@@ -176,7 +176,7 @@ function BoardColumnComponent({
               />
             ))}
             {jobs.length === 0 && (
-              <div className="flex flex-col items-center justify-center gap-2 py-10 text-center">
+              <div className="flex-1 flex flex-col items-center justify-center gap-2 py-10 text-center">
                 <Inbox size={28} className="text-muted" />
                 <span className="text-sm text-secondary">No applications yet</span>
               </div>
