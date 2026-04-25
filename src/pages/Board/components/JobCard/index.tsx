@@ -38,7 +38,7 @@ function JobCardComponent({ job, dragging, onClick }: JobCardProps) {
       {...attributes}
       {...listeners}
       onClick={onClick}
-      className={`bg-overlay border border-border rounded-lg relative overflow-hidden p-4 flex flex-col gap-3 hover:border-border-hover transition-colors touch-none ${
+      className={`bg-overlay border border-border rounded-lg relative overflow-hidden p-4 flex flex-col gap-3 shrink-0 hover:border-border-hover transition-colors touch-none ${
         dragging ? "cursor-grabbing shadow-lg" : "cursor-grab"
       }`}
     >
