@@ -38,6 +38,13 @@ describe("JobCard", () => {
     expect(screen.queryByText("Not analyzed")).not.toBeInTheDocument();
   });
 
+  it("shows the AI analyzed pill when fromJobMatch is false but fitScore is set", () => {
+    renderCard(makeJob({ fromJobMatch: false, fitScore: 78 }));
+
+    expect(screen.getByText("AI analyzed")).toBeInTheDocument();
+    expect(screen.queryByText("Not analyzed")).not.toBeInTheDocument();
+  });
+
   it("shows the Not analyzed pill when fromJobMatch is false or undefined", () => {
     const { rerender } = renderCard(makeJob({ fromJobMatch: false }));
     expect(screen.getByText("Not analyzed")).toBeInTheDocument();

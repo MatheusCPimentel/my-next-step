@@ -62,37 +62,41 @@ function JobCardComponent({ job, dragging, onClick }: JobCardProps) {
         <p className="text-sm font-medium text-primary">{job.company}</p>
         <p className="text-secondary text-sm mt-0.5">{job.title}</p>
       </div>
-      <div className="flex flex-wrap items-center gap-1.5">
-        {job.requiredSkills.map((s, i) => (
-          <span
-            key={`${s.name}-${i}`}
-            className="px-2 py-0.5 bg-surface rounded text-xs text-muted"
-          >
-            {s.name}
-          </span>
-        ))}
-        {displayed && (
+      <div className="flex flex-col gap-1">
+        <div className="flex flex-wrap items-center gap-1.5">
+          {job.requiredSkills.map((s, i) => (
+            <span
+              key={`${s.name}-${i}`}
+              className="px-2 py-0.5 bg-surface rounded text-xs text-muted"
+            >
+              {s.name}
+            </span>
+          ))}
+        </div>
+        <div>
+          {typeof job.fitScore === "number" || job.fromJobMatch ? (
+            <span className="inline-flex items-center gap-1 bg-purple/10 border border-purple/20 text-purple-soft text-[10px] px-1.5 py-0.5 rounded-full">
+              <span className="w-1.5 h-1.5 rounded-full bg-purple animate-pulse" />
+              AI analyzed
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-1 bg-red-500/10 border border-red-500/20 text-red-400 text-[10px] px-1.5 py-0.5 rounded-full">
+              <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
+              Not analyzed
+            </span>
+          )}
+        </div>
+      </div>
+      {displayed && (
+        <div className="flex justify-end">
           <time
             dateTime={displayed}
-            className="text-[10px] text-muted ml-auto flex-shrink-0"
+            className="text-[10px] text-muted flex-shrink-0"
           >
             {format(new Date(displayed), "MMM d")}
           </time>
-        )}
-      </div>
-      <div>
-        {job.fromJobMatch ? (
-          <span className="inline-flex items-center gap-1 bg-purple/10 border border-purple/20 text-purple-soft text-[10px] px-1.5 py-0.5 rounded-full">
-            <span className="w-1.5 h-1.5 rounded-full bg-purple animate-pulse" />
-            AI analyzed
-          </span>
-        ) : (
-          <span className="inline-flex items-center gap-1 bg-red-500/10 border border-red-500/20 text-red-400 text-[10px] px-1.5 py-0.5 rounded-full">
-            <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
-            Not analyzed
-          </span>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }
