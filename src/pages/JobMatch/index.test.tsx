@@ -58,6 +58,8 @@ describe("JobMatch", () => {
       ).not.toBeInTheDocument();
       expect(screen.getByText("78")).toBeInTheDocument();
       expect(screen.getByText(/Good fit overall/i)).toBeInTheDocument();
+      expect(screen.getByText("72")).toBeInTheDocument();
+      expect(screen.getByText("/ 100")).toBeInTheDocument();
       expect(
         screen.queryByPlaceholderText(/Senior Frontend Engineer at Acme/i),
       ).not.toBeInTheDocument();
