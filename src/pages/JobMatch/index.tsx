@@ -14,8 +14,7 @@ import {
   LOADING_MESSAGES,
   PITCH_TEXT,
 } from "@/pages/JobMatch/mockData";
-import { signalIconClass } from "@/pages/JobMatch/helpers";
-import { SkillLegend } from "@/pages/JobMatch/components/SkillLegend";
+import { signalDotClass } from "@/pages/JobMatch/helpers";
 import { ScoreCard } from "@/pages/JobMatch/components/ScoreCard";
 
 const schema = z.object({
@@ -164,174 +163,176 @@ export function JobMatch() {
             Analyze another job
           </Button>
 
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.35, delay: 0 }}
-          >
-            <ScoreCard
-              opportunityScore={MOCK_RESULT.opportunityScore}
-              fitScore={MOCK_RESULT.fitScore}
-              environmentScore={MOCK_RESULT.environmentScore}
-              opportunityDescription={MOCK_RESULT.opportunityDescription}
-              finalVerdict={MOCK_RESULT.finalVerdict}
-            />
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.35, delay: 1 * 0.15 }}
-          >
-            <div className="bg-overlay rounded-lg p-4 flex flex-col gap-2">
-              <span className={sectionLabel}>Job overview</span>
-              <p className="text-sm text-primary leading-relaxed">
-                {MOCK_RESULT.jobOverview}
-              </p>
-            </div>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.35, delay: 2 * 0.15 }}
-          >
-            <div className="bg-overlay rounded-lg p-4 flex flex-col gap-3">
-              <span className={sectionLabel}>Environment assessment</span>
-              <ul className="flex flex-col gap-2">
-                {MOCK_RESULT.environmentSignals.map((s, i) => (
-                  <li
-                    key={i}
-                    className="flex items-start gap-2 text-sm text-primary"
-                  >
-                    <span
-                      className={`flex-shrink-0 w-5 h-5 rounded-full inline-flex items-center justify-center text-xs font-medium ${signalIconClass(s.type)}`}
-                    >
-                      {s.type === "positive" ? "+" : "!"}
-                    </span>
-                    <span className="leading-relaxed">{s.text}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.35, delay: 3 * 0.15 }}
-          >
-            <div className="flex flex-col gap-2">
-              <span className={sectionLabel}>Required skills</span>
-              <SkillLegend />
-              <TagInput
-                value={MOCK_RESULT.requiredSkills}
-                onChange={() => {}}
-                isEditable={false}
-              />
-            </div>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.35, delay: 4 * 0.15 }}
-          >
-            <div className="flex flex-col gap-2">
-              <span className={sectionLabel}>Nice to have skills</span>
-              <SkillLegend />
-              <TagInput
-                value={MOCK_RESULT.niceToHaveSkills}
-                onChange={() => {}}
-                isEditable={false}
-              />
-            </div>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.35, delay: 5 * 0.15 }}
-          >
-            <div className="grid grid-cols-2 gap-3">
-              <div className="bg-overlay rounded-lg p-3 flex flex-col gap-1">
-                <span className="text-xs text-secondary uppercase tracking-widest">
-                  Contract type
-                </span>
-                <span className="text-sm text-primary font-medium">
-                  {MOCK_RESULT.contractType}
-                </span>
-              </div>
-              <div className="bg-overlay rounded-lg p-3 flex flex-col gap-1">
-                <span className="text-xs text-secondary uppercase tracking-widest">
-                  Salary
-                </span>
-                <span className="text-sm text-primary font-medium">
-                  {MOCK_RESULT.salary}
-                </span>
-              </div>
-            </div>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.35, delay: 6 * 0.15 }}
-          >
-            <div className="bg-overlay rounded-lg p-4 flex flex-col gap-2">
-              <span className={sectionLabel}>Benefits</span>
-              <ul className="flex flex-col gap-1">
-                {MOCK_RESULT.benefits
-                  .split(",")
-                  .map((b) => b.trim())
-                  .filter(Boolean)
-                  .map((b) => (
-                    <li
-                      key={b}
-                      className="flex items-center text-sm text-primary"
-                    >
-                      <span className="w-1 h-1 rounded-full bg-muted inline-block mr-2 flex-shrink-0" />
-                      {b}
-                    </li>
-                  ))}
-              </ul>
-            </div>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.35, delay: 7 * 0.15 }}
-          >
-            <div className="flex flex-col sm:flex-row gap-3">
-              {MOCK_RESULT.fitScore >= 60 && (
-                <Button
-                  variant="ghost"
-                  disabled={pitchLoading}
-                  onClick={handleGeneratePitch}
-                  className="border border-border-hover bg-transparent text-primary hover:bg-overlay"
-                >
-                  {pitchLoading ? (
-                    <>
-                      <Loader2 size={16} className="animate-spin mr-2" />{" "}
-                      Generating...
-                    </>
-                  ) : (
-                    <>
-                      <Sparkles size={14} className="mr-2" /> Generate why I am
-                      a great fit
-                    </>
-                  )}
-                </Button>
-              )}
-              <Button
-                onClick={() => setDialogOpen(true)}
-                className="bg-purple hover:bg-purple/90 text-primary"
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 items-start">
+            <div className="flex flex-col gap-6">
+              <motion.div
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.35, delay: 0 }}
               >
-                Add to Board
-              </Button>
+                <ScoreCard
+                  opportunityScore={MOCK_RESULT.opportunityScore}
+                  fitScore={MOCK_RESULT.fitScore}
+                  environmentScore={MOCK_RESULT.environmentScore}
+                  opportunityDescription={MOCK_RESULT.opportunityDescription}
+                  finalVerdict={MOCK_RESULT.finalVerdict}
+                />
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.35, delay: 1 * 0.15 }}
+              >
+                <div className="bg-overlay rounded-lg p-4 flex flex-col gap-2">
+                  <span className={sectionLabel}>Job overview</span>
+                  <p className="text-sm text-primary leading-relaxed">
+                    {MOCK_RESULT.jobOverview}
+                  </p>
+                </div>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.35, delay: 2 * 0.15 }}
+              >
+                <div className="bg-overlay rounded-lg p-4 flex flex-col gap-3">
+                  <span className={sectionLabel}>Environment assessment</span>
+                  <ul className="flex flex-col gap-2">
+                    {MOCK_RESULT.environmentSignals.map((s, i) => (
+                      <li
+                        key={i}
+                        className="flex items-start gap-2 text-sm text-primary"
+                      >
+                        <span
+                          className={`w-1.5 h-1.5 rounded-full mt-1.5 flex-shrink-0 ${signalDotClass(s.type)}`}
+                        />
+                        <span className="leading-relaxed">{s.text}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.35, delay: 3 * 0.15 }}
+              >
+                <div className="flex gap-2">
+                  {MOCK_RESULT.fitScore >= 60 && (
+                    <Button
+                      variant="ghost"
+                      disabled={pitchLoading}
+                      onClick={handleGeneratePitch}
+                      className="border border-border-hover bg-transparent text-primary hover:bg-overlay"
+                    >
+                      {pitchLoading ? (
+                        <>
+                          <Loader2 size={16} className="animate-spin mr-2" />{" "}
+                          Generating...
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles size={14} className="mr-2" /> Generate why I
+                          am a great fit
+                        </>
+                      )}
+                    </Button>
+                  )}
+                  <Button
+                    onClick={() => setDialogOpen(true)}
+                    className="bg-purple hover:bg-purple/90 text-primary"
+                  >
+                    Add to Board
+                  </Button>
+                </div>
+              </motion.div>
             </div>
-          </motion.div>
+
+            <div className="flex flex-col gap-6">
+              <motion.div
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.35, delay: 4 * 0.15 }}
+              >
+                <div className="flex flex-col gap-2">
+                  <span className={sectionLabel}>Required skills</span>
+                  <TagInput
+                    value={MOCK_RESULT.requiredSkills}
+                    onChange={() => {}}
+                    isEditable={false}
+                  />
+                </div>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.35, delay: 5 * 0.15 }}
+              >
+                <div className="flex flex-col gap-2">
+                  <span className={sectionLabel}>Nice to have skills</span>
+                  <TagInput
+                    value={MOCK_RESULT.niceToHaveSkills}
+                    onChange={() => {}}
+                    isEditable={false}
+                  />
+                </div>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.35, delay: 6 * 0.15 }}
+              >
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="bg-overlay rounded-lg p-3 flex flex-col gap-1">
+                    <span className="text-xs text-secondary uppercase tracking-widest">
+                      Contract type
+                    </span>
+                    <span className="text-sm text-primary font-medium">
+                      {MOCK_RESULT.contractType}
+                    </span>
+                  </div>
+                  <div className="bg-overlay rounded-lg p-3 flex flex-col gap-1">
+                    <span className="text-xs text-secondary uppercase tracking-widest">
+                      Salary
+                    </span>
+                    <span className="text-sm text-primary font-medium">
+                      {MOCK_RESULT.salary}
+                    </span>
+                  </div>
+                </div>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.35, delay: 7 * 0.15 }}
+              >
+                <div className="bg-overlay rounded-lg p-4 flex flex-col gap-2">
+                  <span className={sectionLabel}>Benefits</span>
+                  <ul className="flex flex-col gap-1">
+                    {MOCK_RESULT.benefits
+                      .split(",")
+                      .map((b) => b.trim())
+                      .filter(Boolean)
+                      .map((b) => (
+                        <li
+                          key={b}
+                          className="flex items-center text-sm text-primary"
+                        >
+                          <span className="w-1 h-1 rounded-full bg-muted inline-block mr-2 flex-shrink-0" />
+                          {b}
+                        </li>
+                      ))}
+                  </ul>
+                </div>
+              </motion.div>
+            </div>
+          </div>
 
           {showPitch && (
             <div className="bg-overlay rounded-lg p-4 text-sm text-primary leading-relaxed">
