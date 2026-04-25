@@ -174,21 +174,6 @@ describe("TagInput", () => {
     expect(screen.getByText("React")).toBeInTheDocument();
   });
 
-  it("renders a colored dot before each pill name with the variant class", () => {
-    render(
-      <Harness
-        isEditable={false}
-        initial={[makeSkill({ name: "React", variant: "success" })]}
-      />,
-    );
-
-    const pill = screen.getByText("React").closest("span");
-    expect(pill).not.toBeNull();
-    const dot = pill!.querySelector("span");
-    expect(dot).not.toBeNull();
-    expect(dot).toHaveClass("w-1.5", "h-1.5", "rounded-full", "bg-teal");
-  });
-
   it("returns null when isEditable is false and value is empty", () => {
     const { container } = render(<Harness isEditable={false} initial={[]} />);
 

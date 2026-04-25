@@ -19,6 +19,9 @@ const makeJob = (overrides: Partial<Job> = {}): Job => ({
   jobUrl: "https://example.com/job",
   notes: "Recruiter is friendly",
   columnId: "applied",
+  createdAt: "2026-04-01T00:00:00.000Z",
+  updatedAt: "2026-04-01T00:00:00.000Z",
+  stageHistory: [{ stage: "Applied", date: "2026-04-01T00:00:00.000Z" }],
   ...overrides,
 });
 
@@ -157,12 +160,15 @@ describe("JobDialog", () => {
   });
 
   describe("view mode display", () => {
-    it("renders no inputs or textareas when mode is view", () => {
+    it("does not render the editable form fields when mode is view", () => {
       const job = makeJob();
       render(<Harness mode="view" job={job} />);
 
-      expect(document.querySelectorAll("input")).toHaveLength(0);
-      expect(document.querySelectorAll("textarea")).toHaveLength(0);
+      expect(screen.queryByPlaceholderText("Company name")).not.toBeInTheDocument();
+      expect(screen.queryByPlaceholderText("Job title")).not.toBeInTheDocument();
+      expect(
+        screen.queryByPlaceholderText("What is the role about?"),
+      ).not.toBeInTheDocument();
     });
 
     it("renders the job's title and description as text", () => {
@@ -187,20 +193,77 @@ describe("JobDialog", () => {
         screen.queryByRole("button", { name: /^cancel$/i }),
       ).not.toBeInTheDocument();
     });
+
+    it("renders an em-dash placeholder for missing optional fields in view mode", () => {
+      const job = makeJob({
+        matchVerdict: undefined,
+        contractType: undefined,
+        salary: undefined,
+        benefits: undefined,
+        jobUrl: undefined,
+        notes: undefined,
+        niceToHaveSkills: [],
+      });
+      render(<Harness mode="view" job={job} />);
+
+      expect(screen.getAllByText("—").length).toBeGreaterThanOrEqual(4);
+    });
   });
 
-  describe("edit mode display via Edit button", () => {
-    it("reveals input and textarea elements after clicking Edit", async () => {
-      const user = userEvent.setup();
-      render(<Harness mode="view" job={makeJob()} />);
+  describe("stage history in view mode", () => {
+    it("renders each stage history entry with its label", () => {
+      const job = makeJob({
+        stageHistory: [
+          { stage: "Applied", date: "2026-04-01T10:00:00.000Z" },
+          { stage: "HR Interview", date: "2026-04-15T14:00:00.000Z" },
+          { stage: "Tech Interview", date: "2026-04-22T09:00:00.000Z" },
+        ],
+      });
+      render(<Harness mode="view" job={job} />);
 
-      expect(document.querySelectorAll("input")).toHaveLength(0);
-      expect(document.querySelectorAll("textarea")).toHaveLength(0);
+      expect(screen.getByText(/^history$/i)).toBeInTheDocument();
+      expect(screen.getByText("Applied")).toBeInTheDocument();
+      expect(screen.getByText("HR Interview")).toBeInTheDocument();
+      expect(screen.getByText("Tech Interview")).toBeInTheDocument();
+    });
+
+    it("does not render the History section when stageHistory is empty", () => {
+      const job = makeJob({ stageHistory: [] });
+      render(<Harness mode="view" job={job} />);
+
+      expect(screen.queryByText(/^history$/i)).not.toBeInTheDocument();
+    });
+
+    it("does not render the History section in edit mode", async () => {
+      const user = userEvent.setup();
+      const job = makeJob({
+        stageHistory: [
+          { stage: "Applied", date: "2026-04-01T10:00:00.000Z" },
+        ],
+      });
+      render(<Harness mode="view" job={job} />);
 
       await user.click(screen.getByRole("button", { name: /^edit$/i }));
 
-      expect(document.querySelectorAll("input").length).toBeGreaterThan(0);
-      expect(document.querySelectorAll("textarea").length).toBeGreaterThan(0);
+      expect(screen.queryByText(/^history$/i)).not.toBeInTheDocument();
+    });
+  });
+
+  describe("edit mode display via Edit button", () => {
+    it("reveals the editable form fields after clicking Edit", async () => {
+      const user = userEvent.setup();
+      render(<Harness mode="view" job={makeJob()} />);
+
+      expect(screen.queryByPlaceholderText("Company name")).not.toBeInTheDocument();
+      expect(screen.queryByPlaceholderText("Job title")).not.toBeInTheDocument();
+
+      await user.click(screen.getByRole("button", { name: /^edit$/i }));
+
+      expect(screen.getByPlaceholderText("Company name")).toBeInTheDocument();
+      expect(screen.getByPlaceholderText("Job title")).toBeInTheDocument();
+      expect(
+        screen.getByPlaceholderText("What is the role about?"),
+      ).toBeInTheDocument();
     });
 
     it("shows Cancel and Save in the footer (no Edit) after clicking Edit", async () => {

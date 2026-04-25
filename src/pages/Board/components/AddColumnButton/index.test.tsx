@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { AddColumnButton } from "@/pages/Board/components/AddColumnButton";
 
@@ -106,5 +106,39 @@ describe("AddColumnButton", () => {
 
     await user.click(screen.getByRole("button", { name: /add column/i }));
     expect(screen.getByPlaceholderText("Column name")).toHaveValue("");
+  });
+
+  it("commits via onAdd on blur with a non-empty trimmed value", async () => {
+    const user = userEvent.setup();
+    const onAdd = vi.fn();
+    render(<AddColumnButton onAdd={onAdd} />);
+
+    await user.click(screen.getByRole("button", { name: /add column/i }));
+    const input = screen.getByPlaceholderText("Column name");
+    await user.type(input, "  Final Round  ");
+    fireEvent.blur(input);
+
+    expect(onAdd).toHaveBeenCalledTimes(1);
+    expect(onAdd).toHaveBeenCalledWith("Final Round");
+  });
+
+  it("does not call onAdd on blur with an empty input", async () => {
+    const user = userEvent.setup();
+    const onAdd = vi.fn();
+    render(<AddColumnButton onAdd={onAdd} />);
+
+    await user.click(screen.getByRole("button", { name: /add column/i }));
+    fireEvent.blur(screen.getByPlaceholderText("Column name"));
+
+    expect(onAdd).not.toHaveBeenCalled();
+  });
+
+  it("focuses the input automatically when entering edit mode", async () => {
+    const user = userEvent.setup();
+    render(<AddColumnButton onAdd={vi.fn()} />);
+
+    await user.click(screen.getByRole("button", { name: /add column/i }));
+
+    expect(screen.getByPlaceholderText("Column name")).toHaveFocus();
   });
 });

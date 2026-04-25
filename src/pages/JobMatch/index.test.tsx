@@ -1,5 +1,5 @@
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
-import { act, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { JobMatch } from "@/pages/JobMatch";
 
@@ -34,6 +34,17 @@ describe("JobMatch", () => {
   it("renders the explainer with 'How it works' on idle", () => {
     render(<JobMatch />);
     expect(screen.getByText("How it works")).toBeInTheDocument();
+  });
+
+  it("disables the Analyze button when description exceeds 8000 characters", () => {
+    render(<JobMatch />);
+
+    const description = screen.getByPlaceholderText(
+      "Paste the full job description here...",
+    );
+    fireEvent.change(description, { target: { value: "a".repeat(8001) } });
+
+    expect(screen.getByRole("button", { name: /^analyze$/i })).toBeDisabled();
   });
 
   describe("with fake timers", () => {
@@ -166,6 +177,69 @@ describe("JobMatch", () => {
         "Job title",
       ) as HTMLInputElement;
       expect(dialogTitleInput.value).toBe(submittedTitle);
+    });
+
+    it("renders the pitch text after Generate why I am a great fit completes", async () => {
+      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+      render(<JobMatch />);
+
+      await user.type(
+        screen.getByPlaceholderText("Senior Frontend Engineer at Acme"),
+        "Senior Frontend Engineer",
+      );
+      await user.type(
+        screen.getByPlaceholderText("Paste the full job description here..."),
+        "Build great products with React and TypeScript.",
+      );
+      await user.click(screen.getByRole("button", { name: /^analyze$/i }));
+
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(1500);
+      });
+
+      await user.click(
+        screen.getByRole("button", { name: /generate why i am a great fit/i }),
+      );
+
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(1000);
+      });
+
+      expect(screen.getByText(/strong fit for this role/i)).toBeInTheDocument();
+    });
+
+    it("clears the Additional context textarea on 'Analyze another job'", async () => {
+      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+      render(<JobMatch />);
+
+      await user.type(
+        screen.getByPlaceholderText("Senior Frontend Engineer at Acme"),
+        "Senior Frontend Engineer",
+      );
+      await user.type(
+        screen.getByPlaceholderText("Paste the full job description here..."),
+        "Build great products.",
+      );
+      await user.type(
+        screen.getByPlaceholderText(
+          /Anything the job description doesn't cover/i,
+        ),
+        "Recruiter said budget is flexible",
+      );
+      await user.click(screen.getByRole("button", { name: /^analyze$/i }));
+
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(1500);
+      });
+
+      await user.click(
+        screen.getByRole("button", { name: /analyze another job/i }),
+      );
+
+      const additional = screen.getByPlaceholderText(
+        /Anything the job description doesn't cover/i,
+      ) as HTMLTextAreaElement;
+      expect(additional.value).toBe("");
     });
   });
 });

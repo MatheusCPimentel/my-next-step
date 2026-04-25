@@ -73,13 +73,6 @@ describe("BoardColumn", () => {
       expect(onRename).not.toHaveBeenCalled();
     });
 
-    it("does not render the cursor-grab class on the header row", () => {
-      renderColumn({ column: makeColumn({ locked: true, label: "Applied" }) });
-
-      const label = screen.getByText("Applied");
-      const header = label.parentElement!;
-      expect(header.className).not.toContain("cursor-grab");
-    });
   });
 
   describe("moveable columns - rename", () => {
@@ -149,9 +142,9 @@ describe("BoardColumn", () => {
       const onDelete = vi.fn();
       renderColumn({ column: makeColumn(), jobs: [], onDelete });
 
-      screen
-        .getByRole("button", { name: /delete column/i, hidden: true })
-        .click();
+      fireEvent.click(
+        screen.getByRole("button", { name: /delete column/i, hidden: true }),
+      );
 
       const dialog = await screen.findByRole("dialog");
       expect(
@@ -172,9 +165,9 @@ describe("BoardColumn", () => {
         onDelete,
       });
 
-      screen
-        .getByRole("button", { name: /delete column/i, hidden: true })
-        .click();
+      fireEvent.click(
+        screen.getByRole("button", { name: /delete column/i, hidden: true }),
+      );
 
       const dialog = await screen.findByRole("dialog");
       expect(

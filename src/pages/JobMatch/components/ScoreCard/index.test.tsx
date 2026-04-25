@@ -56,9 +56,33 @@ describe("ScoreCard", () => {
     expect(screen.getByText(/worth applying\./i)).toBeInTheDocument();
   });
 
-  it("shows the opportunity label that matches the score bucket", () => {
+  it("shows 'Good opportunity' for scores in [70, 80)", () => {
     render(<ScoreCard {...makeProps({ opportunityScore: 72 })} />);
 
     expect(screen.getByText("Good opportunity")).toBeInTheDocument();
+  });
+
+  it("shows 'Not worth applying' for scores below 50", () => {
+    render(<ScoreCard {...makeProps({ opportunityScore: 30 })} />);
+
+    expect(screen.getByText("Not worth applying")).toBeInTheDocument();
+  });
+
+  it("shows 'Borderline' for scores in [50, 60)", () => {
+    render(<ScoreCard {...makeProps({ opportunityScore: 55 })} />);
+
+    expect(screen.getByText("Borderline")).toBeInTheDocument();
+  });
+
+  it("shows 'Partial opportunity' for scores in [60, 70)", () => {
+    render(<ScoreCard {...makeProps({ opportunityScore: 65 })} />);
+
+    expect(screen.getByText("Partial opportunity")).toBeInTheDocument();
+  });
+
+  it("shows 'Excellent opportunity' for scores at or above 80", () => {
+    render(<ScoreCard {...makeProps({ opportunityScore: 92 })} />);
+
+    expect(screen.getByText("Excellent opportunity")).toBeInTheDocument();
   });
 });

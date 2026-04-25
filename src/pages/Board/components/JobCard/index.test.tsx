@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { DndContext } from "@dnd-kit/core";
 import { SortableContext } from "@dnd-kit/sortable";
 import { JobCard } from "@/pages/Board/components/JobCard";
@@ -20,11 +20,11 @@ const makeJob = (overrides: Partial<Job> = {}): Job => ({
   ...overrides,
 });
 
-function renderCard(job: Job) {
+function renderCard(job: Job, onClick?: () => void) {
   return render(
     <DndContext>
       <SortableContext items={[job.id]}>
-        <JobCard job={job} />
+        <JobCard job={job} onClick={onClick} />
       </SortableContext>
     </DndContext>,
   );
@@ -43,5 +43,31 @@ describe("JobCard", () => {
 
     expect(screen.getByText("Not analyzed")).toBeInTheDocument();
     expect(screen.queryByText(/% fit/)).not.toBeInTheDocument();
+  });
+
+  it("calls onClick when the card body is clicked", () => {
+    const onClick = vi.fn();
+    renderCard(makeJob(), onClick);
+
+    fireEvent.click(screen.getByText("Acme"));
+
+    expect(onClick).toHaveBeenCalledTimes(1);
+  });
+
+  it("renders a short month-day date derived from updatedAt", () => {
+    renderCard(makeJob({ updatedAt: "2026-04-15T12:00:00.000Z" }));
+
+    expect(screen.getByText(/^[A-Z][a-z]{2}\s+\d{1,2}$/)).toBeInTheDocument();
+  });
+
+  it("falls back to createdAt when updatedAt is missing", () => {
+    const job = makeJob({
+      createdAt: "2026-03-10T12:00:00.000Z",
+    });
+    delete (job as Partial<Job>).updatedAt;
+
+    renderCard(job);
+
+    expect(screen.getByText(/^[A-Z][a-z]{2}\s+\d{1,2}$/)).toBeInTheDocument();
   });
 });
