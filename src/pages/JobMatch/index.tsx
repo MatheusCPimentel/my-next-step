@@ -114,7 +114,7 @@ export function JobMatch() {
       {status === "idle" && (
         <form
           onSubmit={handleSubmit(onValid)}
-          className="max-w-2xl w-full flex flex-col gap-4"
+          className="max-w-2xl w-full mx-auto flex flex-col gap-4"
         >
           <div className="flex flex-col gap-1">
             <label className="text-xs text-secondary">Job title</label>
