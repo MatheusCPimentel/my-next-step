@@ -2,6 +2,7 @@ import { useLayoutEffect, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { format, formatDistanceToNow } from "date-fns";
 import {
   Dialog,
   DialogContent,
@@ -291,6 +292,31 @@ export function JobDialog(props: JobDialogProps) {
                 <ExpandableValue value={job?.notes} />
               )}
             </div>
+
+            {internalMode === "view" && (job?.stageHistory?.length ?? 0) > 0 && (
+              <div className="flex flex-col gap-1">
+                <label className="text-xs text-secondary uppercase tracking-widest">
+                  History
+                </label>
+                <ol className="flex flex-col gap-1.5">
+                  {job!.stageHistory.map((entry, i) => (
+                    <li
+                      key={i}
+                      className="flex items-baseline justify-between gap-3 text-sm text-primary"
+                    >
+                      <span>{entry.stage}</span>
+                      <time
+                        dateTime={entry.date}
+                        title={format(new Date(entry.date), "MMM d, yyyy HH:mm")}
+                        className="text-xs text-muted"
+                      >
+                        {formatDistanceToNow(new Date(entry.date), { addSuffix: true })}
+                      </time>
+                    </li>
+                  ))}
+                </ol>
+              </div>
+            )}
           </div>
 
           <div className={rightClass}>
