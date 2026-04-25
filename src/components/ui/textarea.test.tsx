@@ -117,26 +117,52 @@ describe("Textarea", () => {
       expect((textarea as HTMLTextAreaElement).value).toBe("abcdefgh");
     });
 
-    it("adds a red border to the wrapper when count exceeds the limit", async () => {
+    it("swaps the textarea border to red when count exceeds the limit", async () => {
       const user = userEvent.setup();
-      render(<Textarea data-testid="ta" maxLength={3} />);
+      render(
+        <Textarea
+          data-testid="ta"
+          maxLength={3}
+          className="border border-border rounded-lg"
+        />,
+      );
 
       const textarea = screen.getByTestId("ta");
       await user.type(textarea, "abcd");
 
-      const wrapper = textarea.parentElement!;
-      expect(wrapper.className).toContain("border-red-500");
+      expect(textarea.className).toContain("border-red-500");
+      expect(textarea.className).not.toContain("border-border");
     });
 
-    it("does not add the red border when count is exactly at the limit", async () => {
+    it("keeps the original border when count is exactly at the limit", async () => {
       const user = userEvent.setup();
-      render(<Textarea data-testid="ta" maxLength={3} />);
+      render(
+        <Textarea
+          data-testid="ta"
+          maxLength={3}
+          className="border border-border rounded-lg"
+        />,
+      );
 
       const textarea = screen.getByTestId("ta");
       await user.type(textarea, "abc");
 
-      const wrapper = textarea.parentElement!;
-      expect(wrapper.className).not.toContain("border-red-500");
+      expect(textarea.className).not.toContain("border-red-500");
+      expect(textarea.className).toContain("border-border");
+    });
+
+    it("renders the counter below the textarea (not absolutely positioned)", () => {
+      const { container } = render(
+        <Textarea data-testid="ta" maxLength={50} defaultValue="hi" />,
+      );
+
+      const counter = screen.getByText("2 / 50");
+      const textarea = screen.getByTestId("ta");
+
+      expect(counter.className).not.toContain("absolute");
+      expect(counter.className).toContain("mt-1");
+      expect(container.querySelector(".relative")).toBeNull();
+      expect(textarea.nextElementSibling).toBe(counter);
     });
   });
 });
