@@ -3,6 +3,7 @@ import { Check, ChevronDown, Pencil, Trash2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { ExpandableValue } from "@/components/ExpandableValue";
 import {
   INITIAL_CATEGORIES,
   INITIAL_WEAK_POINTS,
@@ -129,7 +130,7 @@ function WeakPointItem({
         )}
 
         {isEditing ? (
-          <div className="flex flex-col gap-3 mt-1">
+          <div className="flex flex-col gap-3 mt-0.5">
             <div className="flex flex-col gap-1">
               <label className="text-xs text-secondary">Question</label>
               <Input
@@ -147,16 +148,15 @@ function WeakPointItem({
             </div>
           </div>
         ) : (
-          <p
-            className={`text-sm text-secondary leading-relaxed ${
+          <ExpandableValue
+            value={weakPoint.answer}
+            className={`text-sm text-secondary leading-relaxed whitespace-pre-wrap ${
               weakPoint.mastered ? "opacity-50" : ""
             }`}
-          >
-            {weakPoint.answer}
-          </p>
+          />
         )}
 
-        <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center justify-between mt-1">
           <span className="inline-flex items-center text-[10px] text-muted bg-overlay border border-border px-1.5 py-0.5 rounded-full">
             from: {weakPoint.sourceJob}
           </span>
@@ -258,7 +258,8 @@ function CategoryCard({
 }
 
 export function LevelUp() {
-  const [weakPoints, setWeakPoints] = useState<WeakPoint[]>(INITIAL_WEAK_POINTS);
+  const [weakPoints, setWeakPoints] =
+    useState<WeakPoint[]>(INITIAL_WEAK_POINTS);
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
   const [editingId, setEditingId] = useState<string | null>(null);
   const [removingIds, setRemovingIds] = useState<Set<string>>(new Set());
@@ -277,9 +278,7 @@ export function LevelUp() {
 
   const toggleMastered = (id: string) => {
     setWeakPoints((prev) =>
-      prev.map((wp) =>
-        wp.id === id ? { ...wp, mastered: !wp.mastered } : wp,
-      ),
+      prev.map((wp) => (wp.id === id ? { ...wp, mastered: !wp.mastered } : wp)),
     );
   };
 
@@ -293,9 +292,7 @@ export function LevelUp() {
 
   const saveEdit = (id: string, question: string, answer: string) => {
     setWeakPoints((prev) =>
-      prev.map((wp) =>
-        wp.id === id ? { ...wp, question, answer } : wp,
-      ),
+      prev.map((wp) => (wp.id === id ? { ...wp, question, answer } : wp)),
     );
     setEditingId(null);
   };

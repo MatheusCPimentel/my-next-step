@@ -1,6 +1,16 @@
 import { useLayoutEffect, useRef, useState } from "react";
 
-export function ExpandableValue({ value }: { value: string | undefined }) {
+interface ExpandableValueProps {
+  value: string | undefined;
+  className?: string;
+}
+
+const DEFAULT_CLASS = "text-sm text-primary whitespace-pre-wrap";
+
+export function ExpandableValue({
+  value,
+  className = DEFAULT_CLASS,
+}: ExpandableValueProps) {
   const [expanded, setExpanded] = useState(false);
   const [overflowing, setOverflowing] = useState(false);
   const ref = useRef<HTMLParagraphElement>(null);
@@ -13,7 +23,7 @@ export function ExpandableValue({ value }: { value: string | undefined }) {
 
   if (!value) {
     return (
-      <p className="text-sm text-primary whitespace-pre-wrap">
+      <p className={className}>
         <span className="text-muted">—</span>
       </p>
     );
@@ -23,7 +33,7 @@ export function ExpandableValue({ value }: { value: string | undefined }) {
     <>
       <p
         ref={ref}
-        className={`text-sm text-primary whitespace-pre-wrap ${expanded ? "" : "line-clamp-4"}`}
+        className={`${className} ${expanded ? "" : "line-clamp-4"}`}
       >
         {value}
       </p>
