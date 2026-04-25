@@ -73,7 +73,7 @@ function JobCardComponent({ job, dragging, onClick }: JobCardProps) {
             </span>
           ))}
         </div>
-        <div>
+        <div className="flex justify-between items-center">
           {typeof job.fitScore === "number" || job.fromJobMatch ? (
             <span className="inline-flex items-center gap-1 bg-purple/10 border border-purple/20 text-purple-soft text-[10px] px-1.5 py-0.5 rounded-full">
               <span className="w-1.5 h-1.5 rounded-full bg-purple animate-pulse" />
@@ -85,18 +85,16 @@ function JobCardComponent({ job, dragging, onClick }: JobCardProps) {
               Not analyzed
             </span>
           )}
+          {displayed && (
+            <time
+              dateTime={displayed}
+              className="text-[10px] text-muted flex-shrink-0"
+            >
+              {format(new Date(displayed), "MMM d")}
+            </time>
+          )}
         </div>
       </div>
-      {displayed && (
-        <div className="flex justify-end">
-          <time
-            dateTime={displayed}
-            className="text-[10px] text-muted flex-shrink-0"
-          >
-            {format(new Date(displayed), "MMM d")}
-          </time>
-        </div>
-      )}
     </div>
   );
 }
