@@ -165,7 +165,9 @@ export function JobDialog(props: JobDialogProps) {
           <div className="flex flex-col md:flex-row gap-6">
             <div className="flex-1 flex flex-col gap-4">
               <div className="flex flex-col gap-1">
-                <label className={fieldLabel}>Company</label>
+                <label className={fieldLabel}>
+                  Company <span className="text-red-500">*</span>
+                </label>
                 {isEditable ? (
                   <>
                     <Input {...register("company")} placeholder="Company name" />
@@ -179,7 +181,9 @@ export function JobDialog(props: JobDialogProps) {
               </div>
 
               <div className="flex flex-col gap-1">
-                <label className={fieldLabel}>Title</label>
+                <label className={fieldLabel}>
+                  Title <span className="text-red-500">*</span>
+                </label>
                 {isEditable ? (
                   <>
                     <Input {...register("title")} placeholder="Job title" />
@@ -193,13 +197,15 @@ export function JobDialog(props: JobDialogProps) {
               </div>
 
               <div className="flex flex-col gap-1">
-                <label className={fieldLabel}>Description</label>
+                <label className={fieldLabel}>
+                  Description <span className="text-red-500">*</span>
+                </label>
                 {isEditable ? (
                   <>
                     <Textarea
                       {...register("description")}
                       placeholder="What is the role about?"
-                      className="min-h-[160px]"
+                      className="min-h-[200px] border border-border rounded-lg"
                     />
                     {errors.description && (
                       <p className={errorText}>{errors.description.message}</p>
@@ -216,7 +222,7 @@ export function JobDialog(props: JobDialogProps) {
                   <Textarea
                     {...register("matchVerdict")}
                     placeholder="Why is this a match?"
-                    className="min-h-[80px]"
+                    className="min-h-[80px] border border-border rounded-lg"
                   />
                 ) : (
                   renderValue(job?.matchVerdict)
@@ -229,7 +235,7 @@ export function JobDialog(props: JobDialogProps) {
                   <Textarea
                     {...register("notes")}
                     placeholder="Anything to remember"
-                    className="min-h-[80px]"
+                    className="min-h-[80px] border border-border rounded-lg"
                   />
                 ) : (
                   renderValue(job?.notes)
@@ -239,7 +245,9 @@ export function JobDialog(props: JobDialogProps) {
 
             <div className="flex-1 flex flex-col gap-4">
               <div className="flex flex-col gap-1">
-                <label className={fieldLabel}>Required skills</label>
+                <label className={fieldLabel}>
+                  Required skills <span className="text-red-500">*</span>
+                </label>
                 <Controller
                   name="requiredSkills"
                   control={control}
@@ -319,7 +327,7 @@ export function JobDialog(props: JobDialogProps) {
                   <Textarea
                     {...register("benefits")}
                     placeholder="Health, equity, PTO..."
-                    className="min-h-[80px]"
+                    className="min-h-[80px] border border-border rounded-lg"
                   />
                 ) : (
                   renderValue(job?.benefits)
@@ -329,7 +337,12 @@ export function JobDialog(props: JobDialogProps) {
           </div>
         </div>
 
-        <DialogFooter>
+        <DialogFooter className="sm:items-center">
+          {internalMode !== "view" && (
+            <span className="text-muted text-xs sm:mr-auto">
+              * Required fields
+            </span>
+          )}
           {internalMode === "view" ? (
             <Button
               onClick={() => setInternalMode("edit")}

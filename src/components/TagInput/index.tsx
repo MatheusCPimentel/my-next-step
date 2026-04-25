@@ -30,7 +30,12 @@ export function TagInput({
   const commit = () => {
     const trimmed = draft.trim();
     if (trimmed) {
-      onChange([...value, { name: trimmed, variant: defaultVariant }]);
+      const isDuplicate = value.some(
+        (s) => s.name.trim().toLowerCase() === trimmed.toLowerCase(),
+      );
+      if (!isDuplicate) {
+        onChange([...value, { name: trimmed, variant: defaultVariant }]);
+      }
     }
     setDraft("");
   };
@@ -65,7 +70,13 @@ export function TagInput({
           </button>
         </div>
       )}
-      <div className={`flex flex-wrap gap-1.5 ${isEditable ? "mt-2" : ""}`}>
+      <div
+        className={
+          isEditable
+            ? "flex flex-wrap gap-1.5 mt-2 min-h-[52px]"
+            : "flex flex-wrap gap-1.5"
+        }
+      >
         {value.map((skill, index) => (
           <span
             key={`${skill.name}-${index}`}
