@@ -1,0 +1,307 @@
+import { useEffect, useRef, useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { Loader2 } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { TagInput } from "@/components/TagInput";
+import { JobDialog } from "@/components/JobDialog";
+import type { Skill } from "@/pages/Board/types";
+
+const schema = z.object({
+  title: z.string().min(1, "Title is required"),
+  description: z.string().min(1, "Description is required"),
+});
+type FormValues = z.infer<typeof schema>;
+
+type Status = "idle" | "loading" | "done";
+
+const MOCK_RESULT = {
+  fitScore: 78,
+  overallScore: 72,
+  jobOverview:
+    "Senior Frontend Engineer role focused on building scalable web products. Stack is React, TypeScript, and Node.js. Team is fully remote with async-first culture.",
+  environment:
+    "Positive signals: remote-first, async culture, small team. Mild red flags: fast-paced environment mentioned twice, on-call rotation implied. Overall: decent environment for a senior IC.",
+  requiredSkills: [
+    { name: "React", variant: "success" },
+    { name: "TypeScript", variant: "success" },
+    { name: "Node.js", variant: "warning" },
+    { name: "GraphQL", variant: "danger" },
+    { name: "AWS", variant: "danger" },
+  ] satisfies Skill[],
+  niceToHaveSkills: [
+    { name: "Next.js", variant: "success" },
+    { name: "Tailwind CSS", variant: "success" },
+    { name: "Docker", variant: "warning" },
+  ] satisfies Skill[],
+  contractType: "Full-time",
+  salary: "USD 120k-150k / year",
+  benefits:
+    "Health insurance, 401k matching, home office stipend, unlimited PTO",
+  finalVerdict:
+    "Good fit overall. You cover the core stack well (React + TypeScript), but Node.js is a gap and AWS/GraphQL are missing entirely. The environment looks healthy. Worth applying — address the backend gaps in your cover letter.",
+};
+
+const PITCH_TEXT =
+  "I am a strong fit for this role because of my deep experience with React and TypeScript, having shipped production applications used by thousands of users. While I am still growing my Node.js and AWS skills, I am a fast learner and have worked in similar full-stack environments before.";
+
+function fitScoreColorClass(score: number): string {
+  if (score < 50) return "text-red-500";
+  if (score < 60) return "text-orange-400";
+  if (score < 70) return "text-yellow-400";
+  if (score < 80) return "text-teal";
+  if (score < 90) return "text-teal";
+  return "text-green-400";
+}
+
+function fitScoreLabel(score: number): string {
+  if (score < 50) return "Not a fit";
+  if (score < 60) return "Borderline";
+  if (score < 70) return "Partial fit";
+  if (score < 80) return "Good fit";
+  if (score < 90) return "Great fit";
+  return "Excellent fit";
+}
+
+export function JobMatch() {
+  const [status, setStatus] = useState<Status>("idle");
+  const [showPitch, setShowPitch] = useState(false);
+  const [pitchLoading, setPitchLoading] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [submittedInput, setSubmittedInput] = useState<{
+    title: string;
+    description: string;
+  } | null>(null);
+  const resultRef = useRef<HTMLDivElement>(null);
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<FormValues>({
+    resolver: zodResolver(schema),
+    defaultValues: { title: "", description: "" },
+  });
+
+  const onValid = (values: FormValues) => {
+    setSubmittedInput({ title: values.title, description: values.description });
+    setShowPitch(false);
+    setPitchLoading(false);
+    setStatus("loading");
+  };
+
+  const handleGeneratePitch = () => {
+    setPitchLoading(true);
+  };
+
+  useEffect(() => {
+    if (status !== "loading") return;
+    const id = setTimeout(() => setStatus("done"), 1500);
+    return () => clearTimeout(id);
+  }, [status]);
+
+  useEffect(() => {
+    if (!pitchLoading) return;
+    const id = setTimeout(() => {
+      setPitchLoading(false);
+      setShowPitch(true);
+    }, 1000);
+    return () => clearTimeout(id);
+  }, [pitchLoading]);
+
+  useEffect(() => {
+    if (status === "done") {
+      resultRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }
+  }, [status]);
+
+  const sectionLabel = "text-xs text-secondary uppercase tracking-widest";
+
+  return (
+    <div className="max-w-2xl mx-auto py-10 flex flex-col gap-8">
+      <div>
+        <h1 className="text-primary">Job Match</h1>
+        <p className="text-secondary mt-1">
+          Paste a job description and find out how well it fits your profile.
+        </p>
+      </div>
+
+      <form onSubmit={handleSubmit(onValid)} className="flex flex-col gap-4">
+        <div className="flex flex-col gap-1">
+          <label className="text-xs text-secondary">Job title</label>
+          <Input
+            placeholder="Senior Frontend Engineer at Acme"
+            {...register("title")}
+          />
+          {errors.title && (
+            <p className="text-red-500 text-xs">{errors.title.message}</p>
+          )}
+        </div>
+        <div className="flex flex-col gap-1">
+          <label className="text-xs text-secondary">Job description</label>
+          <Textarea
+            maxLength={8000}
+            placeholder="Paste the full job description here..."
+            className="min-h-[240px] border border-border rounded-lg"
+            {...register("description")}
+          />
+          {errors.description && (
+            <p className="text-red-500 text-xs">{errors.description.message}</p>
+          )}
+        </div>
+        <Button
+          type="submit"
+          disabled={status === "loading"}
+          className="bg-purple hover:bg-purple/90 text-primary w-full"
+        >
+          {status === "loading" ? (
+            <>
+              <Loader2 size={16} className="animate-spin mr-2" /> Analyzing...
+            </>
+          ) : (
+            "Analyze"
+          )}
+        </Button>
+      </form>
+
+      {status === "done" && (
+        <div ref={resultRef} className="flex flex-col gap-6">
+          <div className="flex flex-col gap-1">
+            <div className="flex items-baseline gap-3">
+              <span
+                className={`text-5xl font-medium ${fitScoreColorClass(MOCK_RESULT.fitScore)}`}
+              >
+                {MOCK_RESULT.fitScore}
+              </span>
+              <span
+                className={`text-sm ${fitScoreColorClass(MOCK_RESULT.fitScore)}`}
+              >
+                {fitScoreLabel(MOCK_RESULT.fitScore)}
+              </span>
+            </div>
+            <span className={sectionLabel}>Fit score</span>
+            <span className="text-sm text-secondary mt-1">
+              Overall score:{" "}
+              <span className="text-primary">{MOCK_RESULT.overallScore}</span>
+            </span>
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <span className={sectionLabel}>Job overview</span>
+            <p className="text-sm text-primary leading-relaxed">
+              {MOCK_RESULT.jobOverview}
+            </p>
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <span className={sectionLabel}>Environment assessment</span>
+            <p className="text-sm text-primary leading-relaxed">
+              {MOCK_RESULT.environment}
+            </p>
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <span className={sectionLabel}>Required skills</span>
+            <TagInput
+              value={MOCK_RESULT.requiredSkills}
+              onChange={() => {}}
+              isEditable={false}
+            />
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <span className={sectionLabel}>Nice to have skills</span>
+            <TagInput
+              value={MOCK_RESULT.niceToHaveSkills}
+              onChange={() => {}}
+              isEditable={false}
+            />
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <span className={sectionLabel}>Contract type</span>
+            <span className="text-sm text-primary">
+              {MOCK_RESULT.contractType}
+            </span>
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <span className={sectionLabel}>Salary</span>
+            <span className="text-sm text-primary">{MOCK_RESULT.salary}</span>
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <span className={sectionLabel}>Benefits</span>
+            <span className="text-sm text-primary">{MOCK_RESULT.benefits}</span>
+          </div>
+
+          <div className="bg-overlay rounded-lg p-4 flex flex-col gap-2">
+            <span className={sectionLabel}>Final verdict</span>
+            <p className="text-sm text-primary leading-relaxed">
+              {MOCK_RESULT.finalVerdict}
+            </p>
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-3">
+            {MOCK_RESULT.fitScore >= 60 && (
+              <Button
+                variant="ghost"
+                disabled={pitchLoading}
+                onClick={handleGeneratePitch}
+                className="border border-border-hover text-primary hover:bg-overlay"
+              >
+                {pitchLoading ? (
+                  <>
+                    <Loader2 size={16} className="animate-spin mr-2" />{" "}
+                    Generating...
+                  </>
+                ) : (
+                  "Generate why I am a great fit"
+                )}
+              </Button>
+            )}
+            <Button
+              onClick={() => setDialogOpen(true)}
+              className="bg-purple hover:bg-purple/90 text-primary"
+            >
+              Add to Board
+            </Button>
+          </div>
+
+          {showPitch && (
+            <div className="bg-overlay rounded-lg p-4 text-sm text-primary leading-relaxed">
+              {PITCH_TEXT}
+            </div>
+          )}
+        </div>
+      )}
+
+      <JobDialog
+        mode="create"
+        columnId="applied"
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        onSubmit={() => setDialogOpen(false)}
+        job={{
+          id: "",
+          columnId: "applied",
+          company: "",
+          title: submittedInput?.title ?? "",
+          description: submittedInput?.description ?? "",
+          matchVerdict: MOCK_RESULT.finalVerdict,
+          requiredSkills: MOCK_RESULT.requiredSkills,
+          niceToHaveSkills: MOCK_RESULT.niceToHaveSkills,
+          contractType: MOCK_RESULT.contractType,
+          salary: MOCK_RESULT.salary,
+          benefits: MOCK_RESULT.benefits,
+        }}
+      />
+    </div>
+  );
+}
