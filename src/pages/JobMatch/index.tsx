@@ -141,7 +141,7 @@ export function JobMatch() {
             <Info size={14} />
           </button>
         </TooltipTrigger>
-        <TooltipContent>
+        <TooltipContent sideOffset={8}>
           <p>
             Generates a personalized answer to the Why are you a good fit?
             question based on your profile and this job description. Ready to
@@ -278,7 +278,12 @@ export function JobMatch() {
                     transition={{ duration: 0.6, ease: "easeOut" }}
                     className="bg-overlay rounded-lg p-4 border-l-2 border-purple/40"
                   >
-                    <p className="text-sm text-secondary leading-relaxed">{PITCH_TEXT}</p>
+                    <p className="font-serif italic text-base text-primary leading-relaxed">
+                      <span className="text-4xl text-purple/40 font-serif leading-none mr-1">
+                        “
+                      </span>
+                      {PITCH_TEXT}
+                    </p>
                   </motion.div>
                 )}
               </AnimatePresence>
