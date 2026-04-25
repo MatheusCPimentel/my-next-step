@@ -58,6 +58,45 @@ describe("JobMatch", () => {
       ).not.toBeInTheDocument();
       expect(screen.getByText("78")).toBeInTheDocument();
       expect(screen.getByText(/Good fit overall/i)).toBeInTheDocument();
+      expect(
+        screen.queryByPlaceholderText(/Senior Frontend Engineer at Acme/i),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByPlaceholderText(/Paste the full job description/i),
+      ).not.toBeInTheDocument();
+    });
+
+    it("returns to the form and clears input when 'Analyze another job' is clicked", async () => {
+      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+      render(<JobMatch />);
+
+      await user.type(
+        screen.getByPlaceholderText("Senior Frontend Engineer at Acme"),
+        "Senior Frontend Engineer",
+      );
+      await user.type(
+        screen.getByPlaceholderText("Paste the full job description here..."),
+        "Build great products with React and TypeScript.",
+      );
+      await user.click(screen.getByRole("button", { name: /^analyze$/i }));
+
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(1500);
+      });
+
+      await user.click(
+        screen.getByRole("button", { name: /analyze another job/i }),
+      );
+
+      const titleInput = screen.getByPlaceholderText(
+        "Senior Frontend Engineer at Acme",
+      ) as HTMLInputElement;
+      expect(titleInput).toBeInTheDocument();
+      expect(titleInput.value).toBe("");
+      expect(screen.queryByText(/Job overview/i)).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole("button", { name: /analyze another job/i }),
+      ).not.toBeInTheDocument();
     });
 
     // score is hardcoded; only the positive case is exercisable today
