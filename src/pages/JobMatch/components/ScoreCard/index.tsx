@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { fitScoreClasses } from "@/lib/fitScore";
 import { ScoreBar } from "@/pages/JobMatch/components/ScoreBar";
 
@@ -7,6 +8,7 @@ interface ScoreCardProps {
   environmentScore: number | null | undefined;
   opportunityDescription: string;
   finalVerdict: string;
+  actions?: ReactNode;
 }
 
 function opportunityLabel(score: number): string {
@@ -26,6 +28,7 @@ export function ScoreCard({
   environmentScore,
   opportunityDescription,
   finalVerdict,
+  actions,
 }: ScoreCardProps) {
   const opportunity = fitScoreClasses(opportunityScore);
   const ringOffset = RING_CIRCUMFERENCE * (1 - opportunityScore / 100);
@@ -64,7 +67,7 @@ export function ScoreCard({
             <span className="text-[10px] text-muted mt-0.5">/ 100</span>
           </div>
         </div>
-        <div className="flex flex-col gap-1.5 min-w-0">
+        <div className="flex flex-col gap-1.5 flex-1 min-w-0">
           <span className="text-xs uppercase tracking-widest text-muted">
             Opportunity score
           </span>
@@ -77,6 +80,7 @@ export function ScoreCard({
             {opportunityDescription}
           </p>
         </div>
+        {actions && <div className="shrink-0">{actions}</div>}
       </div>
 
       <div className="h-px bg-border" />

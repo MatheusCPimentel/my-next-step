@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Info, Loader2, Sparkles } from "lucide-react";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -111,6 +111,46 @@ export function JobMatch() {
   }, [pitchLoading]);
 
   const sectionLabel = "text-xs text-secondary uppercase tracking-widest";
+
+  const generateActions = (
+    <div className="flex items-center gap-2">
+      <Button
+        variant="ghost"
+        size="sm"
+        disabled={pitchLoading}
+        onClick={handleGeneratePitch}
+        className="border border-border-hover bg-transparent text-primary hover:bg-overlay"
+      >
+        {pitchLoading ? (
+          <>
+            <Loader2 size={16} className="animate-spin mr-2" /> Generating...
+          </>
+        ) : (
+          <>
+            <Sparkles size={14} className="mr-2" /> Generate why I am a great fit
+          </>
+        )}
+      </Button>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <button
+            type="button"
+            aria-label="What does this generate?"
+            className="text-muted hover:text-primary transition-colors"
+          >
+            <Info size={14} />
+          </button>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>
+            Generates a personalized answer to the Why are you a good fit?
+            question based on your profile and this job description. Ready to
+            paste into any application form.
+          </p>
+        </TooltipContent>
+      </Tooltip>
+    </div>
+  );
 
   const titleBlock = (
     <div>
@@ -225,8 +265,24 @@ export function JobMatch() {
                   environmentScore={MOCK_RESULT.environmentScore}
                   opportunityDescription={MOCK_RESULT.opportunityDescription}
                   finalVerdict={MOCK_RESULT.finalVerdict}
+                  actions={MOCK_RESULT.fitScore >= 60 ? generateActions : undefined}
                 />
               </motion.div>
+
+              <AnimatePresence>
+                {showPitch && (
+                  <motion.div
+                    key="pitch"
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 12 }}
+                    transition={{ duration: 0.3, ease: "easeOut" }}
+                    className="bg-overlay rounded-lg p-4 border-l-2 border-purple/40"
+                  >
+                    <p className="text-sm text-secondary leading-relaxed">{PITCH_TEXT}</p>
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
               <motion.div
                 initial={{ opacity: 0, y: 12 }}
@@ -348,58 +404,6 @@ export function JobMatch() {
             </div>
           </div>
 
-          <motion.div
-            className="mt-6 flex flex-col gap-4"
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.35, delay: 7 * 0.15 }}
-          >
-            {MOCK_RESULT.fitScore >= 60 && (
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="ghost"
-                  disabled={pitchLoading}
-                  onClick={handleGeneratePitch}
-                  className="border border-border-hover bg-transparent text-primary hover:bg-overlay"
-                >
-                  {pitchLoading ? (
-                    <>
-                      <Loader2 size={16} className="animate-spin mr-2" />{" "}
-                      Generating...
-                    </>
-                  ) : (
-                    <>
-                      <Sparkles size={14} className="mr-2" /> Generate why I am
-                      a great fit
-                    </>
-                  )}
-                </Button>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button
-                      type="button"
-                      aria-label="What does this generate?"
-                      className="text-muted hover:text-primary transition-colors"
-                    >
-                      <Info size={14} />
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>
-                      Generates a personalized answer to the Why are you a good
-                      fit? question based on your profile and this job
-                      description. Ready to paste into any application form.
-                    </p>
-                  </TooltipContent>
-                </Tooltip>
-              </div>
-            )}
-            {showPitch && (
-              <div className="bg-overlay rounded-lg p-4 text-sm text-primary leading-relaxed">
-                {PITCH_TEXT}
-              </div>
-            )}
-          </motion.div>
         </div>
       )}
 

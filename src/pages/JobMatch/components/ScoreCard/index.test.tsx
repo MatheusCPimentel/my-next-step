@@ -56,6 +56,17 @@ describe("ScoreCard", () => {
     expect(screen.getByText(/worth applying\./i)).toBeInTheDocument();
   });
 
+  it("renders the actions slot when provided", () => {
+    render(
+      <ScoreCard
+        {...makeProps()}
+        actions={<button type="button">Action button</button>}
+      />,
+    );
+
+    expect(screen.getByRole("button", { name: /action button/i })).toBeInTheDocument();
+  });
+
   it("shows 'Good opportunity' for scores in [70, 80)", () => {
     render(<ScoreCard {...makeProps({ opportunityScore: 72 })} />);
 
