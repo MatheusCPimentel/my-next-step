@@ -1,0 +1,341 @@
+import { useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { TagInput } from "@/components/TagInput";
+import type { Job } from "@/pages/Board/types";
+
+type Mode = "create" | "view" | "edit";
+
+interface JobDialogProps {
+  mode: Mode;
+  job?: Job;
+  columnId?: string;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onSubmit: (job: Job) => void;
+}
+
+const skillSchema = z.object({
+  name: z.string(),
+  variant: z.enum(["neutral", "success", "warning", "danger"]),
+});
+
+const schema = z.object({
+  title: z.string().min(1, "Title is required"),
+  description: z.string().min(1, "Description is required"),
+  requiredSkills: z
+    .array(skillSchema)
+    .min(1, "Add at least one required skill"),
+  niceToHaveSkills: z.array(skillSchema).default([]),
+  matchVerdict: z.string().optional(),
+  contractType: z.string().optional(),
+  salary: z.string().optional(),
+  benefits: z.string().optional(),
+  jobUrl: z.string().optional(),
+  notes: z.string().optional(),
+});
+
+type FormValues = z.infer<typeof schema>;
+
+function defaultsFromJob(job?: Job): FormValues {
+  return {
+    title: job?.title ?? "",
+    description: job?.description ?? "",
+    requiredSkills: job?.requiredSkills ?? [],
+    niceToHaveSkills: job?.niceToHaveSkills ?? [],
+    matchVerdict: job?.matchVerdict ?? "",
+    contractType: job?.contractType ?? "",
+    salary: job?.salary ?? "",
+    benefits: job?.benefits ?? "",
+    jobUrl: job?.jobUrl ?? "",
+    notes: job?.notes ?? "",
+  };
+}
+
+function titleForMode(mode: Mode): string {
+  if (mode === "create") return "Create job";
+  if (mode === "edit") return "Edit job";
+  return "Job details";
+}
+
+function descriptionForMode(mode: Mode): string {
+  if (mode === "create") return "Add a new job to your board.";
+  if (mode === "edit") return "Update the details for this job.";
+  return "Review the details for this job.";
+}
+
+const generateJobId = () => Math.random().toString(36).slice(2, 10);
+
+export function JobDialog(props: JobDialogProps) {
+  const { mode, job, open, onOpenChange, onSubmit } = props;
+
+  const [internalMode, setInternalMode] = useState<Mode>(mode);
+  const [prevOpen, setPrevOpen] = useState(open);
+  const [prevInternalMode, setPrevInternalMode] = useState<Mode>(mode);
+
+  const {
+    register,
+    control,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<FormValues>({
+    resolver: zodResolver(schema),
+    defaultValues: defaultsFromJob(job),
+  });
+
+  if (prevOpen !== open) {
+    setPrevOpen(open);
+    if (open) {
+      setInternalMode(mode);
+      setPrevInternalMode(mode);
+      reset(defaultsFromJob(job));
+    }
+  }
+
+  if (prevInternalMode !== internalMode) {
+    setPrevInternalMode(internalMode);
+    reset(defaultsFromJob(job));
+  }
+
+  const isEditable = internalMode !== "view";
+
+  const onValid = (values: FormValues) => {
+    const submitted: Job =
+      mode === "create"
+        ? {
+            id: generateJobId(),
+            columnId: props.columnId!,
+            ...values,
+          }
+        : { ...job!, ...values };
+    onSubmit(submitted);
+    onOpenChange(false);
+  };
+
+  const handleCancel = () => {
+    if (mode === "create") {
+      onOpenChange(false);
+    } else {
+      reset(defaultsFromJob(job));
+      setInternalMode("view");
+    }
+  };
+
+  const fieldLabel = "text-xs text-secondary";
+  const errorText = "text-red-500 text-xs";
+  const valueText = "text-sm text-primary whitespace-pre-wrap";
+
+  const renderValue = (value: string | undefined) =>
+    value ? (
+      <p className={valueText}>{value}</p>
+    ) : (
+      <p className={valueText}>
+        <span className="text-muted">—</span>
+      </p>
+    );
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="bg-surface border border-border text-primary max-w-3xl sm:max-w-3xl">
+        <DialogHeader>
+          <DialogTitle className="text-primary">
+            {titleForMode(internalMode)}
+          </DialogTitle>
+          <DialogDescription className="text-secondary">
+            {descriptionForMode(internalMode)}
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="max-h-[80vh] overflow-y-auto">
+          <div className="flex flex-col md:flex-row gap-6">
+            <div className="flex-1 flex flex-col gap-4">
+              <div className="flex flex-col gap-1">
+                <label className={fieldLabel}>Title</label>
+                {isEditable ? (
+                  <>
+                    <Input {...register("title")} placeholder="Job title" />
+                    {errors.title && (
+                      <p className={errorText}>{errors.title.message}</p>
+                    )}
+                  </>
+                ) : (
+                  renderValue(job?.title)
+                )}
+              </div>
+
+              <div className="flex flex-col gap-1">
+                <label className={fieldLabel}>Description</label>
+                {isEditable ? (
+                  <>
+                    <Textarea
+                      {...register("description")}
+                      placeholder="What is the role about?"
+                      className="min-h-[160px]"
+                    />
+                    {errors.description && (
+                      <p className={errorText}>{errors.description.message}</p>
+                    )}
+                  </>
+                ) : (
+                  renderValue(job?.description)
+                )}
+              </div>
+
+              <div className="flex flex-col gap-1">
+                <label className={fieldLabel}>Match verdict</label>
+                {isEditable ? (
+                  <Textarea
+                    {...register("matchVerdict")}
+                    placeholder="Why is this a match?"
+                    className="min-h-[80px]"
+                  />
+                ) : (
+                  renderValue(job?.matchVerdict)
+                )}
+              </div>
+
+              <div className="flex flex-col gap-1">
+                <label className={fieldLabel}>Notes</label>
+                {isEditable ? (
+                  <Textarea
+                    {...register("notes")}
+                    placeholder="Anything to remember"
+                    className="min-h-[80px]"
+                  />
+                ) : (
+                  renderValue(job?.notes)
+                )}
+              </div>
+            </div>
+
+            <div className="flex-1 flex flex-col gap-4">
+              <div className="flex flex-col gap-1">
+                <label className={fieldLabel}>Required skills</label>
+                <Controller
+                  name="requiredSkills"
+                  control={control}
+                  render={({ field }) => (
+                    <TagInput
+                      value={field.value}
+                      onChange={field.onChange}
+                      isEditable={isEditable}
+                      defaultVariant="neutral"
+                      placeholder="Add a skill"
+                    />
+                  )}
+                />
+                {isEditable && errors.requiredSkills && (
+                  <p className={errorText}>
+                    {errors.requiredSkills.message as string}
+                  </p>
+                )}
+              </div>
+
+              <div className="flex flex-col gap-1">
+                <label className={fieldLabel}>Nice-to-have skills</label>
+                <Controller
+                  name="niceToHaveSkills"
+                  control={control}
+                  render={({ field }) => (
+                    <TagInput
+                      value={field.value}
+                      onChange={field.onChange}
+                      isEditable={isEditable}
+                      defaultVariant="neutral"
+                      placeholder="Add a skill"
+                    />
+                  )}
+                />
+              </div>
+
+              <div className="flex flex-col gap-1">
+                <label className={fieldLabel}>Contract type</label>
+                {isEditable ? (
+                  <Input
+                    {...register("contractType")}
+                    placeholder="Full-time, contract, etc."
+                  />
+                ) : (
+                  renderValue(job?.contractType)
+                )}
+              </div>
+
+              <div className="flex flex-col gap-1">
+                <label className={fieldLabel}>Salary</label>
+                {isEditable ? (
+                  <Input
+                    {...register("salary")}
+                    placeholder="Salary or range"
+                  />
+                ) : (
+                  renderValue(job?.salary)
+                )}
+              </div>
+
+              <div className="flex flex-col gap-1">
+                <label className={fieldLabel}>Job URL</label>
+                {isEditable ? (
+                  <Input
+                    {...register("jobUrl")}
+                    placeholder="https://..."
+                  />
+                ) : (
+                  renderValue(job?.jobUrl)
+                )}
+              </div>
+
+              <div className="flex flex-col gap-1">
+                <label className={fieldLabel}>Benefits</label>
+                {isEditable ? (
+                  <Textarea
+                    {...register("benefits")}
+                    placeholder="Health, equity, PTO..."
+                    className="min-h-[80px]"
+                  />
+                ) : (
+                  renderValue(job?.benefits)
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <DialogFooter>
+          {internalMode === "view" ? (
+            <Button
+              onClick={() => setInternalMode("edit")}
+              className="bg-purple hover:bg-purple/90 text-primary"
+            >
+              Edit
+            </Button>
+          ) : (
+            <>
+              <Button variant="secondary" onClick={handleCancel}>
+                Cancel
+              </Button>
+              <Button
+                onClick={handleSubmit(onValid)}
+                className="bg-purple hover:bg-purple/90 text-primary"
+              >
+                Save
+              </Button>
+            </>
+          )}
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
