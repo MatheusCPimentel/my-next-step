@@ -36,7 +36,7 @@ export function ScoreCard({
 
   return (
     <div className="bg-overlay rounded-lg p-4 flex flex-col gap-4">
-      <div className="flex items-center gap-4">
+      <div className="flex items-start gap-4">
         <div className={`relative w-20 h-20 shrink-0 ${opportunity.text}`}>
           <svg viewBox="0 0 80 80" className="w-full h-full -rotate-90">
             <circle

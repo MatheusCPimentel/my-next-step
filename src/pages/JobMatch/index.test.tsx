@@ -158,7 +158,7 @@ describe("JobMatch", () => {
       ).toBeInTheDocument();
     });
 
-    it("renders the Info trigger beside Generate why I am a great fit", async () => {
+    it("renders the Info trigger beside Why am I a fit", async () => {
       const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
       renderJobMatch();
 
@@ -177,7 +177,7 @@ describe("JobMatch", () => {
       });
 
       expect(
-        screen.getByRole("button", { name: /generate why i am a great fit/i }),
+        screen.getByRole("button", { name: /why am i a fit/i }),
       ).toBeInTheDocument();
       expect(
         screen.getByRole("button", { name: /what does this generate/i }),
@@ -185,7 +185,7 @@ describe("JobMatch", () => {
     });
 
     // score is hardcoded; only the positive case is exercisable today
-    it("renders the 'Generate why I am a great fit' button after analyze", async () => {
+    it("renders the 'Why am I a fit?' button after analyze", async () => {
       const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
       renderJobMatch();
 
@@ -204,7 +204,7 @@ describe("JobMatch", () => {
       });
 
       expect(
-        screen.getByRole("button", { name: /generate why i am a great fit/i }),
+        screen.getByRole("button", { name: /why am i a fit/i }),
       ).toBeInTheDocument();
     });
 
@@ -236,7 +236,7 @@ describe("JobMatch", () => {
       expect(dialogTitleInput.value).toBe(submittedTitle);
     });
 
-    it("renders the pitch text after Generate why I am a great fit completes", async () => {
+    it("renders the pitch text after Why am I a fit completes", async () => {
       const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
       renderJobMatch();
 
@@ -255,7 +255,7 @@ describe("JobMatch", () => {
       });
 
       await user.click(
-        screen.getByRole("button", { name: /generate why i am a great fit/i }),
+        screen.getByRole("button", { name: /why am i a fit/i }),
       );
 
       await act(async () => {

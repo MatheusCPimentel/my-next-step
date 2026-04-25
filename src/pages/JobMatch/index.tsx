@@ -127,7 +127,7 @@ export function JobMatch() {
           </>
         ) : (
           <>
-            <Sparkles size={14} className="mr-2" /> Generate why I am a great fit
+            <Sparkles size={14} className="mr-2" /> Why am I a fit?
           </>
         )}
       </Button>
@@ -273,10 +273,9 @@ export function JobMatch() {
                 {showPitch && (
                   <motion.div
                     key="pitch"
-                    initial={{ opacity: 0, y: 12 }}
+                    initial={{ opacity: 0, y: 24 }}
                     animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 12 }}
-                    transition={{ duration: 0.3, ease: "easeOut" }}
+                    transition={{ duration: 0.6, ease: "easeOut" }}
                     className="bg-overlay rounded-lg p-4 border-l-2 border-purple/40"
                   >
                     <p className="text-sm text-secondary leading-relaxed">{PITCH_TEXT}</p>
