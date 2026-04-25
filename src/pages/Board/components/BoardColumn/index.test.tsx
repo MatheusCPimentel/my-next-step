@@ -24,6 +24,7 @@ const makeJob = (overrides: Partial<Job> = {}): Job => ({
   createdAt: "2026-04-01T00:00:00.000Z",
   updatedAt: "2026-04-01T00:00:00.000Z",
   stageHistory: [{ stage: "Applied", date: "2026-04-01T00:00:00.000Z" }],
+  fromJobMatch: false,
   ...overrides,
 });
 
