@@ -303,7 +303,9 @@ export function ResumeAnalyzer() {
   return (
     <div className="max-w-3xl mx-auto flex flex-col gap-8">
       <div>
-        <h1 className="text-primary">Resume Analyzer</h1>
+        <h1 className="text-primary text-2xl md:text-3xl lg:text-4xl">
+          Resume Analyzer
+        </h1>
         <p className="text-secondary mt-1">
           Upload your resume and get AI-powered feedback instantly.
         </p>

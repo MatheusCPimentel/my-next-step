@@ -176,7 +176,9 @@ export function JobMatch() {
   return (
     <div className="max-w-2xl mx-auto py-10 flex flex-col gap-8">
       <div>
-        <h1 className="text-primary">Job Match</h1>
+        <h1 className="text-primary text-2xl md:text-3xl lg:text-4xl">
+          Job Match
+        </h1>
         <p className="text-secondary mt-1">
           Paste a job description and find out how well it fits your profile.
         </p>

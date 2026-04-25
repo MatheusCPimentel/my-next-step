@@ -174,7 +174,7 @@ export function Dashboard() {
   return (
     <div className="max-w-3xl mx-auto flex flex-col gap-10">
       <div>
-        <h1 className="text-primary">
+        <h1 className="text-primary text-2xl md:text-3xl lg:text-4xl">
           {getGreeting()}, {MOCK_USER.name}
         </h1>
         <p className="text-secondary mt-1">Here's where you stand today.</p>
