@@ -101,9 +101,7 @@ export function JobMatch() {
   const sectionLabel = "text-xs text-secondary uppercase tracking-widest";
 
   return (
-    <div
-      className={`${status === "done" ? "max-w-none" : "max-w-2xl"} mx-auto w-full pb-10 flex flex-col gap-8`}
-    >
+    <div className="mx-auto w-full pb-10 flex flex-col gap-8">
       <div>
         <h1 className="text-primary text-2xl md:text-3xl lg:text-4xl">
           Job Match
@@ -114,7 +112,10 @@ export function JobMatch() {
       </div>
 
       {status === "idle" && (
-        <form onSubmit={handleSubmit(onValid)} className="flex flex-col gap-4">
+        <form
+          onSubmit={handleSubmit(onValid)}
+          className="max-w-2xl w-full flex flex-col gap-4"
+        >
           <div className="flex flex-col gap-1">
             <label className="text-xs text-secondary">Job title</label>
             <Input
