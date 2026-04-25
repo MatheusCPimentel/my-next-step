@@ -24,6 +24,7 @@ export const INITIAL_JOBS: Job[] = [
     createdAt: "2026-04-22T09:00:00.000Z",
     updatedAt: "2026-04-22T09:00:00.000Z",
     stageHistory: [{ stage: "Applied", date: "2026-04-22T09:00:00.000Z" }],
+    fromJobMatch: false,
   },
   {
     id: "2",
@@ -39,6 +40,7 @@ export const INITIAL_JOBS: Job[] = [
     createdAt: "2026-04-15T14:30:00.000Z",
     updatedAt: "2026-04-15T14:30:00.000Z",
     stageHistory: [{ stage: "Applied", date: "2026-04-15T14:30:00.000Z" }],
+    fromJobMatch: false,
   },
   {
     id: "3",
@@ -54,6 +56,7 @@ export const INITIAL_JOBS: Job[] = [
     createdAt: "2026-04-08T11:15:00.000Z",
     updatedAt: "2026-04-08T11:15:00.000Z",
     stageHistory: [{ stage: "Applied", date: "2026-04-08T11:15:00.000Z" }],
+    fromJobMatch: false,
   },
   {
     id: "4",
@@ -72,6 +75,7 @@ export const INITIAL_JOBS: Job[] = [
       { stage: "Applied", date: "2026-03-28T10:00:00.000Z" },
       { stage: "HR Interview", date: "2026-04-12T16:45:00.000Z" },
     ],
+    fromJobMatch: false,
   },
   {
     id: "5",
@@ -90,6 +94,7 @@ export const INITIAL_JOBS: Job[] = [
       { stage: "Applied", date: "2026-03-20T08:30:00.000Z" },
       { stage: "HR Interview", date: "2026-04-05T13:00:00.000Z" },
     ],
+    fromJobMatch: false,
   },
   {
     id: "6",
@@ -109,6 +114,7 @@ export const INITIAL_JOBS: Job[] = [
       { stage: "HR Interview", date: "2026-03-15T10:00:00.000Z" },
       { stage: "Technical Interview", date: "2026-04-18T15:30:00.000Z" },
     ],
+    fromJobMatch: false,
   },
   {
     id: "7",
@@ -129,5 +135,6 @@ export const INITIAL_JOBS: Job[] = [
       { stage: "Technical Interview", date: "2026-03-25T16:00:00.000Z" },
       { stage: "Offer", date: "2026-04-21T17:00:00.000Z" },
     ],
+    fromJobMatch: false,
   },
 ];

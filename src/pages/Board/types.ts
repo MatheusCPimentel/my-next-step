@@ -24,6 +24,7 @@ export interface Job {
   benefits?: string;
   jobUrl?: string;
   notes?: string;
+  fromJobMatch?: boolean;
   columnId: string;
   createdAt: string;
   updatedAt: string;

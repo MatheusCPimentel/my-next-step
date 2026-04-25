@@ -42,6 +42,12 @@ function JobCardComponent({ job, dragging, onClick }: JobCardProps) {
         dragging ? "cursor-grabbing shadow-lg" : "cursor-grab"
       }`}
     >
+      {job.fromJobMatch && (
+        <span className="absolute top-2 right-2 inline-flex items-center gap-1 bg-purple/10 text-purple-soft border border-purple/20 text-[10px] px-1.5 py-0.5 rounded-full">
+          <span className="w-1.5 h-1.5 rounded-full bg-purple animate-pulse" />
+          AI
+        </span>
+      )}
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" />
       <div>
         <p className="text-sm font-medium text-primary">{job.company}</p>

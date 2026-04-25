@@ -97,16 +97,16 @@ function SkillLegend() {
   return (
     <div className="flex flex-wrap gap-3">
       <span className="inline-flex items-center gap-1.5 text-[10px] text-secondary">
-        <span className="w-1.5 h-1.5 rounded-full inline-block bg-teal" /> Strong
-        fit
+        <span className="w-1.5 h-1.5 rounded-full inline-block bg-teal" />{" "}
+        Strong fit
       </span>
       <span className="inline-flex items-center gap-1.5 text-[10px] text-secondary">
         <span className="w-1.5 h-1.5 rounded-full inline-block bg-yellow-400" />{" "}
         Partial fit
       </span>
       <span className="inline-flex items-center gap-1.5 text-[10px] text-secondary">
-        <span className="w-1.5 h-1.5 rounded-full inline-block bg-red-500" /> Not
-        a fit
+        <span className="w-1.5 h-1.5 rounded-full inline-block bg-red-500" />{" "}
+        Not a fit
       </span>
     </div>
   );
@@ -174,7 +174,7 @@ export function JobMatch() {
   const sectionLabel = "text-xs text-secondary uppercase tracking-widest";
 
   return (
-    <div className="max-w-2xl mx-auto py-10 flex flex-col gap-8">
+    <div className="max-w-2xl mx-auto pb-10 flex flex-col gap-8">
       <div>
         <h1 className="text-primary text-2xl md:text-3xl lg:text-4xl">
           Job Match
@@ -402,6 +402,10 @@ export function JobMatch() {
           contractType: MOCK_RESULT.contractType,
           salary: MOCK_RESULT.salary,
           benefits: MOCK_RESULT.benefits,
+          fromJobMatch: true,
+          createdAt: "",
+          updatedAt: "",
+          stageHistory: [],
         }}
       />
     </div>

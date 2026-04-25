@@ -168,6 +168,7 @@ export function JobDialog(props: JobDialogProps) {
     const submitted: Job =
       mode === "create"
         ? {
+            ...(props.job ?? {}),
             id: generateJobId(),
             columnId: props.columnId!,
             ...values,
