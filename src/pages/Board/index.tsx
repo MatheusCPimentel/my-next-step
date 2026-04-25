@@ -28,6 +28,11 @@ import {
   newColumnId,
 } from "@/pages/Board/mockData";
 import type { Column, Job } from "@/pages/Board/types";
+import {
+  appendStageMove,
+  applyCreateTimestamps,
+  applyEditTimestamp,
+} from "@/pages/Board/stageHistory";
 
 const MAX_COLUMNS = 20;
 
@@ -223,10 +228,16 @@ export function Board() {
             const copy = prev.slice();
             copy.splice(activeIndex, 1);
 
-            const movedJob: Job = {
-              ...activeJob,
-              columnId: dragPreview.overColumnId,
-            };
+            const sourceColumnId = activeJob.columnId;
+            const targetColumnId = dragPreview.overColumnId;
+            const movedJob: Job =
+              sourceColumnId === targetColumnId
+                ? { ...activeJob, columnId: targetColumnId }
+                : appendStageMove(
+                    { ...activeJob, columnId: targetColumnId },
+                    columns.find((c) => c.id === targetColumnId)?.label ?? targetColumnId,
+                    new Date().toISOString(),
+                  );
 
             if (dragPreview.overJobId) {
               const overIndex = copy.findIndex(
@@ -324,9 +335,10 @@ export function Board() {
   const handleJobSubmit = useCallback((submitted: Job) => {
     setJobs((prev) => {
       const i = prev.findIndex((j) => j.id === submitted.id);
-      if (i === -1) return [...prev, submitted];
+      const now = new Date().toISOString();
+      if (i === -1) return [...prev, applyCreateTimestamps(submitted, now)];
       const copy = prev.slice();
-      copy[i] = submitted;
+      copy[i] = applyEditTimestamp(submitted, now);
       return copy;
     });
   }, []);
