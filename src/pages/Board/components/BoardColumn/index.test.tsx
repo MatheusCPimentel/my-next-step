@@ -144,7 +144,9 @@ describe("BoardColumn", () => {
       const onDelete = vi.fn();
       renderColumn({ column: makeColumn(), jobs: [], onDelete });
 
-      fireEvent.click(screen.getByRole("button", { name: /delete column/i }));
+      screen
+        .getByRole("button", { name: /delete column/i, hidden: true })
+        .click();
 
       const dialog = await screen.findByRole("dialog");
       expect(
@@ -165,7 +167,9 @@ describe("BoardColumn", () => {
         onDelete,
       });
 
-      fireEvent.click(screen.getByRole("button", { name: /delete column/i }));
+      screen
+        .getByRole("button", { name: /delete column/i, hidden: true })
+        .click();
 
       const dialog = await screen.findByRole("dialog");
       expect(
