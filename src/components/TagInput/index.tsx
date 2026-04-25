@@ -18,6 +18,13 @@ const VARIANT_CLASSES: Record<SkillVariant, string> = {
   danger: "bg-red-500/15 text-red-500 border-red-500/20",
 };
 
+const VARIANT_DOT_CLASSES: Record<SkillVariant, string> = {
+  neutral: "bg-secondary",
+  success: "bg-teal",
+  warning: "bg-yellow-400",
+  danger: "bg-red-500",
+};
+
 export function TagInput({
   value,
   onChange,
@@ -82,6 +89,9 @@ export function TagInput({
             key={`${skill.name}-${index}`}
             className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs border ${VARIANT_CLASSES[skill.variant]}`}
           >
+            <span
+              className={`w-1.5 h-1.5 rounded-full flex-shrink-0 inline-block ${VARIANT_DOT_CLASSES[skill.variant]}`}
+            />
             {skill.name}
             {isEditable && (
               <button
