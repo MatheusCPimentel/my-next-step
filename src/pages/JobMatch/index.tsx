@@ -68,7 +68,6 @@ function fitScoreColorClass(score: number): string {
   if (score < 60) return "text-orange-400";
   if (score < 70) return "text-yellow-400";
   if (score < 80) return "text-teal";
-  if (score < 90) return "text-teal";
   return "text-green-400";
 }
 
