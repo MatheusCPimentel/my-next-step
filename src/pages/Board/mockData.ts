@@ -12,6 +12,7 @@ export const INITIAL_COLUMNS: Column[] = [
 export const INITIAL_JOBS: Job[] = [
   {
     id: "1",
+    company: "Stripe",
     title: "Senior Frontend Engineer",
     description: "Build payments UI for Stripe's dashboard at scale.",
     requiredSkills: [
@@ -23,6 +24,7 @@ export const INITIAL_JOBS: Job[] = [
   },
   {
     id: "2",
+    company: "Linear",
     title: "Product Engineer",
     description: "Ship product features end-to-end across web and desktop.",
     requiredSkills: [
@@ -34,6 +36,7 @@ export const INITIAL_JOBS: Job[] = [
   },
   {
     id: "3",
+    company: "Vercel",
     title: "Software Engineer",
     description: "Work on the Vercel platform with Next.js and Go services.",
     requiredSkills: [
@@ -45,6 +48,7 @@ export const INITIAL_JOBS: Job[] = [
   },
   {
     id: "4",
+    company: "GitHub",
     title: "Senior Software Engineer",
     description: "Build developer-facing features on github.com.",
     requiredSkills: [
@@ -56,6 +60,7 @@ export const INITIAL_JOBS: Job[] = [
   },
   {
     id: "5",
+    company: "Notion",
     title: "Frontend Engineer",
     description: "Improve the editor experience for Notion users.",
     requiredSkills: [
@@ -67,6 +72,7 @@ export const INITIAL_JOBS: Job[] = [
   },
   {
     id: "6",
+    company: "Figma",
     title: "Software Engineer",
     description: "Work on Figma's rendering and design tooling.",
     requiredSkills: [
@@ -78,6 +84,7 @@ export const INITIAL_JOBS: Job[] = [
   },
   {
     id: "7",
+    company: "Anthropic",
     title: "Frontend Engineer",
     description: "Build product surfaces for Anthropic's Claude apps.",
     requiredSkills: [

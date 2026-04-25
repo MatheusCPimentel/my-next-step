@@ -7,6 +7,7 @@ import type { Job } from "@/pages/Board/types";
 
 const makeJob = (overrides: Partial<Job> = {}): Job => ({
   id: "job-1",
+  company: "Acme",
   title: "Senior Engineer",
   description: "Build great products.",
   requiredSkills: [{ name: "React", variant: "neutral" }],
@@ -64,6 +65,7 @@ describe("JobDialog", () => {
       const onSubmit = vi.fn();
       render(<Harness mode="create" columnId="applied" onSubmit={onSubmit} />);
 
+      await user.type(screen.getByPlaceholderText("Company name"), "Acme");
       await user.type(
         screen.getByPlaceholderText("What is the role about?"),
         "A description",
@@ -82,6 +84,7 @@ describe("JobDialog", () => {
       const onSubmit = vi.fn();
       render(<Harness mode="create" columnId="applied" onSubmit={onSubmit} />);
 
+      await user.type(screen.getByPlaceholderText("Company name"), "Acme");
       await user.type(
         screen.getByPlaceholderText("Job title"),
         "Senior Engineer",
@@ -102,6 +105,7 @@ describe("JobDialog", () => {
       const onSubmit = vi.fn();
       render(<Harness mode="create" columnId="applied" onSubmit={onSubmit} />);
 
+      await user.type(screen.getByPlaceholderText("Company name"), "Acme");
       await user.type(
         screen.getByPlaceholderText("Job title"),
         "Senior Engineer",
@@ -124,6 +128,7 @@ describe("JobDialog", () => {
       const onSubmit = vi.fn();
       render(<Harness mode="create" columnId="phone" onSubmit={onSubmit} />);
 
+      await user.type(screen.getByPlaceholderText("Company name"), "Acme");
       await user.type(
         screen.getByPlaceholderText("Job title"),
         "Senior Engineer",
@@ -139,6 +144,7 @@ describe("JobDialog", () => {
 
       expect(onSubmit).toHaveBeenCalledTimes(1);
       const submitted = onSubmit.mock.calls[0][0] as Job;
+      expect(submitted.company).toBe("Acme");
       expect(submitted.title).toBe("Senior Engineer");
       expect(submitted.description).toBe("Build great products");
       expect(submitted.requiredSkills).toEqual([

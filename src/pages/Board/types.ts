@@ -13,6 +13,7 @@ export interface Skill {
 
 export interface Job {
   id: string;
+  company: string;
   title: string;
   description: string;
   requiredSkills: Skill[];

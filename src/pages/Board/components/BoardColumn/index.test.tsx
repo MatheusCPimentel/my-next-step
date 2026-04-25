@@ -15,6 +15,7 @@ const makeColumn = (overrides: Partial<Column> = {}): Column => ({
 
 const makeJob = (overrides: Partial<Job> = {}): Job => ({
   id: "job-1",
+  company: "Acme",
   title: "Frontend Engineer",
   description: "",
   requiredSkills: [],

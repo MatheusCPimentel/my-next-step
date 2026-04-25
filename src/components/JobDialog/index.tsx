@@ -33,6 +33,7 @@ const skillSchema = z.object({
 });
 
 const schema = z.object({
+  company: z.string().min(1, "Company is required"),
   title: z.string().min(1, "Title is required"),
   description: z.string().min(1, "Description is required"),
   requiredSkills: z
@@ -51,6 +52,7 @@ type FormValues = z.infer<typeof schema>;
 
 function defaultsFromJob(job?: Job): FormValues {
   return {
+    company: job?.company ?? "",
     title: job?.title ?? "",
     description: job?.description ?? "",
     requiredSkills: job?.requiredSkills ?? [],
@@ -162,6 +164,20 @@ export function JobDialog(props: JobDialogProps) {
         <div className="max-h-[80vh] overflow-y-auto">
           <div className="flex flex-col md:flex-row gap-6">
             <div className="flex-1 flex flex-col gap-4">
+              <div className="flex flex-col gap-1">
+                <label className={fieldLabel}>Company</label>
+                {isEditable ? (
+                  <>
+                    <Input {...register("company")} placeholder="Company name" />
+                    {errors.company && (
+                      <p className={errorText}>{errors.company.message}</p>
+                    )}
+                  </>
+                ) : (
+                  renderValue(job?.company)
+                )}
+              </div>
+
               <div className="flex flex-col gap-1">
                 <label className={fieldLabel}>Title</label>
                 {isEditable ? (
