@@ -321,19 +321,25 @@ export function JobDialog(props: JobDialogProps) {
 
               <div className="flex flex-col gap-1">
                 <label className={fieldLabel}>Nice-to-have skills</label>
-                <Controller
-                  name="niceToHaveSkills"
-                  control={control}
-                  render={({ field }) => (
-                    <TagInput
-                      value={field.value}
-                      onChange={field.onChange}
-                      isEditable={isEditable}
-                      defaultVariant="neutral"
-                      placeholder="Add a skill"
-                    />
-                  )}
-                />
+                {!isEditable && (job?.niceToHaveSkills?.length ?? 0) === 0 ? (
+                  <p className={valueText}>
+                    <span className="text-muted">—</span>
+                  </p>
+                ) : (
+                  <Controller
+                    name="niceToHaveSkills"
+                    control={control}
+                    render={({ field }) => (
+                      <TagInput
+                        value={field.value}
+                        onChange={field.onChange}
+                        isEditable={isEditable}
+                        defaultVariant="neutral"
+                        placeholder="Add a skill"
+                      />
+                    )}
+                  />
+                )}
               </div>
 
               <div className="flex flex-col gap-1">
