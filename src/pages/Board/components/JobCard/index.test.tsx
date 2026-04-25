@@ -31,15 +31,17 @@ function renderCard(job: Job) {
 }
 
 describe("JobCard", () => {
-  it("renders the AI badge when fromJobMatch is true", () => {
+  it("shows the AI analyzed pill when fromJobMatch is true", () => {
     renderCard(makeJob({ fromJobMatch: true }));
 
-    expect(screen.getByText("AI")).toBeInTheDocument();
+    expect(screen.getByText("AI analyzed")).toBeInTheDocument();
+    expect(screen.queryByText("Not analyzed")).not.toBeInTheDocument();
   });
 
-  it("does not render the AI badge when fromJobMatch is false or undefined", () => {
+  it("shows the Not analyzed pill when fromJobMatch is false or undefined", () => {
     const { rerender } = renderCard(makeJob({ fromJobMatch: false }));
-    expect(screen.queryByText("AI")).not.toBeInTheDocument();
+    expect(screen.getByText("Not analyzed")).toBeInTheDocument();
+    expect(screen.queryByText("AI analyzed")).not.toBeInTheDocument();
 
     rerender(
       <DndContext>
@@ -48,6 +50,7 @@ describe("JobCard", () => {
         </SortableContext>
       </DndContext>,
     );
-    expect(screen.queryByText("AI")).not.toBeInTheDocument();
+    expect(screen.getByText("Not analyzed")).toBeInTheDocument();
+    expect(screen.queryByText("AI analyzed")).not.toBeInTheDocument();
   });
 });
