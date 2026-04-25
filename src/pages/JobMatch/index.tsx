@@ -348,7 +348,7 @@ export function JobMatch() {
                 variant="ghost"
                 disabled={pitchLoading}
                 onClick={handleGeneratePitch}
-                className="w-full h-auto py-3 sm:flex-1 sm:h-10 sm:py-0 border border-border-hover bg-transparent text-primary hover:bg-overlay"
+                className="border border-border-hover bg-transparent text-primary hover:bg-overlay"
               >
                 {pitchLoading ? (
                   <>
@@ -362,7 +362,7 @@ export function JobMatch() {
             )}
             <Button
               onClick={() => setDialogOpen(true)}
-              className="w-full h-auto py-3 sm:flex-1 sm:h-10 sm:py-0 bg-purple hover:bg-purple/90 text-primary"
+              className="bg-purple hover:bg-purple/90 text-primary"
             >
               Add to Board
             </Button>
