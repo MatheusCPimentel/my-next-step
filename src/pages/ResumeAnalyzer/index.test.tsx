@@ -149,7 +149,7 @@ describe("ResumeAnalyzer", () => {
         screen.getByRole("button", { name: /confirm profile/i }),
       ).toBeInTheDocument();
       expect(
-        screen.getByRole("heading", { name: /^summary$/i }),
+        screen.getByRole("heading", { name: /ai resume verdict/i }),
       ).toBeInTheDocument();
       expect(
         screen.getByRole("heading", { name: /ats score/i }),
