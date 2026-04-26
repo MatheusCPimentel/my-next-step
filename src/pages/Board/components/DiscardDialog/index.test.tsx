@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { DiscardDialog } from "@/pages/Board/components/DiscardDialog";
+import type { DiscardOption } from "@/pages/Board/components/DiscardDialog";
 import type { Column } from "@/pages/Board/types";
 
 const makeColumns = (): Column[] => [
@@ -14,14 +15,14 @@ const makeColumns = (): Column[] => [
 
 interface HarnessProps {
   initialOpen?: boolean;
-  onConfirm?: ReturnType<typeof vi.fn>;
+  onConfirm?: (option: DiscardOption) => void;
   jobCompany?: string;
   columns?: Column[];
 }
 
 function Harness({
   initialOpen = true,
-  onConfirm = vi.fn(),
+  onConfirm = vi.fn() as (option: DiscardOption) => void,
   jobCompany = "Acme",
   columns = makeColumns(),
 }: HarnessProps) {

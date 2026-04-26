@@ -41,7 +41,7 @@ const schema = z.object({
   requiredSkills: z
     .array(skillSchema)
     .min(1, "Add at least one required skill"),
-  niceToHaveSkills: z.array(skillSchema).default([]),
+  niceToHaveSkills: z.array(skillSchema),
   matchVerdict: z.string().optional(),
   contractType: z.string().optional(),
   salary: z.string().optional(),
@@ -126,15 +126,21 @@ export function JobDialog(props: JobDialogProps) {
       : "flex-1 flex flex-col gap-4";
 
   const onValid = (values: FormValues) => {
-    const submitted: Job =
-      mode === "create"
-        ? {
-            ...(props.job ?? {}),
-            id: generateJobId(),
-            columnId: props.columnId!,
-            ...values,
-          }
-        : { ...job!, ...values };
+    let submitted: Job;
+    if (mode === "create") {
+      const now = new Date().toISOString();
+      submitted = {
+        ...(props.job ?? {}),
+        id: generateJobId(),
+        columnId: props.columnId!,
+        createdAt: now,
+        updatedAt: now,
+        stageHistory: [{ stage: "Applied", date: now }],
+        ...values,
+      };
+    } else {
+      submitted = { ...job!, ...values };
+    }
     onSubmit(submitted);
     onOpenChange(false);
   };
