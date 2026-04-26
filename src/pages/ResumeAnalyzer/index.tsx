@@ -1,45 +1,157 @@
-import { useState, useCallback, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Upload, FileText, CheckCircle, AlertCircle, Lightbulb, Loader2 } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  Activity,
+  AlertCircle,
+  AlertTriangle,
+  CheckCircle,
+  FileText,
+  Loader2,
+  Plus,
+  Upload,
+  X,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { FeatureSteps } from "@/components/FeatureSteps";
+import { Stepper } from "@/components/Stepper";
 
-type AnalysisState = "idle" | "loading" | "done";
+const INITIAL_SUMMARY =
+  "You are a senior frontend engineer with 5 years of experience in React and TypeScript. You have shipped production applications at scale, with a track record of quantified achievements. Your resume shows clear career progression but lacks soft skills and leadership context.";
+
+const ADJUSTED_SUMMARY =
+  "You are a senior frontend engineer with 5 years of experience in React and TypeScript, with additional context in team collaboration and cross-functional projects. You have shipped production applications at scale with quantified impact.";
+
+const ANALYSIS_LOADING_MESSAGES = [
+  "Reading your resume...",
+  "Analyzing experience...",
+  "Checking ATS compatibility...",
+  "Preparing your feedback...",
+];
 
 const MOCK_ANALYSIS = {
   summary:
     "Your resume is well-structured with clear sections. It highlights 5 years of experience in frontend development with strong emphasis on React and TypeScript projects.",
   strengths: [
-    "Strong technical skills section with relevant technologies",
-    "Quantified achievements in past roles",
-    "Clear career progression shown",
-    "Good use of action verbs",
+    "Strong technical skills section with relevant, current technologies",
+    "Quantified achievements in past roles (revenue, traffic, performance gains)",
+    "Clear career progression across 3 increasingly senior positions",
+    "Good use of action verbs in role descriptions",
   ],
   weaknesses: [
-    "Missing a professional summary at the top",
-    "Some job descriptions are too brief",
-    "No mention of soft skills or leadership experience",
-    "Education section lacks relevant coursework",
+    "No professional summary at the top — recruiters skim that first",
+    "Some role descriptions are too brief to convey impact",
+    "Missing soft skills and leadership / mentoring context",
+  ],
+  attentionPoints: [
+    "Education section is sparse — consider adding relevant coursework or honors",
+    "No mention of side projects or open-source work",
+    "Tooling list is broad — risks looking generalist instead of specialized",
+  ],
+  atsScore: 72,
+  atsBadge: "Good",
+  atsTips: [
+    "Add 3–5 keywords from the job descriptions you target most",
+    "Use a single-column layout — multi-column resumes break ATS parsers",
+    "Save as .pdf with selectable text, not as a scanned image",
   ],
   suggestions: [
-    "Add a 2–3 sentence professional summary",
-    "Expand on your role at Acme Corp with specific metrics",
-    "Include any open-source contributions or side projects",
-    "Consider adding a skills proficiency indicator",
+    "Add a 2–3 sentence professional summary above your experience",
+    "Expand on your role at Acme Corp with specific metrics (users, latency, $)",
+    "Mention any open-source contributions, talks, or side projects",
+    "Group skills by category (Languages / Frameworks / Tooling) for clarity",
   ],
 };
 
-const LOADING_STEPS = [
-  "Parsing document structure…",
-  "Evaluating skills and keywords…",
-  "Identifying strengths and gaps…",
-  "Generating suggestions…",
+const WHAT_WE_ANALYZE_ITEMS = [
+  {
+    title: "Upload your PDF",
+    description:
+      "We read your resume securely. Nothing is stored without your permission.",
+  },
+  {
+    title: "AI scans every section",
+    description:
+      "Experience, skills, achievements, formatting and ATS compatibility are all checked.",
+  },
+  {
+    title: "Get your feedback",
+    description:
+      "Strengths, weaknesses, and actionable suggestions to improve your resume.",
+  },
+  {
+    title: "Save your profile",
+    description: "Confirm your AI-generated profile to unlock Job Match.",
+  },
 ];
 
-function UploadArea({
-  onFileSelected,
-  fileName,
+const WHAT_WE_ANALYZE_EXTRAS: Array<{
+  label: string;
+  color: "teal" | "coral" | "amber" | "purple";
+}> = [
+  { label: "Strengths & achievements", color: "teal" },
+  { label: "Weaknesses & gaps", color: "coral" },
+  { label: "Attention points", color: "amber" },
+  { label: "ATS score & tips", color: "purple" },
+];
+
+const STEPPER_STEPS = [
+  { label: "Upload" },
+  { label: "Analysis" },
+  { label: "Your profile" },
+];
+
+function BulletList({
+  items,
+  dotClass,
 }: {
+  items: readonly string[];
+  dotClass: string;
+}) {
+  return (
+    <ul className="flex flex-col gap-2">
+      {items.map((item) => (
+        <li key={item} className="flex items-start gap-2.5">
+          <span
+            className={`mt-2 w-1.5 h-1.5 rounded-full shrink-0 ${dotClass}`}
+          />
+          <span className="text-sm text-secondary leading-relaxed">{item}</span>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function SectionCard({
+  title,
+  icon,
+  children,
+}: {
+  title: string;
+  icon: React.ReactNode;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className="bg-surface border border-border rounded-xl p-5 flex flex-col gap-3">
+      <div className="flex items-center gap-3">
+        <div className="w-8 h-8 rounded-lg bg-overlay flex items-center justify-center">
+          {icon}
+        </div>
+        <h2 className="text-sm font-medium text-primary">{title}</h2>
+      </div>
+      {children}
+    </section>
+  );
+}
+
+function UploadZone({
+  file,
+  onFileSelected,
+  onClearFile,
+}: {
+  file: File | null;
   onFileSelected: (file: File) => void;
-  fileName: string | null;
+  onClearFile: () => void;
 }) {
   const [isDragging, setIsDragging] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -57,20 +169,22 @@ function UploadArea({
     (e: React.DragEvent) => {
       e.preventDefault();
       setIsDragging(false);
-      const file = e.dataTransfer.files[0];
-      if (file && file.type === "application/pdf") {
-        onFileSelected(file);
+      const dropped = e.dataTransfer.files[0];
+      if (dropped && dropped.type === "application/pdf") {
+        onFileSelected(dropped);
       }
     },
-    [onFileSelected]
+    [onFileSelected],
   );
 
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0];
-      if (file) onFileSelected(file);
+      const selected = e.target.files?.[0];
+      if (selected && selected.type === "application/pdf") {
+        onFileSelected(selected);
+      }
     },
-    [onFileSelected]
+    [onFileSelected],
   );
 
   return (
@@ -88,288 +202,325 @@ function UploadArea({
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
-        className={[
-          "w-full rounded-xl border-2 border-dashed p-12 flex flex-col items-center gap-4 transition-colors text-left",
+        className={`w-full border-2 border-dashed rounded-xl p-10 flex flex-col items-center gap-3 text-center transition-colors ${
           isDragging
             ? "border-purple bg-purple/10"
-            : fileName
-            ? "border-teal bg-teal/5"
-            : "border-border bg-surface hover:border-border-hover hover:bg-overlay",
-        ].join(" ")}
+            : "border-border hover:border-purple/50"
+        }`}
       >
-        <div
-          className={[
-            "w-14 h-14 rounded-xl flex items-center justify-center",
-            fileName ? "bg-teal/15 text-teal" : "bg-purple/15 text-purple",
-          ].join(" ")}
-        >
-          {fileName ? <FileText size={26} /> : <Upload size={26} />}
-        </div>
-        <div className="flex flex-col items-center gap-1.5">
-          {fileName ? (
-            <>
-              <p className="text-sm font-medium text-primary">{fileName}</p>
-              <p className="text-xs text-muted">Click to replace</p>
-            </>
-          ) : (
-            <>
-              <p className="text-sm font-medium text-primary">
-                Drop your resume here or click to browse
-              </p>
-              <p className="text-xs text-muted">PDF only</p>
-            </>
-          )}
-        </div>
+        <Upload size={32} className="text-purple-mid" />
+        <span className="text-sm font-medium text-primary">
+          Drop your resume here or click to browse
+        </span>
+        <span className="text-xs text-muted">PDF only · max 10MB</span>
       </button>
+      {file && (
+        <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-border bg-overlay">
+          <FileText size={14} className="text-muted shrink-0" />
+          <span className="text-sm text-primary truncate flex-1">
+            {file.name}
+          </span>
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onClearFile();
+            }}
+            aria-label="Remove file"
+            className="text-muted hover:text-primary transition-colors"
+          >
+            <X size={14} />
+          </button>
+        </div>
+      )}
     </>
   );
 }
 
-function LoadingState() {
-  return (
-    <motion.div
-      key="loading"
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -12 }}
-      transition={{ duration: 0.3 }}
-      className="flex flex-col items-center gap-8 py-12"
-    >
-      <div className="relative flex items-center justify-center">
-        <div className="w-16 h-16 rounded-full bg-purple/15 flex items-center justify-center">
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 1.2, repeat: Infinity, ease: "linear" }}
-          >
-            <Loader2 size={28} className="text-purple" />
-          </motion.div>
-        </div>
-      </div>
-      <div className="flex flex-col gap-2 w-full max-w-xs">
-        {LOADING_STEPS.map((step, i) => (
-          <motion.div
-            key={step}
-            initial={{ opacity: 0, x: -8 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: i * 0.4, duration: 0.3 }}
-            className="flex items-center gap-2"
-          >
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: i * 0.4 + 0.1, duration: 0.2 }}
-              className="w-1.5 h-1.5 rounded-full bg-purple shrink-0"
-            />
-            <span className="text-sm text-secondary">{step}</span>
-          </motion.div>
-        ))}
-      </div>
-    </motion.div>
-  );
-}
-
-interface ResultSectionProps {
-  title: string;
-  icon: React.ReactNode;
-  accentClass: string;
-  children: React.ReactNode;
-  delay?: number;
-}
-
-function ResultSection({ title, icon, accentClass, children, delay = 0 }: ResultSectionProps) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay }}
-      className="bg-surface border border-border rounded-xl p-6 flex flex-col gap-4"
-    >
-      <div className="flex items-center gap-3">
-        <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${accentClass}`}>
-          {icon}
-        </div>
-        <h3 className="text-primary">{title}</h3>
-      </div>
-      {children}
-    </motion.div>
-  );
-}
-
-function BulletList({ items, dotClass }: { items: string[]; dotClass: string }) {
-  return (
-    <ul className="flex flex-col gap-2">
-      {items.map((item) => (
-        <li key={item} className="flex items-start gap-2.5">
-          <span className={`mt-2 w-1.5 h-1.5 rounded-full shrink-0 ${dotClass}`} />
-          <span className="text-sm text-secondary leading-relaxed">{item}</span>
-        </li>
-      ))}
-    </ul>
-  );
-}
-
-function AnalysisResults() {
-  return (
-    <motion.div
-      key="results"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.3 }}
-      className="flex flex-col gap-4"
-    >
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.05 }}
-        className="flex items-center gap-2 mb-2"
-      >
-        <CheckCircle size={16} className="text-teal" />
-        <span className="text-sm text-teal font-medium">Analysis complete</span>
-      </motion.div>
-
-      <ResultSection
-        title="Summary"
-        icon={<FileText size={16} className="text-secondary" />}
-        accentClass="bg-overlay"
-        delay={0.05}
-      >
-        <p className="text-sm text-secondary leading-relaxed">{MOCK_ANALYSIS.summary}</p>
-      </ResultSection>
-
-      <ResultSection
-        title="Strengths"
-        icon={<CheckCircle size={16} className="text-teal" />}
-        accentClass="bg-teal/15"
-        delay={0.1}
-      >
-        <BulletList items={MOCK_ANALYSIS.strengths} dotClass="bg-teal" />
-      </ResultSection>
-
-      <ResultSection
-        title="Weaknesses"
-        icon={<AlertCircle size={16} className="text-purple" />}
-        accentClass="bg-purple/15"
-        delay={0.15}
-      >
-        <BulletList items={MOCK_ANALYSIS.weaknesses} dotClass="bg-purple" />
-      </ResultSection>
-
-      <ResultSection
-        title="Suggestions"
-        icon={<Lightbulb size={16} className="text-secondary" />}
-        accentClass="bg-overlay"
-        delay={0.2}
-      >
-        <ul className="flex flex-col gap-2">
-          {MOCK_ANALYSIS.suggestions.map((item, i) => (
-            <li key={item} className="flex items-start gap-2.5">
-              <span className="mt-1.5 text-xs font-medium text-muted shrink-0 w-4 tabular-nums">
-                {i + 1}.
-              </span>
-              <span className="text-sm text-secondary leading-relaxed">{item}</span>
-            </li>
-          ))}
-        </ul>
-      </ResultSection>
-    </motion.div>
-  );
-}
-
 export function ResumeAnalyzer() {
-  const [state, setState] = useState<AnalysisState>("idle");
-  const [fileName, setFileName] = useState<string | null>(null);
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const navigate = useNavigate();
+  const [currentStep, setCurrentStep] = useState<1 | 2 | 3>(1);
+  const [file, setFile] = useState<File | null>(null);
+  const [analyzing, setAnalyzing] = useState(false);
+  const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
+  const [profileSummary, setProfileSummary] = useState(INITIAL_SUMMARY);
+  const [adjustOpen, setAdjustOpen] = useState(false);
+  const [adjustText, setAdjustText] = useState("");
+  const [reEvaluating, setReEvaluating] = useState(false);
+  const [savedProfile, setSavedProfile] = useState(false);
 
-  const handleFileSelected = useCallback((file: File) => {
-    setFileName(file.name);
-    setState("idle");
+  // Loading-overlay timing: cycle text every 600ms, advance to step 2 after 2.5s.
+  useEffect(() => {
+    if (!analyzing) return;
+    const intervalId = setInterval(() => {
+      setLoadingMessageIndex((i) => (i + 1) % ANALYSIS_LOADING_MESSAGES.length);
+    }, 600);
+    const timeoutId = setTimeout(() => {
+      setAnalyzing(false);
+      setCurrentStep(2);
+    }, 2500);
+    return () => {
+      clearInterval(intervalId);
+      clearTimeout(timeoutId);
+    };
+  }, [analyzing]);
+
+  const startAnalysis = useCallback(() => {
+    setLoadingMessageIndex(0);
+    setAnalyzing(true);
   }, []);
 
-  const handleAnalyze = useCallback(() => {
-    setState("loading");
-    timerRef.current = setTimeout(() => {
-      setState("done");
-    }, 2000);
-  }, []);
-
-  const handleReset = useCallback(() => {
-    clearTimeout(timerRef.current ?? undefined);
-    timerRef.current = null;
-    setState("idle");
-    setFileName(null);
-  }, []);
+  // Re-evaluate timing: swap to adjusted summary after 1.5s and close the editor.
+  useEffect(() => {
+    if (!reEvaluating) return;
+    const id = setTimeout(() => {
+      setProfileSummary(ADJUSTED_SUMMARY);
+      setReEvaluating(false);
+      setAdjustOpen(false);
+      setAdjustText("");
+    }, 1500);
+    return () => clearTimeout(id);
+  }, [reEvaluating]);
 
   return (
-    <div className="max-w-3xl mx-auto flex flex-col gap-8">
-      <div>
-        <h1 className="text-primary text-2xl md:text-3xl lg:text-4xl">
-          Resume Analyzer
-        </h1>
-        <p className="text-secondary mt-1">
-          Upload your resume and get AI-powered feedback instantly.
-        </p>
-      </div>
+    <div className="flex flex-col gap-8">
+      <Stepper steps={STEPPER_STEPS} currentStep={currentStep} />
 
-      <AnimatePresence mode="wait">
-        {state !== "done" && (
-          <motion.div
-            key="upload"
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -12 }}
-            transition={{ duration: 0.25 }}
-            className="flex flex-col gap-4"
-          >
-            <UploadArea onFileSelected={handleFileSelected} fileName={fileName} />
-
-            {fileName && state === "idle" && (
-              <motion.div
-                initial={{ opacity: 0, y: 6 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="flex gap-3"
-              >
-                <button
-                  onClick={handleAnalyze}
-                  className="px-5 py-2.5 bg-purple text-primary text-sm font-medium rounded-lg hover:bg-purple-dark transition-colors"
-                >
-                  Analyze resume
-                </button>
-                <button
-                  onClick={handleReset}
-                  className="px-5 py-2.5 bg-overlay text-secondary text-sm font-medium rounded-lg hover:bg-border-hover transition-colors"
-                >
-                  Clear
-                </button>
-              </motion.div>
-            )}
-
-            {state === "loading" && <LoadingState />}
-          </motion.div>
-        )}
-
-        {state === "done" && (
-          <motion.div
-            key="done-wrapper"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="flex flex-col gap-6"
-          >
-            <AnalysisResults />
-            <motion.button
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.3 }}
-              onClick={handleReset}
-              className="self-start px-5 py-2.5 bg-overlay text-secondary text-sm font-medium rounded-lg hover:bg-border-hover transition-colors"
+      {currentStep === 1 && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+          <div className="flex flex-col gap-6">
+            <div>
+              <h1 className="text-primary text-2xl md:text-3xl lg:text-4xl">
+                Resume Analyzer
+              </h1>
+              <p className="text-secondary mt-1">
+                Upload your resume and get AI-powered feedback instantly.
+              </p>
+            </div>
+            <UploadZone
+              file={file}
+              onFileSelected={setFile}
+              onClearFile={() => setFile(null)}
+            />
+            <Button
+              variant="default"
+              disabled={!file}
+              onClick={startAnalysis}
+              className="w-full h-11 text-base"
             >
-              Analyze another resume
-            </motion.button>
-          </motion.div>
-        )}
-      </AnimatePresence>
+              Analyze resume
+            </Button>
+          </div>
+          <FeatureSteps
+            title="What we analyze"
+            items={WHAT_WE_ANALYZE_ITEMS}
+            extras={WHAT_WE_ANALYZE_EXTRAS}
+          />
+        </div>
+      )}
+
+      {currentStep === 2 && (
+        <div className="flex flex-col gap-6">
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <h1 className="text-primary text-2xl md:text-3xl lg:text-4xl">
+                Resume Analyzer
+              </h1>
+              <p className="text-secondary mt-1">Here's what we found.</p>
+            </div>
+            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal/10 text-teal text-xs border border-teal/20 shrink-0">
+              <span className="w-1.5 h-1.5 rounded-full bg-teal animate-pulse" />
+              Analysis complete
+            </span>
+          </div>
+
+          <div className="flex flex-col gap-3">
+            <SectionCard
+              title="Summary"
+              icon={<FileText size={16} className="text-muted" />}
+            >
+              <p className="text-sm text-secondary leading-relaxed">
+                {MOCK_ANALYSIS.summary}
+              </p>
+            </SectionCard>
+
+            <SectionCard
+              title="Strengths"
+              icon={<CheckCircle size={16} className="text-teal" />}
+            >
+              <BulletList
+                items={MOCK_ANALYSIS.strengths}
+                dotClass="bg-teal"
+              />
+            </SectionCard>
+
+            <SectionCard
+              title="Weaknesses"
+              icon={<AlertCircle size={16} className="text-[#D85A30]" />}
+            >
+              <BulletList
+                items={MOCK_ANALYSIS.weaknesses}
+                dotClass="bg-[#D85A30]"
+              />
+            </SectionCard>
+
+            <SectionCard
+              title="Attention points"
+              icon={<AlertTriangle size={16} className="text-[#EF9F27]" />}
+            >
+              <BulletList
+                items={MOCK_ANALYSIS.attentionPoints}
+                dotClass="bg-[#EF9F27]"
+              />
+            </SectionCard>
+
+            <SectionCard
+              title="ATS score"
+              icon={<Activity size={16} className="text-purple-mid" />}
+            >
+              <div className="flex items-baseline gap-2">
+                <span className="text-3xl font-medium text-purple-mid">
+                  {MOCK_ANALYSIS.atsScore}
+                </span>
+                <span className="text-sm text-muted">/ 100</span>
+                <span className="ml-2 text-xs px-2 py-0.5 rounded bg-purple/10 text-purple-mid">
+                  {MOCK_ANALYSIS.atsBadge}
+                </span>
+              </div>
+              <div className="h-1.5 rounded-full bg-overlay overflow-hidden">
+                <div
+                  className="h-full bg-purple"
+                  style={{ width: `${MOCK_ANALYSIS.atsScore}%` }}
+                />
+              </div>
+              <BulletList
+                items={MOCK_ANALYSIS.atsTips}
+                dotClass="bg-purple/40"
+              />
+            </SectionCard>
+
+            <SectionCard
+              title="Suggestions"
+              icon={<Plus size={16} className="text-purple" />}
+            >
+              <ol className="flex flex-col gap-2">
+                {MOCK_ANALYSIS.suggestions.map((item, i) => (
+                  <li key={item} className="flex items-start gap-2.5">
+                    <span className="w-5 h-5 shrink-0 rounded-full bg-purple/15 text-purple-soft text-xs flex items-center justify-center">
+                      {i + 1}
+                    </span>
+                    <span className="text-sm text-secondary leading-relaxed">
+                      {item}
+                    </span>
+                  </li>
+                ))}
+              </ol>
+            </SectionCard>
+          </div>
+
+          <Button
+            variant="default"
+            className="w-full h-11"
+            onClick={() => setCurrentStep(3)}
+          >
+            Save profile
+          </Button>
+        </div>
+      )}
+
+      {currentStep === 3 && (
+        <div className="flex flex-col gap-6">
+          {!savedProfile && (
+            <>
+              <div>
+                <h1 className="text-primary text-2xl md:text-3xl lg:text-4xl">
+                  Your profile
+                </h1>
+                <p className="text-secondary mt-1">
+                  This is what the AI understood about you. Confirm or adjust
+                  before saving.
+                </p>
+              </div>
+              <div className="bg-surface border border-border rounded-xl p-6 flex flex-col gap-4">
+                <p className="text-sm text-secondary leading-relaxed">
+                  {profileSummary}
+                </p>
+                <div className="flex flex-wrap gap-3">
+                  <Button
+                    variant="default"
+                    onClick={() => setSavedProfile(true)}
+                  >
+                    Looks good, save
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => setAdjustOpen((v) => !v)}
+                  >
+                    I want to adjust
+                  </Button>
+                </div>
+                {adjustOpen && (
+                  <div className="flex flex-col gap-3 mt-2">
+                    <div className="border border-border rounded-lg">
+                      <Textarea
+                        value={adjustText}
+                        onChange={(e) => setAdjustText(e.target.value)}
+                        placeholder="Describe what you want to change or add..."
+                        rows={4}
+                      />
+                    </div>
+                    <Button
+                      variant="default"
+                      disabled={reEvaluating}
+                      onClick={() => setReEvaluating(true)}
+                      className="self-start"
+                    >
+                      {reEvaluating ? (
+                        <>
+                          <Loader2 size={16} className="animate-spin mr-2" />
+                          Re-evaluating...
+                        </>
+                      ) : (
+                        "Re-evaluate"
+                      )}
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </>
+          )}
+          {savedProfile && (
+            <div className="bg-surface border border-border rounded-xl p-8 text-center flex flex-col items-center">
+              <CheckCircle size={32} className="text-teal mb-3" />
+              <h2 className="text-lg font-medium text-primary">
+                Profile saved
+              </h2>
+              <p className="text-sm text-secondary mt-2">
+                You can now use Job Match to analyze job descriptions against
+                your profile.
+              </p>
+              <Button
+                variant="default"
+                className="mt-6"
+                onClick={() => navigate("/job-match")}
+              >
+                Go to Job Match
+              </Button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {analyzing && (
+        <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-md flex items-center justify-center">
+          <div className="bg-surface border border-border rounded-xl p-8 flex flex-col items-center max-w-sm text-center">
+            <Loader2 size={32} className="animate-spin text-purple" />
+            <p className="text-sm text-secondary mt-4 min-h-[20px]">
+              {ANALYSIS_LOADING_MESSAGES[loadingMessageIndex]}
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

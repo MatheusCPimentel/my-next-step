@@ -104,7 +104,7 @@ Never use inline style for colors — always use Tailwind classes from the token
 Route Page Status
 / Dashboard in progress
 /board Board in progress
-/resume Resume Analyzer in progress
+/resume Resume Analyzer in progress (full stepper flow built)
 /job-match Job Match in progress
 /levelup LevelUp in progress
 
