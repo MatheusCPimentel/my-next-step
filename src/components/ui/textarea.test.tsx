@@ -95,6 +95,17 @@ describe("Textarea", () => {
       expect(screen.getByText("8 / 5")).toBeInTheDocument();
       expect((textarea as HTMLTextAreaElement).value).toBe("abcdefgh");
     });
+
+    it("renders the counter inside the same wrapper element as the textarea", () => {
+      render(<Textarea maxLength={50} defaultValue="hi" />);
+
+      const textarea = screen.getByRole("textbox");
+      const counter = screen.getByText("2 / 50");
+
+      const wrapper = textarea.parentElement;
+      expect(wrapper).not.toBeNull();
+      expect(wrapper).toContainElement(counter);
+    });
   });
 
   describe("with error prop", () => {

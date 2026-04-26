@@ -3,13 +3,13 @@ import * as React from "react"
 import { cn } from "@/lib/utils"
 
 const BASE_CLASSES =
-  "min-h-[72px] w-full min-w-0 bg-transparent px-2.5 py-1.5 text-sm transition-colors outline-none resize-none placeholder:text-muted disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
+  "w-full min-w-0 bg-transparent px-2.5 py-1.5 text-sm transition-colors outline-none resize-none placeholder:text-muted disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
 
 function PlainTextarea({ className, ...props }: React.ComponentProps<"textarea">) {
   return (
     <textarea
       data-slot="textarea"
-      className={cn(BASE_CLASSES, className)}
+      className={cn("min-h-[72px]", BASE_CLASSES, className)}
       {...props}
     />
   )
@@ -40,20 +40,23 @@ function CountedTextarea({
   const isOver = count > maxLength
 
   return (
-    <div className="flex flex-col h-full">
+    <div
+      data-slot="textarea-wrapper"
+      className={cn(
+        "flex flex-col h-full overflow-hidden",
+        className,
+        (isOver || error) && "border-red-500"
+      )}
+    >
       <textarea
         data-slot="textarea"
-        className={cn(
-          BASE_CLASSES,
-          className,
-          (isOver || error) && "border-red-500"
-        )}
+        className={cn(BASE_CLASSES, "flex-1 min-h-[72px] border-0")}
         {...props}
         onChange={handleChange}
       />
       <div
         className={cn(
-          "flex items-center text-xs mt-1",
+          "flex items-center text-xs px-2.5 py-1.5 border-t border-border",
           error ? "justify-between" : "justify-end"
         )}
       >
