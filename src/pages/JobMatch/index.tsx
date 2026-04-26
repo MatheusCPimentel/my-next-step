@@ -150,7 +150,7 @@ export function JobMatch() {
             aria-label="What does this generate?"
             className="text-muted hover:text-primary transition-colors"
           >
-            <Info size={14} />
+            <Info size={16} />
           </button>
         </TooltipTrigger>
         <TooltipContent sideOffset={8}>
@@ -248,14 +248,15 @@ export function JobMatch() {
             {titleBlock}
             <div className="flex items-center gap-3 shrink-0">
               <Button
-                variant="ghost"
+                variant="outline"
                 size="sm"
                 onClick={handleReset}
-                className="border border-border-hover bg-transparent text-primary hover:bg-overlay"
               >
                 Analyze another job
               </Button>
               <Button
+                variant="default"
+                size="sm"
                 onClick={() => setDialogOpen(true)}
                 className="bg-purple hover:bg-purple/90 text-primary"
               >
@@ -277,7 +278,9 @@ export function JobMatch() {
                   environmentScore={MOCK_RESULT.environmentScore}
                   opportunityDescription={MOCK_RESULT.opportunityDescription}
                   finalVerdict={MOCK_RESULT.finalVerdict}
-                  actions={MOCK_RESULT.fitScore >= 60 ? generateActions : undefined}
+                  actions={
+                    MOCK_RESULT.fitScore >= 60 ? generateActions : undefined
+                  }
                 />
               </motion.div>
 
@@ -293,24 +296,25 @@ export function JobMatch() {
                     <span className="absolute top-2 left-3 text-4xl text-purple/40 font-serif leading-none">
                       “
                     </span>
+
                     <button
                       type="button"
                       onClick={handleCopyPitch}
                       aria-label={
                         pitchCopied ? "Pitch copied" : "Copy pitch to clipboard"
                       }
-                      className="absolute top-2 right-3 transition-colors"
+                      className="absolute bottom-3 right-4 transition-colors"
                     >
                       {pitchCopied ? (
-                        <Check size={14} className="text-teal" />
+                        <Check size={16} className="text-teal" />
                       ) : (
                         <Copy
-                          size={14}
+                          size={16}
                           className="text-muted hover:text-primary"
                         />
                       )}
                     </button>
-                    <p className="pl-7 pr-7 font-serif italic text-base text-primary leading-relaxed">
+                    <p className="px-5 font-serif italic text-base text-primary leading-relaxed">
                       {PITCH_TEXT}
                     </p>
                   </motion.div>
@@ -436,7 +440,6 @@ export function JobMatch() {
               </motion.div>
             </div>
           </div>
-
         </div>
       )}
 
