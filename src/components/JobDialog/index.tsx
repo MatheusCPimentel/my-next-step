@@ -163,14 +163,10 @@ export function JobDialog(props: JobDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent
-        className="bg-surface border border-border text-primary max-w-3xl sm:max-w-3xl max-h-[90dvh] overflow-y-auto pb-[max(1rem,env(safe-area-inset-bottom))]"
-      >
+      <DialogContent className="max-w-3xl sm:max-w-3xl max-h-[90dvh] overflow-y-auto pb-[max(1rem,env(safe-area-inset-bottom))]">
         <DialogHeader>
-          <DialogTitle className="text-primary">
-            {titleForMode(internalMode)}
-          </DialogTitle>
-          <DialogDescription className="text-secondary">
+          <DialogTitle>{titleForMode(internalMode)}</DialogTitle>
+          <DialogDescription>
             {descriptionForMode(internalMode)}
           </DialogDescription>
         </DialogHeader>

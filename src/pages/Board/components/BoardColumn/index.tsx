@@ -191,16 +191,14 @@ function BoardColumnComponent({
       </div>
 
       <Dialog open={blockDialogOpen} onOpenChange={setBlockDialogOpen}>
-        <DialogContent className="bg-surface border border-border text-primary">
+        <DialogContent>
           <DialogHeader>
-            <DialogTitle className="text-primary">
-              Cannot delete column
-            </DialogTitle>
-            <DialogDescription className="text-secondary">
+            <DialogTitle>Cannot delete column</DialogTitle>
+            <DialogDescription>
               Move or discard the jobs in this column first.
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter className="border-border bg-transparent">
+          <DialogFooter>
             <Button variant="outline" onClick={() => setBlockDialogOpen(false)}>
               Close
             </Button>
@@ -209,16 +207,12 @@ function BoardColumnComponent({
       </Dialog>
 
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <DialogContent className="bg-surface border border-border text-primary">
+        <DialogContent>
           <DialogHeader>
-            <DialogTitle className="text-primary">
-              Delete "{column.label}"?
-            </DialogTitle>
-            <DialogDescription className="text-secondary">
-              This can't be undone.
-            </DialogDescription>
+            <DialogTitle>Delete "{column.label}"?</DialogTitle>
+            <DialogDescription>This can't be undone.</DialogDescription>
           </DialogHeader>
-          <DialogFooter className="border-border bg-transparent">
+          <DialogFooter>
             <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
               Cancel
             </Button>

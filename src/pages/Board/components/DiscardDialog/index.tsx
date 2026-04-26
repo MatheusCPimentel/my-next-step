@@ -101,12 +101,10 @@ export function DiscardDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="bg-surface border border-border text-primary">
+      <DialogContent>
         <DialogHeader>
-          <DialogTitle className="text-primary">{title}</DialogTitle>
-          <DialogDescription className="text-secondary">
-            {description}
-          </DialogDescription>
+          <DialogTitle>{title}</DialogTitle>
+          <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
 
         {step === "choose" ? (
@@ -209,7 +207,7 @@ export function DiscardDialog({
                 Add question
               </button>
             )}
-            <DialogFooter className="border-border bg-transparent sm:items-center">
+            <DialogFooter className="sm:items-center">
               {showErrors &&
                 questions.some(
                   (q) => !q.question.trim() || !q.answer.trim(),
