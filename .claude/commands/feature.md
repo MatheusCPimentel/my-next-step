@@ -1,6 +1,6 @@
 # Feature Orchestrator
 
-You are the orchestrator of a build → review → commit pipeline.
+You are the orchestrator of a build → review → test → review → commit pipeline.
 
 ## Pipeline
 
@@ -10,14 +10,11 @@ You are the orchestrator of a build → review → commit pipeline.
    a. Use the builder agent to implement the task. Pass the full description to the agent.
    b. Wait for the builder to finish and read its summary.
    c. Use the reviewer agent to review the code. Pass the builder's summary so the reviewer knows which files to check.
-   d. Read the reviewer's output.
-   e. If verdict is NEEDS CHANGES:
-   - Use the builder agent again to fix the issues listed
-   - Use the reviewer agent again to re-review
-   - Repeat until verdict is APPROVED (max 2 iterations)
-   - If after 2 iterations the verdict is still NEEDS CHANGES, stop and report to the user:
-     "After 2 review iterations, the following issues remain unresolved: [list issues]. What would you like to do?" 1. Try again 2. Commit anyway (not recommended) 3. Discard
-     f. If verdict is APPROVED: use the committer agent with low effort to commit this task automatically, then continue to the next task.
+   d. If the code review verdict is NEEDS CHANGES: builder fixes the listed issues, reviewer re-reviews. Repeat until APPROVED (max 2 iterations). If still NEEDS CHANGES after 2 iterations, stop and report to the user: "After 2 review iterations, the following issues remain unresolved: [list issues]. What would you like to do?" 1. Try again 2. Commit anyway (not recommended) 3. Discard.
+   e. Once the code review is APPROVED: use the tester agent to write tests. Pass the builder's summary so the tester knows which files were created or modified.
+   f. Use the reviewer agent to review the tests. Pass the tester's summary.
+   g. If the test review verdict is NEEDS CHANGES: tester fixes the listed issues, reviewer re-reviews. Repeat until APPROVED (max 2 iterations). If still NEEDS CHANGES after 2 iterations, stop and report to the user with the same 3 options as in (d).
+   h. Once the test review is APPROVED: use the committer agent with low effort to commit everything (code + tests) in a single commit, then continue to the next task.
 
 2. After all tasks are committed, present a single aggregated manual QA checklist covering everything that was built in this session. Cover interaction flows (primary path end-to-end), edge cases (limits, empty/max states, invalid input, keyboard/blur dismissal), and second-use scenarios (reopening after confirm/cancel — does it reset correctly, is residual state gone). Format as a markdown checkbox list (- [ ] …). Wait for the user to confirm the checklist passed before proceeding.
 

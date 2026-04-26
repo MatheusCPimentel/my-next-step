@@ -12,7 +12,6 @@ Read CLAUDE.md before doing anything to understand the project context, conventi
 - Build exactly what was requested, nothing more
 - Follow all rules in CLAUDE.md strictly
 - Keep components small and focused
-- Write tests for any logic you build (see Testing section below)
 
 ## You must NOT
 
@@ -20,16 +19,12 @@ Read CLAUDE.md before doing anything to understand the project context, conventi
 - Review your own code
 - Add features not explicitly requested
 - Modify files unrelated to the task
-
-## Testing
-
-For every feature you build, write tests for the logic you create. Read .claude/rules/testing.md for conventions, patterns and what to test.
+- Write tests — a separate tester agent handles that
 
 ## When done
 
 Return a structured summary:
 
 - Files created or modified (path + one line description)
-- Tests written and what they cover
 - Any decisions made that the reviewer should know about
 - Any blockers or uncertainties
