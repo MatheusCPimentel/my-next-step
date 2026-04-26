@@ -29,6 +29,14 @@ const INITIAL_SUMMARY =
 const ADJUSTED_SUMMARY =
   "You are a senior frontend engineer with 5 years of experience in React and TypeScript, with additional context in team collaboration and cross-functional projects. You have shipped production applications at scale with quantified impact.";
 
+const PROFILE_SKILLS = [
+  "React",
+  "TypeScript",
+  "Node.js",
+  "Frontend",
+  "Production apps",
+];
+
 const ANALYSIS_LOADING_MESSAGES = [
   "Reading your resume...",
   "Analyzing experience...",
@@ -455,57 +463,41 @@ export function ResumeAnalyzer() {
                 </DialogDescription>
               </DialogHeader>
 
-              <div className="bg-overlay border border-border rounded-xl p-4">
+              <div className="bg-overlay border border-border rounded-xl p-4 flex flex-col gap-4">
                 <p className="text-sm text-secondary leading-relaxed">
                   {profileSummary}
                 </p>
+                <div className="flex flex-col gap-2">
+                  <span className="text-xs text-muted">Key skills</span>
+                  <div className="flex flex-wrap gap-2">
+                    {PROFILE_SKILLS.map((skill) => (
+                      <span
+                        key={skill}
+                        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-purple/10 text-purple-soft border border-purple/20"
+                      >
+                        {skill}
+                      </span>
+                    ))}
+                  </div>
+                </div>
               </div>
 
-              <div className="border border-border rounded-xl p-4 flex flex-col gap-3">
-                <h3 className="text-xs uppercase text-muted tracking-widest">
-                  Why this matters
-                </h3>
-                <ul className="flex flex-col gap-2">
-                  <li className="flex items-start gap-2.5">
-                    <span className="mt-2 w-1.5 h-1.5 rounded-full bg-purple-mid shrink-0" />
-                    <span className="text-sm text-secondary leading-relaxed">
-                      Used by Job Match to analyze how well you fit a role.
-                    </span>
-                  </li>
-                  <li className="flex items-start gap-2.5">
-                    <span className="mt-2 w-1.5 h-1.5 rounded-full bg-purple-mid shrink-0" />
-                    <span className="text-sm text-secondary leading-relaxed">
-                      The more accurate it is, the better your match scores.
-                    </span>
-                  </li>
-                  <li className="flex items-start gap-2.5">
-                    <span className="mt-2 w-1.5 h-1.5 rounded-full bg-purple-mid shrink-0" />
-                    <span className="text-sm text-secondary leading-relaxed">
-                      You can always come back and update it later.
-                    </span>
-                  </li>
-                </ul>
-                <p className="text-xs text-muted leading-relaxed border-t border-border pt-3">
-                  <span className="text-primary font-medium">Tip:</span> mention
-                  your seniority level, main technologies, and the kind of roles
-                  you are looking for.
-                </p>
-              </div>
-
-              <div className="flex flex-wrap gap-3">
-                <Button
-                  variant="default"
-                  onClick={() => setSavedProfile(true)}
-                >
-                  Looks good, save
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => setAdjustOpen((v) => !v)}
-                >
-                  I want to adjust
-                </Button>
-              </div>
+              {!adjustOpen && (
+                <div className="flex flex-wrap gap-3">
+                  <Button
+                    variant="default"
+                    onClick={() => setSavedProfile(true)}
+                  >
+                    Looks good, save
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => setAdjustOpen(true)}
+                  >
+                    I want to adjust
+                  </Button>
+                </div>
+              )}
 
               {adjustOpen && (
                 <div className="flex flex-col gap-3">
@@ -517,21 +509,32 @@ export function ResumeAnalyzer() {
                     maxLength={500}
                     className="border border-border rounded-lg"
                   />
-                  <Button
-                    variant="default"
-                    disabled={reEvaluating}
-                    onClick={() => setReEvaluating(true)}
-                    className="self-start"
-                  >
-                    {reEvaluating ? (
-                      <>
-                        <Loader2 size={16} className="animate-spin mr-2" />
-                        Re-evaluating...
-                      </>
-                    ) : (
-                      "Re-evaluate"
-                    )}
-                  </Button>
+                  <div className="flex flex-wrap gap-3">
+                    <Button
+                      variant="outline"
+                      disabled={reEvaluating}
+                      onClick={() => {
+                        setAdjustOpen(false);
+                        setAdjustText("");
+                      }}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      variant="default"
+                      disabled={reEvaluating}
+                      onClick={() => setReEvaluating(true)}
+                    >
+                      {reEvaluating ? (
+                        <>
+                          <Loader2 size={16} className="animate-spin mr-2" />
+                          Re-evaluating...
+                        </>
+                      ) : (
+                        "Re-evaluate"
+                      )}
+                    </Button>
+                  </div>
                 </div>
               )}
             </>

@@ -185,7 +185,7 @@ describe("ResumeAnalyzer", () => {
       ).toBeInTheDocument();
     });
 
-    it("renders the summary, Why this matters card and both action buttons", async () => {
+    it("renders the summary, key skills and both action buttons", async () => {
       const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
       renderResumeAnalyzer();
 
@@ -201,25 +201,13 @@ describe("ResumeAnalyzer", () => {
           /senior frontend engineer with 5 years of experience in react and typescript/i,
         ),
       ).toBeInTheDocument();
+      expect(screen.getByText(/key skills/i)).toBeInTheDocument();
+      for (const skill of ["React", "TypeScript", "Node.js", "Frontend", "Production apps"]) {
+        expect(screen.getByText(skill)).toBeInTheDocument();
+      }
       expect(
-        screen.getByRole("heading", { name: /why this matters/i }),
-      ).toBeInTheDocument();
-      expect(
-        screen.getByText(/used by job match to analyze how well you fit a role/i),
-      ).toBeInTheDocument();
-      expect(
-        screen.getByText(
-          /the more accurate it is, the better your match scores/i,
-        ),
-      ).toBeInTheDocument();
-      expect(
-        screen.getByText(/you can always come back and update it later/i),
-      ).toBeInTheDocument();
-      expect(
-        screen.getByText(
-          /mention your seniority level, main technologies, and the kind of roles you are looking for/i,
-        ),
-      ).toBeInTheDocument();
+        screen.queryByRole("heading", { name: /why this matters/i }),
+      ).not.toBeInTheDocument();
       expect(
         screen.getByRole("button", { name: /looks good, save/i }),
       ).toBeInTheDocument();
@@ -268,7 +256,30 @@ describe("ResumeAnalyzer", () => {
       expect(reopenedTextarea).toHaveValue("");
     });
 
-    it("preserves the adjust text while toggling the panel inside the same modal session", async () => {
+    it("opening the adjust panel hides the default action buttons and reveals Cancel + Re-evaluate", async () => {
+      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+      renderResumeAnalyzer();
+
+      await openModal(user);
+      await user.click(
+        screen.getByRole("button", { name: /i want to adjust/i }),
+      );
+
+      expect(
+        screen.queryByRole("button", { name: /looks good, save/i }),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole("button", { name: /i want to adjust/i }),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: /^cancel$/i }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: /^re-evaluate$/i }),
+      ).toBeInTheDocument();
+    });
+
+    it("clicking Cancel resets the textarea and restores the default action buttons", async () => {
       const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
       renderResumeAnalyzer();
 
@@ -280,16 +291,27 @@ describe("ResumeAnalyzer", () => {
         screen.getByPlaceholderText(/describe what you want to change or add/i),
         "draft",
       );
-      await user.click(
-        screen.getByRole("button", { name: /i want to adjust/i }),
-      );
-      await user.click(
-        screen.getByRole("button", { name: /i want to adjust/i }),
-      );
+
+      await user.click(screen.getByRole("button", { name: /^cancel$/i }));
 
       expect(
+        screen.queryByPlaceholderText(
+          /describe what you want to change or add/i,
+        ),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: /looks good, save/i }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: /i want to adjust/i }),
+      ).toBeInTheDocument();
+
+      await user.click(
+        screen.getByRole("button", { name: /i want to adjust/i }),
+      );
+      expect(
         screen.getByPlaceholderText(/describe what you want to change or add/i),
-      ).toHaveValue("draft");
+      ).toHaveValue("");
     });
 
     it("persists savedProfile state across modal close and reopen", async () => {
