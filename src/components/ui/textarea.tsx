@@ -40,7 +40,7 @@ function CountedTextarea({
   const isOver = count > maxLength
 
   return (
-    <div>
+    <div className="flex flex-col h-full">
       <textarea
         data-slot="textarea"
         className={cn(

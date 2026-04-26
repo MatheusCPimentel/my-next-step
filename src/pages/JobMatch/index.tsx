@@ -182,12 +182,12 @@ export function JobMatch() {
   return (
     <div className="mx-auto w-full pb-10 flex flex-col gap-8">
       {status === "idle" && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="flex flex-col gap-8 md:col-span-2">
             {titleBlock}
             <form
               onSubmit={handleSubmit(onValid)}
-              className="flex flex-col gap-4"
+              className="flex-1 flex flex-col gap-4"
             >
               <div className="flex flex-col gap-1">
                 <label className="text-xs text-secondary">Job title</label>
@@ -199,14 +199,14 @@ export function JobMatch() {
                   <p className="text-red-500 text-xs">{errors.title.message}</p>
                 )}
               </div>
-              <div className="flex flex-col gap-1">
+              <div className="flex-1 flex flex-col gap-1">
                 <label className="text-xs text-secondary">
                   Job description
                 </label>
                 <Textarea
                   maxLength={8000}
                   placeholder="Paste the full job description here..."
-                  className="min-h-[280px] border border-border rounded-lg"
+                  className="flex-1 min-h-[280px] border border-border rounded-lg"
                   error={errors.description?.message}
                   {...register("description")}
                 />
