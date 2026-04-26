@@ -50,7 +50,7 @@ async function advanceToStep2(user: ReturnType<typeof userEvent.setup>) {
 
 async function advanceToStep3(user: ReturnType<typeof userEvent.setup>) {
   await advanceToStep2(user);
-  await user.click(screen.getByRole("button", { name: /save profile/i }));
+  await user.click(screen.getByRole("button", { name: /review your profile/i }));
 }
 
 describe("ResumeAnalyzer", () => {
@@ -72,6 +72,11 @@ describe("ResumeAnalyzer", () => {
       expect(screen.getAllByText("Your profile").length).toBeGreaterThan(0);
       expect(
         screen.getByRole("heading", { name: /resume analyzer/i }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          /upload your resume and get ai-powered feedback instantly/i,
+        ),
       ).toBeInTheDocument();
       expect(
         screen.getByText(/drop your resume here or click to browse/i),
@@ -142,6 +147,7 @@ describe("ResumeAnalyzer", () => {
       });
 
       expect(screen.getByText(/analysis complete/i)).toBeInTheDocument();
+      expect(screen.getByText(/here's what we found/i)).toBeInTheDocument();
       expect(
         screen.getByRole("heading", { name: /^summary$/i }),
       ).toBeInTheDocument();
@@ -161,7 +167,7 @@ describe("ResumeAnalyzer", () => {
         screen.getByRole("heading", { name: /^suggestions$/i }),
       ).toBeInTheDocument();
       expect(
-        screen.getByRole("button", { name: /save profile/i }),
+        screen.getByRole("button", { name: /review your profile/i }),
       ).toBeInTheDocument();
       expect(
         screen.queryByText(/reading your resume/i),
@@ -170,14 +176,16 @@ describe("ResumeAnalyzer", () => {
   });
 
   describe("Step 3 — Your profile", () => {
-    it("advances from analysis to step 3 with the initial summary and both action buttons when Save profile is clicked", async () => {
+    it("advances from analysis to step 3 with the initial summary and both action buttons when Review your profile is clicked", async () => {
       const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
       renderResumeAnalyzer();
 
       await advanceToStep3(user);
 
       expect(
-        screen.getByRole("heading", { name: /^your profile$/i }),
+        screen.getByText(
+          /this is what the ai understood about you\. confirm or adjust before saving/i,
+        ),
       ).toBeInTheDocument();
       expect(
         screen.getByText(
@@ -257,14 +265,107 @@ describe("ResumeAnalyzer", () => {
         await vi.advanceTimersByTimeAsync(1500);
       });
 
-      expect(
-        screen.getByText(/with additional context in team collaboration/i),
-      ).toBeInTheDocument();
+      expect(screen.getByText(/team collaboration/i)).toBeInTheDocument();
       expect(
         screen.queryByPlaceholderText(
           /describe what you want to change or add/i,
         ),
       ).not.toBeInTheDocument();
+    });
+  });
+
+  describe("Step 3 right column", () => {
+    it("renders the Why this matters card on initial step 3", async () => {
+      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+      renderResumeAnalyzer();
+
+      await advanceToStep3(user);
+
+      expect(
+        screen.getByRole("heading", { name: /why this matters/i }),
+      ).toBeInTheDocument();
+    });
+
+    it("keeps the Why this matters card visible after saving the profile", async () => {
+      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+      renderResumeAnalyzer();
+
+      await advanceToStep3(user);
+      await user.click(screen.getByRole("button", { name: /looks good, save/i }));
+
+      expect(
+        screen.getByRole("heading", { name: /why this matters/i }),
+      ).toBeInTheDocument();
+    });
+
+    it("renders the three Why this matters bullets", async () => {
+      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+      renderResumeAnalyzer();
+
+      await advanceToStep3(user);
+
+      expect(
+        screen.getByText(/this profile is used by job match/i),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText(/the more accurate it is, the better your match scores/i),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText(/you can always come back and update it later/i),
+      ).toBeInTheDocument();
+    });
+  });
+
+  describe("Adjust textarea counter", () => {
+    it("shows 0 / 500 when the adjust panel opens", async () => {
+      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+      renderResumeAnalyzer();
+
+      await advanceToStep3(user);
+      await user.click(screen.getByRole("button", { name: /i want to adjust/i }));
+
+      expect(screen.getByText("0 / 500")).toBeInTheDocument();
+    });
+
+    it("updates the counter as the user types", async () => {
+      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+      renderResumeAnalyzer();
+
+      await advanceToStep3(user);
+      await user.click(screen.getByRole("button", { name: /i want to adjust/i }));
+
+      const textarea = screen.getByPlaceholderText(
+        /describe what you want to change or add/i,
+      );
+      await user.type(textarea, "hello world");
+
+      expect(screen.getByText("11 / 500")).toBeInTheDocument();
+    });
+  });
+
+  describe("Stepper navigation", () => {
+    it("returns to step 1 with the file preserved when the Upload step circle is clicked from step 2", async () => {
+      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+      renderResumeAnalyzer();
+
+      selectFile(makePdf("my-cv.pdf"));
+      await user.click(screen.getByRole("button", { name: /analyze resume/i }));
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(2500);
+      });
+
+      expect(
+        screen.getByRole("button", { name: /review your profile/i }),
+      ).toBeInTheDocument();
+
+      const uploadCircle = screen.getByText("Upload")
+        .previousElementSibling as HTMLElement;
+      await user.click(uploadCircle);
+
+      expect(
+        screen.getByRole("button", { name: /analyze resume/i }),
+      ).toBeInTheDocument();
+      expect(screen.getByText("my-cv.pdf")).toBeInTheDocument();
     });
   });
 });

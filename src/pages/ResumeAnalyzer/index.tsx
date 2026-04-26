@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { FeatureSteps } from "@/components/FeatureSteps";
 import { Stepper } from "@/components/Stepper";
+import { cn } from "@/lib/utils";
 
 const INITIAL_SUMMARY =
   "You are a senior frontend engineer with 5 years of experience in React and TypeScript. You have shipped production applications at scale, with a track record of quantified achievements. Your resume shows clear career progression but lacks soft skills and leadership context.";
@@ -132,7 +133,7 @@ function SectionCard({
   children: React.ReactNode;
 }) {
   return (
-    <section className="bg-surface border border-border rounded-xl p-5 flex flex-col gap-3">
+    <section className="bg-surface border border-border rounded-xl p-5 flex flex-col gap-3 h-full">
       <div className="flex items-center gap-3">
         <div className="w-8 h-8 rounded-lg bg-overlay flex items-center justify-center">
           {icon}
@@ -196,44 +197,79 @@ function UploadZone({
         className="hidden"
         onChange={handleChange}
       />
-      <button
-        type="button"
-        onClick={() => inputRef.current?.click()}
+      <div
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
-        className={`w-full border-2 border-dashed rounded-xl p-10 flex flex-col items-center gap-3 text-center transition-colors ${
+        className={cn(
+          "w-full border-2 border-dashed rounded-xl flex items-center justify-center text-center transition-colors h-full min-h-[240px]",
           isDragging
             ? "border-purple bg-purple/10"
-            : "border-border hover:border-purple/50"
-        }`}
+            : "border-border hover:border-purple/50",
+        )}
       >
-        <Upload size={32} className="text-purple-mid" />
-        <span className="text-sm font-medium text-primary">
-          Drop your resume here or click to browse
-        </span>
-        <span className="text-xs text-muted">PDF only · max 10MB</span>
-      </button>
-      {file && (
-        <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-border bg-overlay">
-          <FileText size={14} className="text-muted shrink-0" />
-          <span className="text-sm text-primary truncate flex-1">
-            {file.name}
-          </span>
+        {file ? (
+          <div className="flex flex-col items-center gap-3 px-6">
+            <FileText size={32} className="text-purple-mid" />
+            <span className="text-sm font-medium text-primary truncate max-w-full">
+              {file.name}
+            </span>
+            <button
+              type="button"
+              onClick={onClearFile}
+              aria-label="Remove file"
+              className="text-xs text-muted hover:text-primary transition-colors inline-flex items-center gap-1"
+            >
+              <X size={14} /> Remove
+            </button>
+          </div>
+        ) : (
           <button
             type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              onClearFile();
-            }}
-            aria-label="Remove file"
-            className="text-muted hover:text-primary transition-colors"
+            onClick={() => inputRef.current?.click()}
+            className="flex flex-col items-center gap-3 px-6 py-10"
           >
-            <X size={14} />
+            <Upload size={32} className="text-purple-mid" />
+            <span className="text-sm font-medium text-primary">
+              Drop your resume here or click to browse
+            </span>
+            <span className="text-xs text-muted">PDF only · max 10MB</span>
           </button>
-        </div>
-      )}
+        )}
+      </div>
     </>
+  );
+}
+
+function WhyThisMattersCard() {
+  const bullets = [
+    "This profile is used by Job Match to analyze how well you fit a role.",
+    "The more accurate it is, the better your match scores will be.",
+    "You can always come back and update it later.",
+  ];
+  return (
+    <section className="bg-surface border border-border rounded-xl p-5 flex flex-col gap-3">
+      <h2 className="text-xs uppercase text-muted tracking-widest">
+        Why this matters
+      </h2>
+      <ul className="flex flex-col gap-3">
+        {bullets.map((text) => (
+          <li key={text} className="flex items-start gap-2.5">
+            <span className="mt-2 w-1.5 h-1.5 rounded-full bg-purple-mid shrink-0" />
+            <span className="text-sm text-secondary leading-relaxed">
+              {text}
+            </span>
+          </li>
+        ))}
+      </ul>
+      <div className="border-t border-border mt-2 pt-3">
+        <p className="text-xs text-muted leading-relaxed">
+          <span className="text-primary font-medium">Tip:</span> mention your
+          seniority level, main technologies, and the kind of roles you're
+          looking for.
+        </p>
+      </div>
+    </section>
   );
 }
 
@@ -288,24 +324,35 @@ export function ResumeAnalyzer() {
 
   return (
     <div className="flex flex-col gap-8">
-      <Stepper steps={STEPPER_STEPS} currentStep={currentStep} onClick={handleStepClick} />
+      <div>
+        <h1 className="text-primary text-2xl md:text-3xl lg:text-4xl">
+          Resume Analyzer
+        </h1>
+        <p className="text-secondary mt-1">
+          {currentStep === 1 &&
+            "Upload your resume and get AI-powered feedback instantly."}
+          {currentStep === 2 && "Here's what we found."}
+          {currentStep === 3 &&
+            "This is what the AI understood about you. Confirm or adjust before saving."}
+        </p>
+      </div>
+
+      <Stepper
+        steps={STEPPER_STEPS}
+        currentStep={currentStep}
+        onClick={handleStepClick}
+      />
 
       {currentStep === 1 && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
-          <div className="flex flex-col gap-6">
-            <div>
-              <h1 className="text-primary text-2xl md:text-3xl lg:text-4xl">
-                Resume Analyzer
-              </h1>
-              <p className="text-secondary mt-1">
-                Upload your resume and get AI-powered feedback instantly.
-              </p>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
+          <div className="md:col-span-2 flex flex-col gap-4">
+            <div className="flex-1">
+              <UploadZone
+                file={file}
+                onFileSelected={setFile}
+                onClearFile={() => setFile(null)}
+              />
             </div>
-            <UploadZone
-              file={file}
-              onFileSelected={setFile}
-              onClearFile={() => setFile(null)}
-            />
             <Button
               variant="default"
               disabled={!file}
@@ -315,30 +362,26 @@ export function ResumeAnalyzer() {
               Analyze resume
             </Button>
           </div>
-          <FeatureSteps
-            title="What we analyze"
-            items={WHAT_WE_ANALYZE_ITEMS}
-            extras={WHAT_WE_ANALYZE_EXTRAS}
-          />
+          <div className="md:col-span-1">
+            <FeatureSteps
+              title="What we analyze"
+              items={WHAT_WE_ANALYZE_ITEMS}
+              extras={WHAT_WE_ANALYZE_EXTRAS}
+            />
+          </div>
         </div>
       )}
 
       {currentStep === 2 && (
         <div className="flex flex-col gap-6">
-          <div className="flex items-center justify-between gap-4">
-            <div>
-              <h1 className="text-primary text-2xl md:text-3xl lg:text-4xl">
-                Resume Analyzer
-              </h1>
-              <p className="text-secondary mt-1">Here's what we found.</p>
-            </div>
-            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal/10 text-teal text-xs border border-teal/20 shrink-0">
+          <div className="flex flex-col items-start md:flex-row md:items-center md:justify-end gap-3">
+            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal/10 text-teal text-xs border border-teal/20">
               <span className="w-1.5 h-1.5 rounded-full bg-teal animate-pulse" />
               Analysis complete
             </span>
           </div>
 
-          <div className="flex flex-col gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch">
             <SectionCard
               title="Summary"
               icon={<FileText size={16} className="text-muted" />}
@@ -346,36 +389,6 @@ export function ResumeAnalyzer() {
               <p className="text-sm text-secondary leading-relaxed">
                 {MOCK_ANALYSIS.summary}
               </p>
-            </SectionCard>
-
-            <SectionCard
-              title="Strengths"
-              icon={<CheckCircle size={16} className="text-teal" />}
-            >
-              <BulletList
-                items={MOCK_ANALYSIS.strengths}
-                dotClass="bg-teal"
-              />
-            </SectionCard>
-
-            <SectionCard
-              title="Weaknesses"
-              icon={<AlertCircle size={16} className="text-[#D85A30]" />}
-            >
-              <BulletList
-                items={MOCK_ANALYSIS.weaknesses}
-                dotClass="bg-[#D85A30]"
-              />
-            </SectionCard>
-
-            <SectionCard
-              title="Attention points"
-              icon={<AlertTriangle size={16} className="text-[#EF9F27]" />}
-            >
-              <BulletList
-                items={MOCK_ANALYSIS.attentionPoints}
-                dotClass="bg-[#EF9F27]"
-              />
             </SectionCard>
 
             <SectionCard
@@ -404,6 +417,33 @@ export function ResumeAnalyzer() {
             </SectionCard>
 
             <SectionCard
+              title="Strengths"
+              icon={<CheckCircle size={16} className="text-teal" />}
+            >
+              <BulletList items={MOCK_ANALYSIS.strengths} dotClass="bg-teal" />
+            </SectionCard>
+
+            <SectionCard
+              title="Weaknesses"
+              icon={<AlertCircle size={16} className="text-[#D85A30]" />}
+            >
+              <BulletList
+                items={MOCK_ANALYSIS.weaknesses}
+                dotClass="bg-[#D85A30]"
+              />
+            </SectionCard>
+
+            <SectionCard
+              title="Attention points"
+              icon={<AlertTriangle size={16} className="text-[#EF9F27]" />}
+            >
+              <BulletList
+                items={MOCK_ANALYSIS.attentionPoints}
+                dotClass="bg-[#EF9F27]"
+              />
+            </SectionCard>
+
+            <SectionCard
               title="Suggestions"
               icon={<Plus size={16} className="text-purple" />}
             >
@@ -427,24 +467,15 @@ export function ResumeAnalyzer() {
             className="w-full h-11"
             onClick={() => setCurrentStep(3)}
           >
-            Save profile
+            Review your profile
           </Button>
         </div>
       )}
 
       {currentStep === 3 && (
-        <div className="flex flex-col gap-6">
-          {!savedProfile && (
-            <>
-              <div>
-                <h1 className="text-primary text-2xl md:text-3xl lg:text-4xl">
-                  Your profile
-                </h1>
-                <p className="text-secondary mt-1">
-                  This is what the AI understood about you. Confirm or adjust
-                  before saving.
-                </p>
-              </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+          <div className="flex flex-col gap-4">
+            {!savedProfile && (
               <div className="bg-surface border border-border rounded-xl p-6 flex flex-col gap-4">
                 <p className="text-sm text-secondary leading-relaxed">
                   {profileSummary}
@@ -465,14 +496,14 @@ export function ResumeAnalyzer() {
                 </div>
                 {adjustOpen && (
                   <div className="flex flex-col gap-3 mt-2">
-                    <div className="border border-border rounded-lg">
-                      <Textarea
-                        value={adjustText}
-                        onChange={(e) => setAdjustText(e.target.value)}
-                        placeholder="Describe what you want to change or add..."
-                        rows={4}
-                      />
-                    </div>
+                    <Textarea
+                      value={adjustText}
+                      onChange={(e) => setAdjustText(e.target.value)}
+                      placeholder="Describe what you want to change or add..."
+                      rows={4}
+                      maxLength={500}
+                      className="border border-border rounded-lg"
+                    />
                     <Button
                       variant="default"
                       disabled={reEvaluating}
@@ -491,27 +522,29 @@ export function ResumeAnalyzer() {
                   </div>
                 )}
               </div>
-            </>
-          )}
-          {savedProfile && (
-            <div className="bg-surface border border-border rounded-xl p-8 text-center flex flex-col items-center">
-              <CheckCircle size={32} className="text-teal mb-3" />
-              <h2 className="text-lg font-medium text-primary">
-                Profile saved
-              </h2>
-              <p className="text-sm text-secondary mt-2">
-                You can now use Job Match to analyze job descriptions against
-                your profile.
-              </p>
-              <Button
-                variant="default"
-                className="mt-6"
-                onClick={() => navigate("/job-match")}
-              >
-                Go to Job Match
-              </Button>
-            </div>
-          )}
+            )}
+            {savedProfile && (
+              <div className="bg-surface border border-border rounded-xl p-8 text-center flex flex-col items-center">
+                <CheckCircle size={32} className="text-teal mb-3" />
+                <h2 className="text-lg font-medium text-primary">
+                  Profile saved
+                </h2>
+                <p className="text-sm text-secondary mt-2">
+                  You can now use Job Match to analyze job descriptions against
+                  your profile.
+                </p>
+                <Button
+                  variant="default"
+                  className="mt-6"
+                  onClick={() => navigate("/job-match")}
+                >
+                  Go to Job Match
+                </Button>
+              </div>
+            )}
+          </div>
+
+          <WhyThisMattersCard />
         </div>
       )}
 
