@@ -180,9 +180,9 @@ export function JobMatch() {
   );
 
   return (
-    <div className="mx-auto w-full pb-10 flex flex-col gap-8">
+    <div className="mx-auto w-full min-h-[calc(100vh-5rem)] pb-10 flex flex-col gap-8">
       {status === "idle" && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="flex flex-col gap-8 md:col-span-2">
             {titleBlock}
             <form
