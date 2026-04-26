@@ -13,6 +13,10 @@ const STEPS = [
     title: "Get your scores and verdict",
     body: "See fit, environment, and opportunity scores with a final recommendation.",
   },
+  {
+    title: "Generate your fit statement",
+    body: "After the analysis, generate a personalized answer to the Why are you a good fit? question — ready to paste into any application form.",
+  },
 ];
 
 export function Explainer() {
@@ -38,7 +42,9 @@ export function Explainer() {
       </div>
 
       <div className="bg-overlay rounded-lg p-4 flex flex-col gap-3">
-        <span className="text-sm font-medium text-primary">What you'll get</span>
+        <span className="text-sm font-medium text-primary">
+          What you'll get
+        </span>
         <span className="text-xs text-secondary uppercase tracking-widest">
           Example output
         </span>
@@ -59,7 +65,7 @@ export function Explainer() {
             label="Environment"
             sublabel="How healthy is this place"
             value={65}
-            barClass="bg-muted"
+            barClass="bg-teal"
           />
         </div>
         <div className="h-px bg-border" />

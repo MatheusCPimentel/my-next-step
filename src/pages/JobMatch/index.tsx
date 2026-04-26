@@ -29,7 +29,10 @@ const schema = z.object({
     .string()
     .min(1, "Description is required")
     .max(8000, "Description must be under 8000 characters"),
-  additionalContext: z.string().optional(),
+  additionalContext: z
+    .string()
+    .max(1000, "Additional context must be under 1000 characters")
+    .optional(),
 });
 type FormValues = z.infer<typeof schema>;
 
@@ -60,7 +63,9 @@ export function JobMatch() {
   });
 
   const descriptionValue = watch("description") ?? "";
+  const additionalContextValue = watch("additionalContext") ?? "";
   const isDescriptionOverLimit = descriptionValue.length > 8000;
+  const isAdditionalContextOverLimit = additionalContextValue.length > 1000;
 
   const onValid = (values: FormValues) => {
     setSubmittedInput({
@@ -201,7 +206,7 @@ export function JobMatch() {
                 <Textarea
                   maxLength={8000}
                   placeholder="Paste the full job description here..."
-                  className="min-h-[240px] border border-border rounded-lg"
+                  className="min-h-[280px] border border-border rounded-lg"
                   error={errors.description?.message}
                   {...register("description")}
                 />
@@ -211,14 +216,16 @@ export function JobMatch() {
                   Additional context
                 </label>
                 <Textarea
+                  maxLength={1000}
                   placeholder="Anything the job description doesn't cover — recruiter info, company culture impressions, why you're interested..."
-                  className="min-h-[80px] border border-border rounded-lg"
+                  className="min-h-[100px] border border-border rounded-lg"
+                  error={errors.additionalContext?.message}
                   {...register("additionalContext")}
                 />
               </div>
               <Button
                 type="submit"
-                disabled={isDescriptionOverLimit}
+                disabled={isDescriptionOverLimit || isAdditionalContextOverLimit}
                 className="w-full"
               >
                 <Sparkles size={14} className="mr-2" /> Analyze
