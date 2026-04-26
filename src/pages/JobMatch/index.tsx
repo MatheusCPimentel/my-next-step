@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Check, Copy, Info, Loader2, Sparkles } from "lucide-react";
+import { Check, Copy, Info, Loader2, RotateCcw, Sparkles } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -127,11 +127,10 @@ export function JobMatch() {
   const generateActions = (
     <div className="flex items-center gap-2">
       <Button
-        variant="ghost"
+        variant="outline"
         size="sm"
         disabled={pitchLoading}
         onClick={handleGeneratePitch}
-        className="border border-border-hover bg-transparent text-primary hover:bg-overlay"
       >
         {pitchLoading ? (
           <>
@@ -220,7 +219,7 @@ export function JobMatch() {
               <Button
                 type="submit"
                 disabled={isDescriptionOverLimit}
-                className="bg-purple hover:bg-purple/90 text-primary w-full"
+                className="w-full"
               >
                 <Sparkles size={14} className="mr-2" /> Analyze
               </Button>
@@ -247,18 +246,13 @@ export function JobMatch() {
           <div className="flex items-center justify-between gap-4">
             {titleBlock}
             <div className="flex items-center gap-3 shrink-0">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleReset}
-              >
-                Analyze another job
+              <Button variant="outline" size="sm" onClick={handleReset}>
+                <RotateCcw size={16} className="mr-2" /> Analyze another job
               </Button>
               <Button
                 variant="default"
                 size="sm"
                 onClick={() => setDialogOpen(true)}
-                className="bg-purple hover:bg-purple/90 text-primary"
               >
                 Add to Board
               </Button>

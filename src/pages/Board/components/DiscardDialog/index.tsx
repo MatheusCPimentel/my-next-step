@@ -218,12 +218,7 @@ export function DiscardDialog({
                     Please fill in all fields before confirming
                   </p>
                 )}
-              <Button
-                onClick={handleConfirm}
-                className="bg-purple hover:bg-purple/90 text-primary"
-              >
-                Confirm
-              </Button>
+              <Button onClick={handleConfirm}>Confirm</Button>
             </DialogFooter>
           </div>
         )}

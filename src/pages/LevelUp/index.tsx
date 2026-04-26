@@ -179,15 +179,15 @@ function WeakPointItem({
           {isEditing && (
             <div className="ml-auto w-full md:w-auto flex items-center gap-2">
               <Button
-                variant="ghost"
+                variant="outline"
                 onClick={onCancelEdit}
-                className="flex-1 md:flex-initial border border-border-hover text-primary hover:bg-overlay"
+                className="flex-1 md:flex-initial"
               >
                 Cancel
               </Button>
               <Button
                 onClick={handleSave}
-                className="flex-1 md:flex-initial bg-purple hover:bg-purple/90 text-primary"
+                className="flex-1 md:flex-initial"
               >
                 Save
               </Button>

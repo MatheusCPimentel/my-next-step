@@ -388,8 +388,9 @@ export function Board() {
       <div className="flex items-center justify-between px-6">
         <h1 className="text-primary">Board</h1>
         <Button
+          variant="outline"
           onClick={() => setDialog({ kind: "create", columnId: "applied" })}
-          className="bg-transparent border border-border-hover text-primary hover:bg-overlay h-9 px-3 gap-2"
+          className="h-9 px-3 gap-2"
         >
           <Plus size={16} />
           Add Job

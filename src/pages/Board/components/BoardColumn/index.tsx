@@ -201,11 +201,7 @@ function BoardColumnComponent({
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="border-border bg-transparent">
-            <Button
-              variant="secondary"
-              onClick={() => setBlockDialogOpen(false)}
-              className="bg-overlay border border-border text-primary hover:bg-overlay/80"
-            >
+            <Button variant="outline" onClick={() => setBlockDialogOpen(false)}>
               Close
             </Button>
           </DialogFooter>
@@ -223,11 +219,7 @@ function BoardColumnComponent({
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="border-border bg-transparent">
-            <Button
-              variant="secondary"
-              onClick={() => setDeleteDialogOpen(false)}
-              className="bg-overlay border border-border text-primary hover:bg-overlay/80"
-            >
+            <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
               Cancel
             </Button>
             <Button

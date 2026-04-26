@@ -384,27 +384,13 @@ export function JobDialog(props: JobDialogProps) {
             </span>
           )}
           {internalMode === "view" ? (
-            <Button
-              onClick={() => setInternalMode("edit")}
-              className="bg-purple hover:bg-purple/90 text-primary"
-            >
-              Edit
-            </Button>
+            <Button onClick={() => setInternalMode("edit")}>Edit</Button>
           ) : (
             <>
-              <Button
-                variant="ghost"
-                onClick={handleCancel}
-                className="border border-border-hover text-primary hover:bg-overlay"
-              >
+              <Button variant="outline" onClick={handleCancel}>
                 Cancel
               </Button>
-              <Button
-                onClick={handleSubmit(onValid)}
-                className="bg-purple hover:bg-purple/90 text-primary"
-              >
-                Save
-              </Button>
+              <Button onClick={handleSubmit(onValid)}>Save</Button>
             </>
           )}
         </DialogFooter>
