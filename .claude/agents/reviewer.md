@@ -26,10 +26,11 @@ Read CLAUDE.md before doing anything to understand the project conventions and r
 
 ### State management
 
-- All local state is reset on every close/cancel path
+- All local state is reset on every close/cancel path (explicit Cancel button, Escape key, backdrop click, dialog dismissal — anything the user reads as "I'm leaving this flow")
 - All local state is reset on confirm
 - Component renders correctly on second open with no leftover data
 - Initial state matches the intended default for every field
+- Toggle-style controls (a button or chevron that shows/hides an inline panel on the same page, e.g. "I want to adjust") are NOT close/cancel paths. Keep state across toggles unless the spec says otherwise — collapsing and re-expanding should restore what the user typed.
 
 ## Output format
 
