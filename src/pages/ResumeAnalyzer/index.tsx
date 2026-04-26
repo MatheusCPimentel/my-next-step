@@ -4,8 +4,6 @@ import {
   Activity,
   AlertCircle,
   AlertTriangle,
-  ArrowDown,
-  ArrowUp,
   CheckCircle,
   FileText,
   Loader2,
@@ -13,11 +11,16 @@ import {
   Upload,
   X,
 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { FeatureSteps } from "@/components/FeatureSteps";
-import { Stepper } from "@/components/Stepper";
 import { cn } from "@/lib/utils";
 
 const INITIAL_SUMMARY =
@@ -97,12 +100,6 @@ const WHAT_WE_ANALYZE_EXTRAS: Array<{
   { label: "Weaknesses & gaps", color: "coral" },
   { label: "Attention points", color: "amber" },
   { label: "ATS score & tips", color: "purple" },
-];
-
-const STEPPER_STEPS = [
-  { label: "Upload" },
-  { label: "Analysis" },
-  { label: "Your profile" },
 ];
 
 function BulletList({
@@ -244,52 +241,23 @@ function UploadZone({
   );
 }
 
-function WhyThisMattersCard() {
-  const bullets = [
-    "This profile is used by Job Match to analyze how well you fit a role.",
-    "The more accurate it is, the better your match scores will be.",
-    "You can always come back and update it later.",
-  ];
-  return (
-    <section className="bg-surface border border-border rounded-xl p-5 flex flex-col gap-3">
-      <h2 className="text-xs uppercase text-muted tracking-widest">
-        Why this matters
-      </h2>
-      <ul className="flex flex-col gap-3">
-        {bullets.map((text) => (
-          <li key={text} className="flex items-start gap-2.5">
-            <span className="mt-2 w-1.5 h-1.5 rounded-full bg-purple-mid shrink-0" />
-            <span className="text-sm text-secondary leading-relaxed">
-              {text}
-            </span>
-          </li>
-        ))}
-      </ul>
-      <div className="border-t border-border mt-2 pt-3">
-        <p className="text-xs text-muted leading-relaxed">
-          <span className="text-primary font-medium">Tip:</span> mention your
-          seniority level, main technologies, and the kind of roles you're
-          looking for.
-        </p>
-      </div>
-    </section>
-  );
-}
+type Phase = "upload" | "analysis";
 
 export function ResumeAnalyzer() {
   const navigate = useNavigate();
-  const [currentStep, setCurrentStep] = useState<1 | 2 | 3>(1);
+  const [phase, setPhase] = useState<Phase>("upload");
   const [file, setFile] = useState<File | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
   const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
   const [profileSummary, setProfileSummary] = useState(INITIAL_SUMMARY);
+  const [savedProfile, setSavedProfile] = useState(false);
+
+  const [modalOpen, setModalOpen] = useState(false);
   const [adjustOpen, setAdjustOpen] = useState(false);
   const [adjustText, setAdjustText] = useState("");
   const [reEvaluating, setReEvaluating] = useState(false);
-  const [savedProfile, setSavedProfile] = useState(false);
-  const profileSectionRef = useRef<HTMLDivElement>(null);
 
-  // Loading-overlay timing: cycle text every 600ms, advance to step 2 after 2.5s.
+  // Loading-overlay timing: cycle text every 600ms, advance to analysis phase after 2.5s.
   useEffect(() => {
     if (!analyzing) return;
     const intervalId = setInterval(() => {
@@ -297,7 +265,7 @@ export function ResumeAnalyzer() {
     }, 600);
     const timeoutId = setTimeout(() => {
       setAnalyzing(false);
-      setCurrentStep(2);
+      setPhase("analysis");
     }, 2500);
     return () => {
       clearInterval(intervalId);
@@ -309,28 +277,6 @@ export function ResumeAnalyzer() {
     setLoadingMessageIndex(0);
     setAnalyzing(true);
   }, []);
-
-  const handleStepClick = (step: number) => {
-    if (step === 2 && currentStep === 3) {
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
-    setCurrentStep(step as 1 | 2 | 3);
-  };
-
-  const handleContinueClick = () => {
-    if (currentStep === 3) {
-      setCurrentStep(2);
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    } else {
-      setCurrentStep(3);
-      setTimeout(() => {
-        profileSectionRef.current?.scrollIntoView({
-          behavior: "smooth",
-          block: "start",
-        });
-      }, 50);
-    }
-  };
 
   // Re-evaluate timing: swap to adjusted summary after 1.5s and close the editor.
   useEffect(() => {
@@ -344,34 +290,40 @@ export function ResumeAnalyzer() {
     return () => clearTimeout(id);
   }, [reEvaluating]);
 
+  const handleModalOpenChange = (open: boolean) => {
+    setModalOpen(open);
+    if (!open) {
+      setAdjustOpen(false);
+      setAdjustText("");
+      setReEvaluating(false);
+    }
+  };
+
   return (
     <div className="flex flex-col gap-8">
-      <div>
-        <h1 className="text-primary text-2xl md:text-3xl lg:text-4xl">
-          Resume Analyzer
-        </h1>
-        <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-3 mt-1">
-          <p className="text-secondary">
-            {currentStep === 1
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <h1 className="text-primary text-2xl md:text-3xl lg:text-4xl">
+            Resume Analyzer
+          </h1>
+          <p className="text-secondary mt-1">
+            {phase === "upload"
               ? "Upload your resume and get AI-powered feedback instantly."
               : "Here's what we found."}
           </p>
-          {(currentStep === 2 || currentStep === 3) && (
-            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal/10 text-teal text-xs border border-teal/20 self-start md:self-auto">
-              <span className="w-1.5 h-1.5 rounded-full bg-teal animate-pulse" />
-              Analysis complete
-            </span>
-          )}
         </div>
+        {phase === "analysis" && (
+          <Button
+            variant="default"
+            size="sm"
+            onClick={() => setModalOpen(true)}
+          >
+            Confirm profile
+          </Button>
+        )}
       </div>
 
-      <Stepper
-        steps={STEPPER_STEPS}
-        currentStep={currentStep}
-        onClick={handleStepClick}
-      />
-
-      {currentStep === 1 && (
+      {phase === "upload" && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
           <div className="md:col-span-2 flex flex-col gap-4">
             <div className="flex-1">
@@ -400,200 +352,84 @@ export function ResumeAnalyzer() {
         </div>
       )}
 
-      {(currentStep === 2 || currentStep === 3) && (
-        <div className="flex flex-col gap-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch">
-            <SectionCard
-              title="Summary"
-              icon={<FileText size={16} className="text-muted" />}
-            >
-              <p className="text-sm text-secondary leading-relaxed">
-                {MOCK_ANALYSIS.summary}
-              </p>
-            </SectionCard>
+      {phase === "analysis" && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch">
+          <SectionCard
+            title="Summary"
+            icon={<FileText size={16} className="text-muted" />}
+          >
+            <p className="text-sm text-secondary leading-relaxed">
+              {MOCK_ANALYSIS.summary}
+            </p>
+          </SectionCard>
 
-            <SectionCard
-              title="ATS score"
-              icon={<Activity size={16} className="text-purple-mid" />}
-            >
-              <div className="flex items-baseline gap-2">
-                <span className="text-3xl font-medium text-purple-mid">
-                  {MOCK_ANALYSIS.atsScore}
-                </span>
-                <span className="text-sm text-muted">/ 100</span>
-                <span className="ml-2 text-xs px-2 py-0.5 rounded bg-purple/10 text-purple-mid">
-                  {MOCK_ANALYSIS.atsBadge}
-                </span>
-              </div>
-              <div className="h-1.5 rounded-full bg-overlay overflow-hidden">
-                <div
-                  className="h-full bg-purple"
-                  style={{ width: `${MOCK_ANALYSIS.atsScore}%` }}
-                />
-              </div>
-              <BulletList
-                items={MOCK_ANALYSIS.atsTips}
-                dotClass="bg-purple/40"
+          <SectionCard
+            title="ATS score"
+            icon={<Activity size={16} className="text-purple-mid" />}
+          >
+            <div className="flex items-baseline gap-2">
+              <span className="text-3xl font-medium text-purple-mid">
+                {MOCK_ANALYSIS.atsScore}
+              </span>
+              <span className="text-sm text-muted">/ 100</span>
+              <span className="ml-2 text-xs px-2 py-0.5 rounded bg-purple/10 text-purple-mid">
+                {MOCK_ANALYSIS.atsBadge}
+              </span>
+            </div>
+            <div className="h-1.5 rounded-full bg-overlay overflow-hidden">
+              <div
+                className="h-full bg-purple"
+                style={{ width: `${MOCK_ANALYSIS.atsScore}%` }}
               />
-            </SectionCard>
+            </div>
+            <BulletList items={MOCK_ANALYSIS.atsTips} dotClass="bg-purple/40" />
+          </SectionCard>
 
-            <SectionCard
-              title="Strengths"
-              icon={<CheckCircle size={16} className="text-teal" />}
-            >
-              <BulletList items={MOCK_ANALYSIS.strengths} dotClass="bg-teal" />
-            </SectionCard>
+          <SectionCard
+            title="Strengths"
+            icon={<CheckCircle size={16} className="text-teal" />}
+          >
+            <BulletList items={MOCK_ANALYSIS.strengths} dotClass="bg-teal" />
+          </SectionCard>
 
-            <SectionCard
-              title="Weaknesses"
-              icon={<AlertCircle size={16} className="text-[#D85A30]" />}
-            >
-              <BulletList
-                items={MOCK_ANALYSIS.weaknesses}
-                dotClass="bg-[#D85A30]"
-              />
-            </SectionCard>
+          <SectionCard
+            title="Weaknesses"
+            icon={<AlertCircle size={16} className="text-[#D85A30]" />}
+          >
+            <BulletList
+              items={MOCK_ANALYSIS.weaknesses}
+              dotClass="bg-[#D85A30]"
+            />
+          </SectionCard>
 
-            <SectionCard
-              title="Attention points"
-              icon={<AlertTriangle size={16} className="text-[#EF9F27]" />}
-            >
-              <BulletList
-                items={MOCK_ANALYSIS.attentionPoints}
-                dotClass="bg-[#EF9F27]"
-              />
-            </SectionCard>
+          <SectionCard
+            title="Attention points"
+            icon={<AlertTriangle size={16} className="text-[#EF9F27]" />}
+          >
+            <BulletList
+              items={MOCK_ANALYSIS.attentionPoints}
+              dotClass="bg-[#EF9F27]"
+            />
+          </SectionCard>
 
-            <SectionCard
-              title="Suggestions"
-              icon={<Plus size={16} className="text-purple" />}
-            >
-              <ol className="flex flex-col gap-2">
-                {MOCK_ANALYSIS.suggestions.map((item, i) => (
-                  <li key={item} className="flex items-start gap-2.5">
-                    <span className="w-5 h-5 shrink-0 rounded-full bg-purple/15 text-purple-soft text-xs flex items-center justify-center">
-                      {i + 1}
-                    </span>
-                    <span className="text-sm text-secondary leading-relaxed">
-                      {item}
-                    </span>
-                  </li>
-                ))}
-              </ol>
-            </SectionCard>
-          </div>
-
-          <AnimatePresence>
-            {currentStep === 3 && (
-              <motion.div
-                ref={profileSectionRef}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 20 }}
-                transition={{ duration: 0.4, ease: "easeOut" }}
-                className="mt-8 pt-8 border-t border-border"
-              >
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
-                  <div className="md:col-span-2 flex flex-col gap-4">
-                    <div>
-                      <h2 className="text-xl font-medium text-primary mb-1">
-                        Your profile
-                      </h2>
-                      <p className="text-sm text-secondary mb-4">
-                        This is what the AI understood about you. Confirm or
-                        adjust before saving.
-                      </p>
-                    </div>
-                    {!savedProfile && (
-                      <div className="bg-surface border border-border rounded-xl p-6 flex flex-col gap-4">
-                        <p className="text-sm text-secondary leading-relaxed">
-                          {profileSummary}
-                        </p>
-                        <div className="flex flex-wrap gap-3">
-                          <Button
-                            variant="default"
-                            onClick={() => setSavedProfile(true)}
-                          >
-                            Looks good, save
-                          </Button>
-                          <Button
-                            variant="outline"
-                            onClick={() => setAdjustOpen((v) => !v)}
-                          >
-                            I want to adjust
-                          </Button>
-                        </div>
-                        {adjustOpen && (
-                          <div className="flex flex-col gap-3 mt-2">
-                            <Textarea
-                              value={adjustText}
-                              onChange={(e) => setAdjustText(e.target.value)}
-                              placeholder="Describe what you want to change or add..."
-                              rows={4}
-                              maxLength={500}
-                              className="border border-border rounded-lg"
-                            />
-                            <Button
-                              variant="default"
-                              disabled={reEvaluating}
-                              onClick={() => setReEvaluating(true)}
-                              className="self-start"
-                            >
-                              {reEvaluating ? (
-                                <>
-                                  <Loader2
-                                    size={16}
-                                    className="animate-spin mr-2"
-                                  />
-                                  Re-evaluating...
-                                </>
-                              ) : (
-                                "Re-evaluate"
-                              )}
-                            </Button>
-                          </div>
-                        )}
-                      </div>
-                    )}
-                    {savedProfile && (
-                      <div className="bg-surface border border-border rounded-xl p-8 text-center flex flex-col items-center">
-                        <CheckCircle size={32} className="text-teal mb-3" />
-                        <h2 className="text-lg font-medium text-primary">
-                          Profile saved
-                        </h2>
-                        <p className="text-sm text-secondary mt-2">
-                          You can now use Job Match to analyze job descriptions
-                          against your profile.
-                        </p>
-                        <Button
-                          variant="default"
-                          className="mt-6"
-                          onClick={() => navigate("/job-match")}
-                        >
-                          Go to Job Match
-                        </Button>
-                      </div>
-                    )}
-                  </div>
-                  <div className="md:col-span-1">
-                    <WhyThisMattersCard />
-                  </div>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+          <SectionCard
+            title="Suggestions"
+            icon={<Plus size={16} className="text-purple" />}
+          >
+            <ol className="flex flex-col gap-2">
+              {MOCK_ANALYSIS.suggestions.map((item, i) => (
+                <li key={item} className="flex items-start gap-2.5">
+                  <span className="w-5 h-5 shrink-0 rounded-full bg-purple/15 text-purple-soft text-xs flex items-center justify-center">
+                    {i + 1}
+                  </span>
+                  <span className="text-sm text-secondary leading-relaxed">
+                    {item}
+                  </span>
+                </li>
+              ))}
+            </ol>
+          </SectionCard>
         </div>
-      )}
-
-      {(currentStep === 2 || currentStep === 3) && !analyzing && (
-        <button
-          type="button"
-          onClick={handleContinueClick}
-          className="fixed bottom-6 right-6 z-50 bg-purple text-primary px-5 py-3 rounded-full shadow-none flex items-center gap-2 hover:bg-purple-dark transition-colors"
-        >
-          {currentStep === 3 ? <ArrowUp size={14} /> : <ArrowDown size={14} />}
-          {currentStep === 3 ? "Back to analysis" : "Review your profile"}
-        </button>
       )}
 
       {analyzing && (
@@ -606,6 +442,125 @@ export function ResumeAnalyzer() {
           </div>
         </div>
       )}
+
+      <Dialog open={modalOpen} onOpenChange={handleModalOpenChange}>
+        <DialogContent className="max-w-2xl sm:max-w-2xl max-h-[90dvh] overflow-y-auto flex flex-col gap-4">
+          {!savedProfile && (
+            <>
+              <DialogHeader>
+                <DialogTitle>Your profile</DialogTitle>
+                <DialogDescription>
+                  This is what the AI understood about you. Confirm or adjust
+                  before saving.
+                </DialogDescription>
+              </DialogHeader>
+
+              <div className="bg-overlay border border-border rounded-xl p-4">
+                <p className="text-sm text-secondary leading-relaxed">
+                  {profileSummary}
+                </p>
+              </div>
+
+              <div className="border border-border rounded-xl p-4 flex flex-col gap-3">
+                <h3 className="text-xs uppercase text-muted tracking-widest">
+                  Why this matters
+                </h3>
+                <ul className="flex flex-col gap-2">
+                  <li className="flex items-start gap-2.5">
+                    <span className="mt-2 w-1.5 h-1.5 rounded-full bg-purple-mid shrink-0" />
+                    <span className="text-sm text-secondary leading-relaxed">
+                      Used by Job Match to analyze how well you fit a role.
+                    </span>
+                  </li>
+                  <li className="flex items-start gap-2.5">
+                    <span className="mt-2 w-1.5 h-1.5 rounded-full bg-purple-mid shrink-0" />
+                    <span className="text-sm text-secondary leading-relaxed">
+                      The more accurate it is, the better your match scores.
+                    </span>
+                  </li>
+                  <li className="flex items-start gap-2.5">
+                    <span className="mt-2 w-1.5 h-1.5 rounded-full bg-purple-mid shrink-0" />
+                    <span className="text-sm text-secondary leading-relaxed">
+                      You can always come back and update it later.
+                    </span>
+                  </li>
+                </ul>
+                <p className="text-xs text-muted leading-relaxed border-t border-border pt-3">
+                  <span className="text-primary font-medium">Tip:</span> mention
+                  your seniority level, main technologies, and the kind of roles
+                  you are looking for.
+                </p>
+              </div>
+
+              <div className="flex flex-wrap gap-3">
+                <Button
+                  variant="default"
+                  onClick={() => setSavedProfile(true)}
+                >
+                  Looks good, save
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => setAdjustOpen((v) => !v)}
+                >
+                  I want to adjust
+                </Button>
+              </div>
+
+              {adjustOpen && (
+                <div className="flex flex-col gap-3">
+                  <Textarea
+                    value={adjustText}
+                    onChange={(e) => setAdjustText(e.target.value)}
+                    placeholder="Describe what you want to change or add..."
+                    rows={4}
+                    maxLength={500}
+                    className="border border-border rounded-lg"
+                  />
+                  <Button
+                    variant="default"
+                    disabled={reEvaluating}
+                    onClick={() => setReEvaluating(true)}
+                    className="self-start"
+                  >
+                    {reEvaluating ? (
+                      <>
+                        <Loader2 size={16} className="animate-spin mr-2" />
+                        Re-evaluating...
+                      </>
+                    ) : (
+                      "Re-evaluate"
+                    )}
+                  </Button>
+                </div>
+              )}
+            </>
+          )}
+
+          {savedProfile && (
+            <div className="flex flex-col items-center text-center p-2">
+              <CheckCircle size={32} className="text-teal mb-3" />
+              <h2 className="text-lg font-medium text-primary">
+                Profile saved
+              </h2>
+              <p className="text-sm text-secondary mt-2">
+                You can now use Job Match to analyze job descriptions against
+                your profile.
+              </p>
+              <Button
+                variant="default"
+                className="mt-6"
+                onClick={() => {
+                  setModalOpen(false);
+                  navigate("/job-match");
+                }}
+              >
+                Go to Job Match
+              </Button>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

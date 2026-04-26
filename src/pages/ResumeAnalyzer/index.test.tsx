@@ -1,12 +1,5 @@
-import {
-  afterEach,
-  beforeEach,
-  describe,
-  expect,
-  it,
-  vi,
-} from "vitest";
-import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
 import { ResumeAnalyzer } from "@/pages/ResumeAnalyzer";
@@ -40,7 +33,7 @@ function selectFile(file: File) {
   fireEvent.change(input);
 }
 
-async function advanceToStep2(user: ReturnType<typeof userEvent.setup>) {
+async function advanceToAnalysis(user: ReturnType<typeof userEvent.setup>) {
   selectFile(makePdf());
   await user.click(screen.getByRole("button", { name: /analyze resume/i }));
   await act(async () => {
@@ -48,38 +41,26 @@ async function advanceToStep2(user: ReturnType<typeof userEvent.setup>) {
   });
 }
 
-async function advanceToStep3(user: ReturnType<typeof userEvent.setup>) {
-  await advanceToStep2(user);
-  await user.click(screen.getByRole("button", { name: /review your profile/i }));
-  await act(async () => {
-    await vi.advanceTimersByTimeAsync(60);
-  });
-  await waitFor(() =>
-    expect(
-      screen.getByRole("heading", { name: /^your profile$/i }),
-    ).toBeInTheDocument(),
-  );
+async function openModal(user: ReturnType<typeof userEvent.setup>) {
+  await advanceToAnalysis(user);
+  await user.click(screen.getByRole("button", { name: /confirm profile/i }));
+  await screen.findByRole("dialog");
 }
 
 describe("ResumeAnalyzer", () => {
   beforeEach(() => {
     vi.useFakeTimers({ shouldAdvanceTime: true });
     mockNavigate.mockClear();
-    Element.prototype.scrollIntoView = vi.fn();
-    window.scrollTo = vi.fn() as unknown as typeof window.scrollTo;
   });
 
   afterEach(() => {
     vi.useRealTimers();
   });
 
-  describe("Step 1 — Upload", () => {
-    it("renders the stepper labels, page title, upload copy and the right column title", () => {
+  describe("Upload screen", () => {
+    it("renders the page title and upload copy", () => {
       renderResumeAnalyzer();
 
-      expect(screen.getByText("Upload")).toBeInTheDocument();
-      expect(screen.getByText("Analysis")).toBeInTheDocument();
-      expect(screen.getAllByText("Your profile").length).toBeGreaterThan(0);
       expect(
         screen.getByRole("heading", { name: /resume analyzer/i }),
       ).toBeInTheDocument();
@@ -93,6 +74,14 @@ describe("ResumeAnalyzer", () => {
       ).toBeInTheDocument();
       expect(screen.getByText(/pdf only · max 10mb/i)).toBeInTheDocument();
       expect(screen.getByText("What we analyze")).toBeInTheDocument();
+    });
+
+    it("hides the Confirm profile button on the upload screen", () => {
+      renderResumeAnalyzer();
+
+      expect(
+        screen.queryByRole("button", { name: /confirm profile/i }),
+      ).not.toBeInTheDocument();
     });
 
     it("disables the Analyze button when no file has been selected", () => {
@@ -145,7 +134,7 @@ describe("ResumeAnalyzer", () => {
       expect(screen.getByText(/analyzing experience/i)).toBeInTheDocument();
     });
 
-    it("advances to step 2 after 2.5 seconds with the analysis content", async () => {
+    it("advances to the analysis screen after 2.5 seconds with the section cards and Confirm profile button", async () => {
       const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
       renderResumeAnalyzer();
 
@@ -156,10 +145,14 @@ describe("ResumeAnalyzer", () => {
         await vi.advanceTimersByTimeAsync(2500);
       });
 
-      expect(screen.getByText(/analysis complete/i)).toBeInTheDocument();
-      expect(screen.getByText(/here's what we found/i)).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: /confirm profile/i }),
+      ).toBeInTheDocument();
       expect(
         screen.getByRole("heading", { name: /^summary$/i }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("heading", { name: /ats score/i }),
       ).toBeInTheDocument();
       expect(
         screen.getByRole("heading", { name: /^strengths$/i }),
@@ -171,13 +164,7 @@ describe("ResumeAnalyzer", () => {
         screen.getByRole("heading", { name: /attention points/i }),
       ).toBeInTheDocument();
       expect(
-        screen.getByRole("heading", { name: /ats score/i }),
-      ).toBeInTheDocument();
-      expect(
         screen.getByRole("heading", { name: /^suggestions$/i }),
-      ).toBeInTheDocument();
-      expect(
-        screen.getByRole("button", { name: /review your profile/i }),
       ).toBeInTheDocument();
       expect(
         screen.queryByText(/reading your resume/i),
@@ -185,51 +172,52 @@ describe("ResumeAnalyzer", () => {
     });
   });
 
-  describe("Step 3 — Your profile", () => {
-    it("keeps the analysis cards visible and reveals the profile section when Review your profile is clicked", async () => {
+  describe("Confirm profile modal", () => {
+    it("opens the modal with the title when Confirm profile is clicked", async () => {
       const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
       renderResumeAnalyzer();
 
-      await advanceToStep3(user);
+      await openModal(user);
 
-      expect(
-        screen.getByRole("heading", { name: /^summary$/i }),
-      ).toBeInTheDocument();
-      expect(
-        screen.getByRole("heading", { name: /^strengths$/i }),
-      ).toBeInTheDocument();
-      expect(
-        screen.getByRole("heading", { name: /^weaknesses$/i }),
-      ).toBeInTheDocument();
-      expect(
-        screen.getByRole("heading", { name: /attention points/i }),
-      ).toBeInTheDocument();
-      expect(
-        screen.getByRole("heading", { name: /ats score/i }),
-      ).toBeInTheDocument();
-      expect(
-        screen.getByRole("heading", { name: /^suggestions$/i }),
-      ).toBeInTheDocument();
-
+      expect(screen.getByRole("dialog")).toBeInTheDocument();
       expect(
         screen.getByRole("heading", { name: /^your profile$/i }),
       ).toBeInTheDocument();
-      expect(
-        screen.getByText(
-          /senior frontend engineer with 5 years of experience in react and typescript\. you have shipped/i,
-        ),
-      ).toBeInTheDocument();
     });
 
-    it("shows the AI-understood subtitle inside the expanded section and the two action buttons", async () => {
+    it("renders the summary, Why this matters card and both action buttons", async () => {
       const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
       renderResumeAnalyzer();
 
-      await advanceToStep3(user);
+      await openModal(user);
 
       expect(
         screen.getByText(
           /this is what the ai understood about you\. confirm or adjust before saving/i,
+        ),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          /senior frontend engineer with 5 years of experience in react and typescript/i,
+        ),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("heading", { name: /why this matters/i }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText(/used by job match to analyze how well you fit a role/i),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          /the more accurate it is, the better your match scores/i,
+        ),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText(/you can always come back and update it later/i),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          /mention your seniority level, main technologies, and the kind of roles you are looking for/i,
         ),
       ).toBeInTheDocument();
       expect(
@@ -240,12 +228,78 @@ describe("ResumeAnalyzer", () => {
       ).toBeInTheDocument();
     });
 
-    it("shows the success state with a Go to Job Match button after Looks good, save", async () => {
+    it("resets the adjust panel when the modal is closed and reopened", async () => {
       const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
       renderResumeAnalyzer();
 
-      await advanceToStep3(user);
-      await user.click(screen.getByRole("button", { name: /looks good, save/i }));
+      await openModal(user);
+      await user.click(
+        screen.getByRole("button", { name: /i want to adjust/i }),
+      );
+      const textarea = screen.getByPlaceholderText(
+        /describe what you want to change or add/i,
+      );
+      await user.type(textarea, "some draft text");
+
+      await user.keyboard("{Escape}");
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(200);
+      });
+
+      expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+
+      await user.click(
+        screen.getByRole("button", { name: /confirm profile/i }),
+      );
+      await screen.findByRole("dialog");
+
+      expect(
+        screen.queryByPlaceholderText(
+          /describe what you want to change or add/i,
+        ),
+      ).not.toBeInTheDocument();
+
+      await user.click(
+        screen.getByRole("button", { name: /i want to adjust/i }),
+      );
+      const reopenedTextarea = screen.getByPlaceholderText(
+        /describe what you want to change or add/i,
+      );
+      expect(reopenedTextarea).toHaveValue("");
+    });
+
+    it("preserves the adjust text while toggling the panel inside the same modal session", async () => {
+      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+      renderResumeAnalyzer();
+
+      await openModal(user);
+      await user.click(
+        screen.getByRole("button", { name: /i want to adjust/i }),
+      );
+      await user.type(
+        screen.getByPlaceholderText(/describe what you want to change or add/i),
+        "draft",
+      );
+      await user.click(
+        screen.getByRole("button", { name: /i want to adjust/i }),
+      );
+      await user.click(
+        screen.getByRole("button", { name: /i want to adjust/i }),
+      );
+
+      expect(
+        screen.getByPlaceholderText(/describe what you want to change or add/i),
+      ).toHaveValue("draft");
+    });
+
+    it("persists savedProfile state across modal close and reopen", async () => {
+      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+      renderResumeAnalyzer();
+
+      await openModal(user);
+      await user.click(
+        screen.getByRole("button", { name: /looks good, save/i }),
+      );
 
       expect(
         screen.getByRole("heading", { name: /profile saved/i }),
@@ -253,45 +307,86 @@ describe("ResumeAnalyzer", () => {
       expect(
         screen.getByRole("button", { name: /go to job match/i }),
       ).toBeInTheDocument();
+
+      await user.keyboard("{Escape}");
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(200);
+      });
+      expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+
+      await user.click(
+        screen.getByRole("button", { name: /confirm profile/i }),
+      );
+      await screen.findByRole("dialog");
+
       expect(
-        screen.queryByRole("button", { name: /looks good, save/i }),
-      ).not.toBeInTheDocument();
+        screen.getByRole("heading", { name: /profile saved/i }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: /go to job match/i }),
+      ).toBeInTheDocument();
     });
 
-    it("navigates to /job-match when Go to Job Match is clicked", async () => {
+    it("navigates to /job-match and closes the modal when Go to Job Match is clicked", async () => {
       const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
       renderResumeAnalyzer();
 
-      await advanceToStep3(user);
-      await user.click(screen.getByRole("button", { name: /looks good, save/i }));
-      await user.click(screen.getByRole("button", { name: /go to job match/i }));
+      await openModal(user);
+      await user.click(
+        screen.getByRole("button", { name: /looks good, save/i }),
+      );
+      await user.click(
+        screen.getByRole("button", { name: /go to job match/i }),
+      );
 
       expect(mockNavigate).toHaveBeenCalledWith("/job-match");
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(200);
+      });
+      expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
     });
+  });
 
-    it("reveals the textarea and Re-evaluate button when 'I want to adjust' is clicked", async () => {
+  describe("Adjust textarea counter", () => {
+    it("shows 0 / 500 when the adjust panel opens", async () => {
       const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
       renderResumeAnalyzer();
 
-      await advanceToStep3(user);
-      await user.click(screen.getByRole("button", { name: /i want to adjust/i }));
+      await openModal(user);
+      await user.click(
+        screen.getByRole("button", { name: /i want to adjust/i }),
+      );
 
-      expect(
-        screen.getByPlaceholderText(
-          /describe what you want to change or add/i,
-        ),
-      ).toBeInTheDocument();
-      expect(
-        screen.getByRole("button", { name: /^re-evaluate$/i }),
-      ).toBeInTheDocument();
+      expect(screen.getByText("0 / 500")).toBeInTheDocument();
     });
 
-    it("updates the summary and closes the adjust panel after Re-evaluate completes", async () => {
+    it("updates the counter as the user types", async () => {
       const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
       renderResumeAnalyzer();
 
-      await advanceToStep3(user);
-      await user.click(screen.getByRole("button", { name: /i want to adjust/i }));
+      await openModal(user);
+      await user.click(
+        screen.getByRole("button", { name: /i want to adjust/i }),
+      );
+
+      const textarea = screen.getByPlaceholderText(
+        /describe what you want to change or add/i,
+      );
+      await user.type(textarea, "hello world");
+
+      expect(screen.getByText("11 / 500")).toBeInTheDocument();
+    });
+  });
+
+  describe("Re-evaluate flow", () => {
+    it("updates the summary inside the modal and collapses the adjust panel after Re-evaluate completes", async () => {
+      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+      renderResumeAnalyzer();
+
+      await openModal(user);
+      await user.click(
+        screen.getByRole("button", { name: /i want to adjust/i }),
+      );
 
       const textarea = screen.getByPlaceholderText(
         /describe what you want to change or add/i,
@@ -311,208 +406,6 @@ describe("ResumeAnalyzer", () => {
           /describe what you want to change or add/i,
         ),
       ).not.toBeInTheDocument();
-    });
-  });
-
-  describe("Step 3 right column", () => {
-    it("renders the Why this matters card on initial step 3", async () => {
-      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
-      renderResumeAnalyzer();
-
-      await advanceToStep3(user);
-
-      expect(
-        screen.getByRole("heading", { name: /why this matters/i }),
-      ).toBeInTheDocument();
-    });
-
-    it("keeps the Why this matters card visible after saving the profile", async () => {
-      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
-      renderResumeAnalyzer();
-
-      await advanceToStep3(user);
-      await user.click(screen.getByRole("button", { name: /looks good, save/i }));
-
-      expect(
-        screen.getByRole("heading", { name: /why this matters/i }),
-      ).toBeInTheDocument();
-    });
-
-    it("renders the three Why this matters bullets", async () => {
-      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
-      renderResumeAnalyzer();
-
-      await advanceToStep3(user);
-
-      expect(
-        screen.getByText(/this profile is used by job match/i),
-      ).toBeInTheDocument();
-      expect(
-        screen.getByText(/the more accurate it is, the better your match scores/i),
-      ).toBeInTheDocument();
-      expect(
-        screen.getByText(/you can always come back and update it later/i),
-      ).toBeInTheDocument();
-    });
-  });
-
-  describe("Adjust textarea counter", () => {
-    it("shows 0 / 500 when the adjust panel opens", async () => {
-      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
-      renderResumeAnalyzer();
-
-      await advanceToStep3(user);
-      await user.click(screen.getByRole("button", { name: /i want to adjust/i }));
-
-      expect(screen.getByText("0 / 500")).toBeInTheDocument();
-    });
-
-    it("updates the counter as the user types", async () => {
-      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
-      renderResumeAnalyzer();
-
-      await advanceToStep3(user);
-      await user.click(screen.getByRole("button", { name: /i want to adjust/i }));
-
-      const textarea = screen.getByPlaceholderText(
-        /describe what you want to change or add/i,
-      );
-      await user.type(textarea, "hello world");
-
-      expect(screen.getByText("11 / 500")).toBeInTheDocument();
-    });
-  });
-
-  describe("Stepper navigation", () => {
-    it("returns to step 1 with the file preserved when the Upload step circle is clicked from step 2", async () => {
-      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
-      renderResumeAnalyzer();
-
-      selectFile(makePdf("my-cv.pdf"));
-      await user.click(screen.getByRole("button", { name: /analyze resume/i }));
-      await act(async () => {
-        await vi.advanceTimersByTimeAsync(2500);
-      });
-
-      expect(
-        screen.getByRole("button", { name: /review your profile/i }),
-      ).toBeInTheDocument();
-
-      const uploadCircle = screen.getByText("Upload")
-        .previousElementSibling as HTMLElement;
-      await user.click(uploadCircle);
-
-      expect(
-        screen.getByRole("button", { name: /analyze resume/i }),
-      ).toBeInTheDocument();
-      expect(screen.getByText("my-cv.pdf")).toBeInTheDocument();
-    });
-  });
-
-  describe("Profile section toggle", () => {
-    it("hides the profile section by default after analysis completes", async () => {
-      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
-      renderResumeAnalyzer();
-
-      await advanceToStep2(user);
-
-      expect(
-        screen.getByRole("button", { name: /review your profile/i }),
-      ).toBeInTheDocument();
-      expect(
-        screen.queryByRole("button", { name: /back to analysis/i }),
-      ).not.toBeInTheDocument();
-      expect(
-        screen.queryByRole("heading", { name: /^your profile$/i }),
-      ).not.toBeInTheDocument();
-    });
-
-    it("toggles the profile section when the floating button is clicked", async () => {
-      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
-      renderResumeAnalyzer();
-
-      await advanceToStep3(user);
-
-      expect(
-        screen.getByRole("heading", { name: /^your profile$/i }),
-      ).toBeInTheDocument();
-      expect(
-        screen.getByRole("button", { name: /back to analysis/i }),
-      ).toBeInTheDocument();
-
-      await user.click(screen.getByRole("button", { name: /back to analysis/i }));
-
-      await act(async () => {
-        await vi.advanceTimersByTimeAsync(500);
-      });
-
-      await waitFor(() =>
-        expect(
-          screen.getByRole("button", { name: /review your profile/i }),
-        ).toBeInTheDocument(),
-      );
-      expect(
-        screen.queryByRole("button", { name: /back to analysis/i }),
-      ).not.toBeInTheDocument();
-    });
-
-    it("scrolls the profile section into view when expanding", async () => {
-      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
-      renderResumeAnalyzer();
-
-      await advanceToStep2(user);
-      await user.click(screen.getByRole("button", { name: /review your profile/i }));
-
-      await act(async () => {
-        await vi.advanceTimersByTimeAsync(60);
-      });
-
-      expect(Element.prototype.scrollIntoView).toHaveBeenCalledWith({
-        behavior: "smooth",
-        block: "start",
-      });
-    });
-
-    it("scrolls to top when collapsing via the floating button", async () => {
-      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
-      renderResumeAnalyzer();
-
-      await advanceToStep3(user);
-      (window.scrollTo as ReturnType<typeof vi.fn>).mockClear();
-
-      await user.click(screen.getByRole("button", { name: /back to analysis/i }));
-
-      expect(window.scrollTo).toHaveBeenCalledWith({
-        top: 0,
-        behavior: "smooth",
-      });
-    });
-
-    it("collapses the profile section and scrolls to top when the Analysis stepper circle is clicked from step 3", async () => {
-      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
-      renderResumeAnalyzer();
-
-      await advanceToStep3(user);
-      (window.scrollTo as ReturnType<typeof vi.fn>).mockClear();
-
-      const analysisCircle = screen.getByText("Analysis")
-        .previousElementSibling as HTMLElement;
-      await user.click(analysisCircle);
-
-      expect(window.scrollTo).toHaveBeenCalledWith({
-        top: 0,
-        behavior: "smooth",
-      });
-
-      await act(async () => {
-        await vi.advanceTimersByTimeAsync(500);
-      });
-
-      await waitFor(() =>
-        expect(
-          screen.getByRole("button", { name: /review your profile/i }),
-        ).toBeInTheDocument(),
-      );
     });
   });
 });
