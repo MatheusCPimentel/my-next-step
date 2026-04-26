@@ -22,6 +22,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { FeatureSteps } from "@/components/FeatureSteps";
+import { AIVerdictCard } from "@/components/AIVerdictCard";
 import { cn } from "@/lib/utils";
 
 const INITIAL_SUMMARY =
@@ -361,14 +362,10 @@ export function ResumeAnalyzer() {
 
       {phase === "analysis" && (
         <div className="flex flex-col gap-4">
-          <SectionCard
-            title="Summary"
-            icon={<FileText size={16} className="text-muted" />}
-          >
-            <p className="text-sm text-secondary leading-relaxed">
-              {MOCK_ANALYSIS.summary}
-            </p>
-          </SectionCard>
+          <AIVerdictCard
+            title="AI Resume Verdict"
+            verdict={MOCK_ANALYSIS.summary}
+          />
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
             <div className="flex flex-col gap-3">

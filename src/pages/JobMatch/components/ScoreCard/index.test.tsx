@@ -7,7 +7,6 @@ interface ScoreCardProps {
   fitScore: number;
   environmentScore: number | null | undefined;
   opportunityDescription: string;
-  finalVerdict: string;
 }
 
 const makeProps = (overrides: Partial<ScoreCardProps> = {}): ScoreCardProps => ({
@@ -15,7 +14,6 @@ const makeProps = (overrides: Partial<ScoreCardProps> = {}): ScoreCardProps => (
   fitScore: 78,
   environmentScore: 65,
   opportunityDescription: "Solid fit.",
-  finalVerdict: "Worth applying.",
   ...overrides,
 });
 
@@ -47,13 +45,6 @@ describe("ScoreCard", () => {
 
     expect(screen.queryByText("Environment")).not.toBeInTheDocument();
     expect(screen.getByText("Fit score")).toBeInTheDocument();
-  });
-
-  it("renders the final verdict text and label inside the card", () => {
-    render(<ScoreCard {...makeProps({ finalVerdict: "Worth applying." })} />);
-
-    expect(screen.getByText(/final verdict/i)).toBeInTheDocument();
-    expect(screen.getByText(/worth applying\./i)).toBeInTheDocument();
   });
 
   it("renders the actions slot when provided", () => {

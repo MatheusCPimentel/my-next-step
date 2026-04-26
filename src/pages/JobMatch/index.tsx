@@ -31,8 +31,7 @@ import {
 import { signalDotClass } from "@/pages/JobMatch/helpers";
 import { ScoreCard } from "@/pages/JobMatch/components/ScoreCard";
 import { Explainer } from "@/pages/JobMatch/components/Explainer";
-
-const hasCompletedResumeAnalyzer = false;
+import { AIVerdictCard } from "@/components/AIVerdictCard";
 
 const schema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -51,6 +50,8 @@ type Status = "idle" | "loading" | "done";
 
 export function JobMatch() {
   const navigate = useNavigate();
+  const [hasCompletedResumeAnalyzer, setHasCompletedResumeAnalyzer] =
+    useState(false);
   const [status, setStatus] = useState<Status>("idle");
   const [showPitch, setShowPitch] = useState(false);
   const [pitchLoading, setPitchLoading] = useState(false);
@@ -279,6 +280,8 @@ export function JobMatch() {
             </div>
           </div>
 
+          <AIVerdictCard title="AI Final Verdict" verdict={MOCK_RESULT.finalVerdict} />
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-start">
             <div className="md:col-span-2 flex flex-col gap-6">
               <motion.div
@@ -291,7 +294,6 @@ export function JobMatch() {
                   fitScore={MOCK_RESULT.fitScore}
                   environmentScore={MOCK_RESULT.environmentScore}
                   opportunityDescription={MOCK_RESULT.opportunityDescription}
-                  finalVerdict={MOCK_RESULT.finalVerdict}
                   actions={
                     MOCK_RESULT.fitScore >= 60 ? generateActions : undefined
                   }
@@ -491,7 +493,14 @@ export function JobMatch() {
       </div>
 
       {!hasCompletedResumeAnalyzer && (
-        <div className="absolute inset-0 z-50 backdrop-blur-sm bg-background/60 flex items-center justify-center">
+        <div className="fixed inset-0 z-50 backdrop-blur-md bg-background/60 flex items-center justify-center">
+          <button
+            type="button"
+            onClick={() => setHasCompletedResumeAnalyzer((v) => !v)}
+            className="absolute top-4 left-4 text-xs text-muted hover:text-primary transition-colors"
+          >
+            Dev: bypass gate
+          </button>
           <div className="bg-surface border border-border rounded-xl p-8 max-w-sm text-center">
             <Lock size={32} className="text-muted mb-4 mx-auto" />
             <h2 className="text-lg font-medium text-primary">

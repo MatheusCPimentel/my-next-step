@@ -7,7 +7,6 @@ interface ScoreCardProps {
   fitScore: number;
   environmentScore: number | null | undefined;
   opportunityDescription: string;
-  finalVerdict: string;
   actions?: ReactNode;
 }
 
@@ -27,7 +26,6 @@ export function ScoreCard({
   fitScore,
   environmentScore,
   opportunityDescription,
-  finalVerdict,
   actions,
 }: ScoreCardProps) {
   const opportunity = fitScoreClasses(opportunityScore);
@@ -90,15 +88,6 @@ export function ScoreCard({
         {showEnvironment && (
           <ScoreBar label="Environment" sublabel="How healthy is this place" value={environmentScore} barClass="bg-muted" />
         )}
-      </div>
-
-      <div className="h-px bg-border" />
-
-      <div className="flex flex-col gap-1.5">
-        <span className="text-xs uppercase tracking-widest text-muted">
-          Final verdict
-        </span>
-        <p className="text-sm text-secondary leading-relaxed">{finalVerdict}</p>
       </div>
     </div>
   );
