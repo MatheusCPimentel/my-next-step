@@ -24,7 +24,7 @@ describe("JobMatch", () => {
     expect(
       screen.queryByText(/reading job description/i),
     ).not.toBeInTheDocument();
-    expect(screen.queryByText("Final verdict")).not.toBeInTheDocument();
+    expect(screen.queryByText("/ 100")).not.toBeInTheDocument();
   });
 
   it("renders the Additional context textarea on idle", () => {

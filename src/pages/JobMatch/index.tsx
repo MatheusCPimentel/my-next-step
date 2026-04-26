@@ -226,7 +226,7 @@ export function JobMatch() {
               <Button
                 type="submit"
                 disabled={isDescriptionOverLimit || isAdditionalContextOverLimit}
-                className="w-full"
+                className="w-full h-11 text-base"
               >
                 <Sparkles size={14} className="mr-2" /> Analyze
               </Button>

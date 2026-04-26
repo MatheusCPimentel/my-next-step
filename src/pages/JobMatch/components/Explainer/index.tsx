@@ -19,6 +19,14 @@ const STEPS = [
   },
 ];
 
+const EXTRAS = [
+  { label: "Skills breakdown", dotClass: "bg-teal" },
+  { label: "Environment signals", dotClass: "bg-[#EF9F27]" },
+  { label: "Contract & salary", dotClass: "bg-muted" },
+  { label: "Benefits", dotClass: "bg-muted" },
+  { label: "Final verdict", dotClass: "bg-purple" },
+];
+
 export function Explainer() {
   return (
     <div className="flex flex-col gap-3">
@@ -69,10 +77,16 @@ export function Explainer() {
           />
         </div>
         <div className="h-px bg-border" />
-        <span className="text-xs text-muted">
-          + Skills breakdown, environment signals, contract details, benefits,
-          and a final verdict.
-        </span>
+        <ul className="flex flex-col gap-2">
+          {EXTRAS.map((extra) => (
+            <li key={extra.label} className="flex items-center gap-2">
+              <span
+                className={`w-1.5 h-1.5 rounded-full ${extra.dotClass}`}
+              />
+              <span className="text-xs text-muted">{extra.label}</span>
+            </li>
+          ))}
+        </ul>
       </div>
     </div>
   );
