@@ -167,8 +167,46 @@ describe("ResumeAnalyzer", () => {
         screen.getByRole("heading", { name: /^suggestions$/i }),
       ).toBeInTheDocument();
       expect(
+        screen.getByRole("heading", { name: /top skills/i }),
+      ).toBeInTheDocument();
+      expect(
         screen.queryByText(/reading your resume/i),
       ).not.toBeInTheDocument();
+    });
+  });
+
+  describe("Analysis content", () => {
+    it("renders all six skill names and the extreme percentage values in the Top skills card", async () => {
+      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+      renderResumeAnalyzer();
+
+      await advanceToAnalysis(user);
+
+      for (const skill of [
+        "React",
+        "TypeScript",
+        "Node.js",
+        "CSS / Tailwind",
+        "Testing",
+        "System design",
+      ]) {
+        expect(screen.getByText(skill)).toBeInTheDocument();
+      }
+      expect(screen.getByText("92%")).toBeInTheDocument();
+      expect(screen.getByText("48%")).toBeInTheDocument();
+    });
+
+    it("renders the ATS score, badge, and explanation paragraph", async () => {
+      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+      renderResumeAnalyzer();
+
+      await advanceToAnalysis(user);
+
+      expect(screen.getByText("72")).toBeInTheDocument();
+      expect(screen.getByText("Good")).toBeInTheDocument();
+      expect(
+        screen.getByText(/adding more role-specific keywords/i),
+      ).toBeInTheDocument();
     });
   });
 
@@ -185,7 +223,7 @@ describe("ResumeAnalyzer", () => {
       ).toBeInTheDocument();
     });
 
-    it("renders the summary, key skills and both action buttons", async () => {
+    it("renders the summary and both action buttons", async () => {
       const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
       renderResumeAnalyzer();
 
@@ -201,10 +239,6 @@ describe("ResumeAnalyzer", () => {
           /senior frontend engineer with 5 years of experience in react and typescript/i,
         ),
       ).toBeInTheDocument();
-      expect(screen.getByText(/key skills/i)).toBeInTheDocument();
-      for (const skill of ["React", "TypeScript", "Node.js", "Frontend", "Production apps"]) {
-        expect(screen.getByText(skill)).toBeInTheDocument();
-      }
       expect(
         screen.queryByRole("heading", { name: /why this matters/i }),
       ).not.toBeInTheDocument();
