@@ -43,7 +43,7 @@ const QUICK_ACTIONS: QuickAction[] = [
     label: "Job Match",
     description:
       "Paste a job description to score how well it fits your profile, surface red flags, and generate a pitch for outreach.",
-    path: "/job",
+    path: "/job-match",
     icon: Briefcase,
   },
   {

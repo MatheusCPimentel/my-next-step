@@ -15,7 +15,7 @@ function App() {
           <Route path="/" element={<Dashboard />} />
           <Route path="/board" element={<Board />} />
           <Route path="/resume" element={<ResumeAnalyzer />} />
-          <Route path="/job" element={<JobMatch />} />
+          <Route path="/job-match" element={<JobMatch />} />
           <Route path="/levelup" element={<LevelUp />} />
         </Route>
       </Routes>

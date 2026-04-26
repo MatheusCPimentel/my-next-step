@@ -1,15 +1,34 @@
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { MemoryRouter } from "react-router-dom";
 import { JobMatch } from "@/pages/JobMatch";
 import { TooltipProvider } from "@/components/ui/tooltip";
+
+const mockNavigate = vi.fn();
+vi.mock("react-router-dom", async () => {
+  const actual = await vi.importActual<typeof import("react-router-dom")>(
+    "react-router-dom",
+  );
+  return { ...actual, useNavigate: () => mockNavigate };
+});
 
 beforeAll(() => {
   Element.prototype.scrollIntoView = vi.fn();
 });
 
+beforeEach(() => {
+  mockNavigate.mockClear();
+});
+
 function renderJobMatch() {
-  return render(<JobMatch />, { wrapper: TooltipProvider });
+  return render(<JobMatch />, {
+    wrapper: ({ children }) => (
+      <MemoryRouter>
+        <TooltipProvider>{children}</TooltipProvider>
+      </MemoryRouter>
+    ),
+  });
 }
 
 describe("JobMatch", () => {
@@ -297,6 +316,30 @@ describe("JobMatch", () => {
         /Anything the job description doesn't cover/i,
       ) as HTMLTextAreaElement;
       expect(additional.value).toBe("");
+    });
+  });
+
+  describe("Resume Analyzer gate", () => {
+    it("renders the gate card title and CTA on initial load", () => {
+      renderJobMatch();
+
+      expect(
+        screen.getByRole("heading", { name: /analyze your resume first/i }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: /analyze my resume/i }),
+      ).toBeInTheDocument();
+    });
+
+    it("navigates to /resume when the CTA is clicked", async () => {
+      const user = userEvent.setup();
+      renderJobMatch();
+
+      await user.click(
+        screen.getByRole("button", { name: /analyze my resume/i }),
+      );
+
+      expect(mockNavigate).toHaveBeenCalledWith("/resume");
     });
   });
 });

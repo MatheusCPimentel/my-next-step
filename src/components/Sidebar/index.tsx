@@ -18,7 +18,7 @@ const NAV_ITEMS = [
   { label: "Dashboard", path: "/", icon: Home },
   { label: "Board", path: "/board", icon: Kanban },
   { label: "Resume Analyzer", path: "/resume", icon: FileText },
-  { label: "Job Match", path: "/job", icon: Briefcase },
+  { label: "Job Match", path: "/job-match", icon: Briefcase },
   { label: "LevelUp", path: "/levelup", icon: TrendingUp },
 ] as const;
 

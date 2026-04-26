@@ -67,7 +67,7 @@ When a feature ships, remove its entry — git history is the record of what was
 
 ---
 
-## Page: Job Match (/job) — formerly Job Analyzer
+## Page: Job Match (/job-match) — formerly Job Analyzer
 
 ### Gate
 

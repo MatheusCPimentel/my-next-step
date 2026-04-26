@@ -1,8 +1,17 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Check, Copy, Info, Loader2, RotateCcw, Sparkles } from "lucide-react";
+import {
+  Check,
+  Copy,
+  Info,
+  Loader2,
+  Lock,
+  RotateCcw,
+  Sparkles,
+} from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -23,6 +32,8 @@ import { signalDotClass } from "@/pages/JobMatch/helpers";
 import { ScoreCard } from "@/pages/JobMatch/components/ScoreCard";
 import { Explainer } from "@/pages/JobMatch/components/Explainer";
 
+const hasCompletedResumeAnalyzer = false;
+
 const schema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z
@@ -39,6 +50,7 @@ type FormValues = z.infer<typeof schema>;
 type Status = "idle" | "loading" | "done";
 
 export function JobMatch() {
+  const navigate = useNavigate();
   const [status, setStatus] = useState<Status>("idle");
   const [showPitch, setShowPitch] = useState(false);
   const [pitchLoading, setPitchLoading] = useState(false);
@@ -180,7 +192,8 @@ export function JobMatch() {
   );
 
   return (
-    <div className="mx-auto w-full min-h-[calc(100vh-5rem)] pb-10 flex flex-col gap-8">
+    <div className="relative">
+      <div className="mx-auto w-full min-h-[calc(100vh-5rem)] pb-10 flex flex-col gap-8">
       {status === "idle" && (
         <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="flex flex-col gap-8 md:col-span-2">
@@ -475,6 +488,30 @@ export function JobMatch() {
           stageHistory: [],
         }}
       />
+      </div>
+
+      {!hasCompletedResumeAnalyzer && (
+        <div className="absolute inset-0 z-50 backdrop-blur-sm bg-background/60 flex items-center justify-center">
+          <div className="bg-surface border border-border rounded-xl p-8 max-w-sm text-center">
+            <Lock size={32} className="text-muted mb-4 mx-auto" />
+            <h2 className="text-lg font-medium text-primary">
+              Analyze your resume first
+            </h2>
+            <p className="text-sm text-secondary mt-2">
+              To get accurate job match results, we need to understand your
+              profile first. Complete the Resume Analyzer and we'll take care
+              of the rest.
+            </p>
+            <Button
+              variant="default"
+              onClick={() => navigate("/resume")}
+              className="mt-6"
+            >
+              Analyze my resume
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
