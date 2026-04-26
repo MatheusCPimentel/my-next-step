@@ -4,6 +4,8 @@ import {
   Activity,
   AlertCircle,
   AlertTriangle,
+  ArrowDown,
+  ArrowUp,
   CheckCircle,
   FileText,
   Loader2,
@@ -11,6 +13,7 @@ import {
   Upload,
   X,
 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { FeatureSteps } from "@/components/FeatureSteps";
@@ -284,6 +287,7 @@ export function ResumeAnalyzer() {
   const [adjustText, setAdjustText] = useState("");
   const [reEvaluating, setReEvaluating] = useState(false);
   const [savedProfile, setSavedProfile] = useState(false);
+  const profileSectionRef = useRef<HTMLDivElement>(null);
 
   // Loading-overlay timing: cycle text every 600ms, advance to step 2 after 2.5s.
   useEffect(() => {
@@ -307,7 +311,25 @@ export function ResumeAnalyzer() {
   }, []);
 
   const handleStepClick = (step: number) => {
+    if (step === 2 && currentStep === 3) {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
     setCurrentStep(step as 1 | 2 | 3);
+  };
+
+  const handleContinueClick = () => {
+    if (currentStep === 3) {
+      setCurrentStep(2);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } else {
+      setCurrentStep(3);
+      setTimeout(() => {
+        profileSectionRef.current?.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      }, 50);
+    }
   };
 
   // Re-evaluate timing: swap to adjusted summary after 1.5s and close the editor.
@@ -328,13 +350,19 @@ export function ResumeAnalyzer() {
         <h1 className="text-primary text-2xl md:text-3xl lg:text-4xl">
           Resume Analyzer
         </h1>
-        <p className="text-secondary mt-1">
-          {currentStep === 1 &&
-            "Upload your resume and get AI-powered feedback instantly."}
-          {currentStep === 2 && "Here's what we found."}
-          {currentStep === 3 &&
-            "This is what the AI understood about you. Confirm or adjust before saving."}
-        </p>
+        <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-3 mt-1">
+          <p className="text-secondary">
+            {currentStep === 1
+              ? "Upload your resume and get AI-powered feedback instantly."
+              : "Here's what we found."}
+          </p>
+          {(currentStep === 2 || currentStep === 3) && (
+            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal/10 text-teal text-xs border border-teal/20 self-start md:self-auto">
+              <span className="w-1.5 h-1.5 rounded-full bg-teal animate-pulse" />
+              Analysis complete
+            </span>
+          )}
+        </div>
       </div>
 
       <Stepper
@@ -372,15 +400,8 @@ export function ResumeAnalyzer() {
         </div>
       )}
 
-      {currentStep === 2 && (
+      {(currentStep === 2 || currentStep === 3) && (
         <div className="flex flex-col gap-6">
-          <div className="flex flex-col items-start md:flex-row md:items-center md:justify-end gap-3">
-            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal/10 text-teal text-xs border border-teal/20">
-              <span className="w-1.5 h-1.5 rounded-full bg-teal animate-pulse" />
-              Analysis complete
-            </span>
-          </div>
-
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch">
             <SectionCard
               title="Summary"
@@ -462,90 +483,117 @@ export function ResumeAnalyzer() {
             </SectionCard>
           </div>
 
-          <Button
-            variant="default"
-            className="w-full h-11"
-            onClick={() => setCurrentStep(3)}
-          >
-            Review your profile
-          </Button>
+          <AnimatePresence>
+            {currentStep === 3 && (
+              <motion.div
+                ref={profileSectionRef}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 20 }}
+                transition={{ duration: 0.4, ease: "easeOut" }}
+                className="mt-8 pt-8 border-t border-border"
+              >
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
+                  <div className="md:col-span-2 flex flex-col gap-4">
+                    <div>
+                      <h2 className="text-xl font-medium text-primary mb-1">
+                        Your profile
+                      </h2>
+                      <p className="text-sm text-secondary mb-4">
+                        This is what the AI understood about you. Confirm or
+                        adjust before saving.
+                      </p>
+                    </div>
+                    {!savedProfile && (
+                      <div className="bg-surface border border-border rounded-xl p-6 flex flex-col gap-4">
+                        <p className="text-sm text-secondary leading-relaxed">
+                          {profileSummary}
+                        </p>
+                        <div className="flex flex-wrap gap-3">
+                          <Button
+                            variant="default"
+                            onClick={() => setSavedProfile(true)}
+                          >
+                            Looks good, save
+                          </Button>
+                          <Button
+                            variant="outline"
+                            onClick={() => setAdjustOpen((v) => !v)}
+                          >
+                            I want to adjust
+                          </Button>
+                        </div>
+                        {adjustOpen && (
+                          <div className="flex flex-col gap-3 mt-2">
+                            <Textarea
+                              value={adjustText}
+                              onChange={(e) => setAdjustText(e.target.value)}
+                              placeholder="Describe what you want to change or add..."
+                              rows={4}
+                              maxLength={500}
+                              className="border border-border rounded-lg"
+                            />
+                            <Button
+                              variant="default"
+                              disabled={reEvaluating}
+                              onClick={() => setReEvaluating(true)}
+                              className="self-start"
+                            >
+                              {reEvaluating ? (
+                                <>
+                                  <Loader2
+                                    size={16}
+                                    className="animate-spin mr-2"
+                                  />
+                                  Re-evaluating...
+                                </>
+                              ) : (
+                                "Re-evaluate"
+                              )}
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                    {savedProfile && (
+                      <div className="bg-surface border border-border rounded-xl p-8 text-center flex flex-col items-center">
+                        <CheckCircle size={32} className="text-teal mb-3" />
+                        <h2 className="text-lg font-medium text-primary">
+                          Profile saved
+                        </h2>
+                        <p className="text-sm text-secondary mt-2">
+                          You can now use Job Match to analyze job descriptions
+                          against your profile.
+                        </p>
+                        <Button
+                          variant="default"
+                          className="mt-6"
+                          onClick={() => navigate("/job-match")}
+                        >
+                          Go to Job Match
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                  <div className="md:col-span-1">
+                    <WhyThisMattersCard />
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       )}
 
-      {currentStep === 3 && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
-          <div className="flex flex-col gap-4">
-            {!savedProfile && (
-              <div className="bg-surface border border-border rounded-xl p-6 flex flex-col gap-4">
-                <p className="text-sm text-secondary leading-relaxed">
-                  {profileSummary}
-                </p>
-                <div className="flex flex-wrap gap-3">
-                  <Button
-                    variant="default"
-                    onClick={() => setSavedProfile(true)}
-                  >
-                    Looks good, save
-                  </Button>
-                  <Button
-                    variant="outline"
-                    onClick={() => setAdjustOpen((v) => !v)}
-                  >
-                    I want to adjust
-                  </Button>
-                </div>
-                {adjustOpen && (
-                  <div className="flex flex-col gap-3 mt-2">
-                    <Textarea
-                      value={adjustText}
-                      onChange={(e) => setAdjustText(e.target.value)}
-                      placeholder="Describe what you want to change or add..."
-                      rows={4}
-                      maxLength={500}
-                      className="border border-border rounded-lg"
-                    />
-                    <Button
-                      variant="default"
-                      disabled={reEvaluating}
-                      onClick={() => setReEvaluating(true)}
-                      className="self-start"
-                    >
-                      {reEvaluating ? (
-                        <>
-                          <Loader2 size={16} className="animate-spin mr-2" />
-                          Re-evaluating...
-                        </>
-                      ) : (
-                        "Re-evaluate"
-                      )}
-                    </Button>
-                  </div>
-                )}
-              </div>
-            )}
-            {savedProfile && (
-              <div className="bg-surface border border-border rounded-xl p-8 text-center flex flex-col items-center">
-                <CheckCircle size={32} className="text-teal mb-3" />
-                <h2 className="text-lg font-medium text-primary">
-                  Profile saved
-                </h2>
-                <p className="text-sm text-secondary mt-2">
-                  You can now use Job Match to analyze job descriptions against
-                  your profile.
-                </p>
-                <Button
-                  variant="default"
-                  className="mt-6"
-                  onClick={() => navigate("/job-match")}
-                >
-                  Go to Job Match
-                </Button>
-              </div>
-            )}
-          </div>
-
-          <WhyThisMattersCard />
-        </div>
+      {(currentStep === 2 || currentStep === 3) && !analyzing && (
+        <button
+          type="button"
+          onClick={handleContinueClick}
+          className="fixed bottom-6 right-6 z-50 bg-purple text-primary px-5 py-3 rounded-full shadow-none flex items-center gap-2 hover:bg-purple-dark transition-colors"
+        >
+          {currentStep === 3 ? <ArrowUp size={14} /> : <ArrowDown size={14} />}
+          {currentStep === 3 ? "Back to analysis" : "Review your profile"}
+        </button>
       )}
 
       {analyzing && (

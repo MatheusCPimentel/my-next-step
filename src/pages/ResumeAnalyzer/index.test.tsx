@@ -6,7 +6,7 @@ import {
   it,
   vi,
 } from "vitest";
-import { act, fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
 import { ResumeAnalyzer } from "@/pages/ResumeAnalyzer";
@@ -51,12 +51,22 @@ async function advanceToStep2(user: ReturnType<typeof userEvent.setup>) {
 async function advanceToStep3(user: ReturnType<typeof userEvent.setup>) {
   await advanceToStep2(user);
   await user.click(screen.getByRole("button", { name: /review your profile/i }));
+  await act(async () => {
+    await vi.advanceTimersByTimeAsync(60);
+  });
+  await waitFor(() =>
+    expect(
+      screen.getByRole("heading", { name: /^your profile$/i }),
+    ).toBeInTheDocument(),
+  );
 }
 
 describe("ResumeAnalyzer", () => {
   beforeEach(() => {
     vi.useFakeTimers({ shouldAdvanceTime: true });
     mockNavigate.mockClear();
+    Element.prototype.scrollIntoView = vi.fn();
+    window.scrollTo = vi.fn() as unknown as typeof window.scrollTo;
   });
 
   afterEach(() => {
@@ -176,7 +186,42 @@ describe("ResumeAnalyzer", () => {
   });
 
   describe("Step 3 — Your profile", () => {
-    it("advances from analysis to step 3 with the initial summary and both action buttons when Review your profile is clicked", async () => {
+    it("keeps the analysis cards visible and reveals the profile section when Review your profile is clicked", async () => {
+      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+      renderResumeAnalyzer();
+
+      await advanceToStep3(user);
+
+      expect(
+        screen.getByRole("heading", { name: /^summary$/i }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("heading", { name: /^strengths$/i }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("heading", { name: /^weaknesses$/i }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("heading", { name: /attention points/i }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("heading", { name: /ats score/i }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("heading", { name: /^suggestions$/i }),
+      ).toBeInTheDocument();
+
+      expect(
+        screen.getByRole("heading", { name: /^your profile$/i }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          /senior frontend engineer with 5 years of experience in react and typescript\. you have shipped/i,
+        ),
+      ).toBeInTheDocument();
+    });
+
+    it("shows the AI-understood subtitle inside the expanded section and the two action buttons", async () => {
       const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
       renderResumeAnalyzer();
 
@@ -185,11 +230,6 @@ describe("ResumeAnalyzer", () => {
       expect(
         screen.getByText(
           /this is what the ai understood about you\. confirm or adjust before saving/i,
-        ),
-      ).toBeInTheDocument();
-      expect(
-        screen.getByText(
-          /senior frontend engineer with 5 years of experience in react and typescript\. you have shipped/i,
         ),
       ).toBeInTheDocument();
       expect(
@@ -366,6 +406,113 @@ describe("ResumeAnalyzer", () => {
         screen.getByRole("button", { name: /analyze resume/i }),
       ).toBeInTheDocument();
       expect(screen.getByText("my-cv.pdf")).toBeInTheDocument();
+    });
+  });
+
+  describe("Profile section toggle", () => {
+    it("hides the profile section by default after analysis completes", async () => {
+      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+      renderResumeAnalyzer();
+
+      await advanceToStep2(user);
+
+      expect(
+        screen.getByRole("button", { name: /review your profile/i }),
+      ).toBeInTheDocument();
+      expect(
+        screen.queryByRole("button", { name: /back to analysis/i }),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole("heading", { name: /^your profile$/i }),
+      ).not.toBeInTheDocument();
+    });
+
+    it("toggles the profile section when the floating button is clicked", async () => {
+      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+      renderResumeAnalyzer();
+
+      await advanceToStep3(user);
+
+      expect(
+        screen.getByRole("heading", { name: /^your profile$/i }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: /back to analysis/i }),
+      ).toBeInTheDocument();
+
+      await user.click(screen.getByRole("button", { name: /back to analysis/i }));
+
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(500);
+      });
+
+      await waitFor(() =>
+        expect(
+          screen.getByRole("button", { name: /review your profile/i }),
+        ).toBeInTheDocument(),
+      );
+      expect(
+        screen.queryByRole("button", { name: /back to analysis/i }),
+      ).not.toBeInTheDocument();
+    });
+
+    it("scrolls the profile section into view when expanding", async () => {
+      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+      renderResumeAnalyzer();
+
+      await advanceToStep2(user);
+      await user.click(screen.getByRole("button", { name: /review your profile/i }));
+
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(60);
+      });
+
+      expect(Element.prototype.scrollIntoView).toHaveBeenCalledWith({
+        behavior: "smooth",
+        block: "start",
+      });
+    });
+
+    it("scrolls to top when collapsing via the floating button", async () => {
+      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+      renderResumeAnalyzer();
+
+      await advanceToStep3(user);
+      (window.scrollTo as ReturnType<typeof vi.fn>).mockClear();
+
+      await user.click(screen.getByRole("button", { name: /back to analysis/i }));
+
+      expect(window.scrollTo).toHaveBeenCalledWith({
+        top: 0,
+        behavior: "smooth",
+      });
+    });
+
+    it("collapses the profile section and scrolls to top when the Analysis stepper circle is clicked from step 3", async () => {
+      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+      renderResumeAnalyzer();
+
+      await advanceToStep3(user);
+      (window.scrollTo as ReturnType<typeof vi.fn>).mockClear();
+
+      const analysisCircle = screen.getByText("Analysis")
+        .previousElementSibling as HTMLElement;
+      await user.click(analysisCircle);
+
+      expect(window.scrollTo).toHaveBeenCalledWith({
+        top: 0,
+        behavior: "smooth",
+      });
+
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(500);
+      });
+
+      await waitFor(() =>
+        expect(
+          screen.getByRole("button", { name: /review your profile/i }),
+        ).toBeInTheDocument(),
+      );
     });
   });
 });
