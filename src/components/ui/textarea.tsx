@@ -1,18 +1,21 @@
-import * as React from "react"
+import * as React from "react";
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 
 const BASE_CLASSES =
-  "w-full min-w-0 bg-transparent px-2.5 py-1.5 text-sm transition-colors outline-none resize-none placeholder:text-muted disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
+  "w-full min-w-0 bg-transparent px-2.5 py-1.5 text-sm transition-colors outline-none resize-none placeholder:text-muted disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50";
 
-function PlainTextarea({ className, ...props }: React.ComponentProps<"textarea">) {
+function PlainTextarea({
+  className,
+  ...props
+}: React.ComponentProps<"textarea">) {
   return (
     <textarea
       data-slot="textarea"
       className={cn("min-h-[72px]", BASE_CLASSES, className)}
       {...props}
     />
-  )
+  );
 }
 
 function CountedTextarea({
@@ -27,17 +30,17 @@ function CountedTextarea({
       ? props.value.length
       : typeof props.defaultValue === "string"
         ? props.defaultValue.length
-        : 0
+        : 0;
 
-  const [count, setCount] = React.useState(initialCount)
+  const [count, setCount] = React.useState(initialCount);
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setCount(e.target.value.length)
-    onChange?.(e)
-  }
+    setCount(e.target.value.length);
+    onChange?.(e);
+  };
 
-  const isAtOrOver = count >= maxLength
-  const isOver = count > maxLength
+  const isAtOrOver = count >= maxLength;
+  const isOver = count > maxLength;
 
   return (
     <div
@@ -45,7 +48,7 @@ function CountedTextarea({
       className={cn(
         "flex flex-col h-full overflow-hidden",
         className,
-        (isOver || error) && "border-red-500"
+        (isOver || error) && "border-red-500",
       )}
     >
       <textarea
@@ -56,8 +59,8 @@ function CountedTextarea({
       />
       <div
         className={cn(
-          "flex items-center text-xs px-2.5 py-1.5 border-t border-border",
-          error ? "justify-between" : "justify-end"
+          "flex items-center text-xs px-2.5 py-1.5",
+          error ? "justify-between" : "justify-end",
         )}
       >
         {error && <span className="text-red-500">{error}</span>}
@@ -66,7 +69,7 @@ function CountedTextarea({
         </span>
       </div>
     </div>
-  )
+  );
 }
 
 function Textarea({
@@ -75,9 +78,9 @@ function Textarea({
   ...props
 }: React.ComponentProps<"textarea"> & { error?: string }) {
   if (maxLength === undefined) {
-    return <PlainTextarea {...props} />
+    return <PlainTextarea {...props} />;
   }
-  return <CountedTextarea maxLength={maxLength} error={error} {...props} />
+  return <CountedTextarea maxLength={maxLength} error={error} {...props} />;
 }
 
-export { Textarea }
+export { Textarea };
