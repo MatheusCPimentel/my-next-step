@@ -1,23 +1,5 @@
+import { FeatureSteps } from "@/components/FeatureSteps";
 import { ScoreBar } from "@/pages/JobMatch/components/ScoreBar";
-
-const STEPS = [
-  {
-    title: "Paste the job description",
-    body: "Copy the full JD from any job board — LinkedIn, Greenhouse, Lever, anywhere.",
-  },
-  {
-    title: "AI compares with your profile",
-    body: "Your saved resume profile is matched against the required and nice-to-have skills.",
-  },
-  {
-    title: "Get your scores and verdict",
-    body: "See fit, environment, and opportunity scores with a final recommendation.",
-  },
-  {
-    title: "Generate your fit statement",
-    body: "After the analysis, generate a personalized answer to the Why are you a good fit? question — ready to paste into any application form.",
-  },
-];
 
 const EXTRAS = [
   { label: "Skills breakdown", dotClass: "bg-teal" },
@@ -30,24 +12,31 @@ const EXTRAS = [
 export function Explainer() {
   return (
     <div className="flex flex-col gap-3">
-      <div className="bg-overlay rounded-lg p-4 flex flex-col gap-3">
-        <span className="text-sm font-medium text-primary">How it works</span>
-        <ol className="flex flex-col gap-3">
-          {STEPS.map((step, i) => (
-            <li key={step.title} className="flex gap-3">
-              <span className="w-6 h-6 shrink-0 rounded-full bg-purple/15 text-purple-soft text-xs font-medium flex items-center justify-center">
-                {i + 1}
-              </span>
-              <div className="flex flex-col gap-0.5">
-                <span className="text-sm text-primary">{step.title}</span>
-                <span className="text-xs text-muted leading-relaxed">
-                  {step.body}
-                </span>
-              </div>
-            </li>
-          ))}
-        </ol>
-      </div>
+      <FeatureSteps
+        title="How it works"
+        items={[
+          {
+            title: "Paste the job description",
+            description:
+              "Copy the full JD from any job board — LinkedIn, Greenhouse, Lever, anywhere.",
+          },
+          {
+            title: "AI compares with your profile",
+            description:
+              "Your saved resume profile is matched against the required and nice-to-have skills.",
+          },
+          {
+            title: "Get your scores and verdict",
+            description:
+              "See fit, environment, and opportunity scores with a final recommendation.",
+          },
+          {
+            title: "Generate your fit statement",
+            description:
+              "After the analysis, generate a personalized answer to the Why are you a good fit? question — ready to paste into any application form.",
+          },
+        ]}
+      />
 
       <div className="bg-overlay rounded-lg p-4 flex flex-col gap-3">
         <span className="text-sm font-medium text-primary">
