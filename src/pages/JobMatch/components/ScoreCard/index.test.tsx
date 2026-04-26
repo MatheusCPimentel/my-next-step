@@ -7,6 +7,10 @@ interface ScoreCardProps {
   fitScore: number;
   environmentScore: number | null | undefined;
   opportunityDescription: string;
+  environmentSignals?: Array<{
+    type: "positive" | "warning" | "negative";
+    text: string;
+  }>;
 }
 
 const makeProps = (overrides: Partial<ScoreCardProps> = {}): ScoreCardProps => ({
@@ -47,15 +51,30 @@ describe("ScoreCard", () => {
     expect(screen.getByText("Fit score")).toBeInTheDocument();
   });
 
-  it("renders the actions slot when provided", () => {
+  it("renders the environment signals block when provided", () => {
     render(
       <ScoreCard
-        {...makeProps()}
-        actions={<button type="button">Action button</button>}
+        {...makeProps({
+          environmentSignals: [{ type: "positive", text: "Remote-first" }],
+        })}
       />,
     );
+    expect(screen.getByText("Environment assessment")).toBeInTheDocument();
+    expect(screen.getByText("Remote-first")).toBeInTheDocument();
+  });
 
-    expect(screen.getByRole("button", { name: /action button/i })).toBeInTheDocument();
+  it("omits the environment block when environmentSignals is undefined", () => {
+    render(<ScoreCard {...makeProps()} />);
+    expect(
+      screen.queryByText("Environment assessment"),
+    ).not.toBeInTheDocument();
+  });
+
+  it("omits the environment block when environmentSignals is empty", () => {
+    render(<ScoreCard {...makeProps({ environmentSignals: [] })} />);
+    expect(
+      screen.queryByText("Environment assessment"),
+    ).not.toBeInTheDocument();
   });
 
   it("shows 'Good opportunity' for scores in [70, 80)", () => {

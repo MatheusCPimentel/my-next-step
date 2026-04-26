@@ -31,4 +31,17 @@ describe("AIVerdictCard", () => {
 
     expect(container.querySelector("svg")).not.toBeNull();
   });
+
+  it("renders the action slot when provided", () => {
+    render(
+      <AIVerdictCard
+        title="Hero"
+        verdict="Some verdict copy."
+        action={<button type="button">Test action</button>}
+      />,
+    );
+    expect(
+      screen.getByRole("button", { name: /test action/i }),
+    ).toBeInTheDocument();
+  });
 });

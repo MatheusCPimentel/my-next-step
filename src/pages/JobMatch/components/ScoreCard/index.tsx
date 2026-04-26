@@ -1,13 +1,16 @@
-import type { ReactNode } from "react";
 import { fitScoreClasses } from "@/lib/fitScore";
 import { ScoreBar } from "@/pages/JobMatch/components/ScoreBar";
+import { signalDotClass } from "@/pages/JobMatch/helpers";
 
 interface ScoreCardProps {
   opportunityScore: number;
   fitScore: number;
   environmentScore: number | null | undefined;
   opportunityDescription: string;
-  actions?: ReactNode;
+  environmentSignals?: Array<{
+    type: "positive" | "warning" | "negative";
+    text: string;
+  }>;
 }
 
 function opportunityLabel(score: number): string {
@@ -26,7 +29,7 @@ export function ScoreCard({
   fitScore,
   environmentScore,
   opportunityDescription,
-  actions,
+  environmentSignals,
 }: ScoreCardProps) {
   const opportunity = fitScoreClasses(opportunityScore);
   const ringOffset = RING_CIRCUMFERENCE * (1 - opportunityScore / 100);
@@ -78,7 +81,6 @@ export function ScoreCard({
             {opportunityDescription}
           </p>
         </div>
-        {actions && <div className="shrink-0">{actions}</div>}
       </div>
 
       <div className="h-px bg-border" />
@@ -89,6 +91,20 @@ export function ScoreCard({
           <ScoreBar label="Environment" sublabel="How healthy is this place" value={environmentScore} barClass="bg-muted" />
         )}
       </div>
+
+      {environmentSignals && environmentSignals.length > 0 && (
+        <div className="border-t border-border mt-4 pt-4 flex flex-col gap-3">
+          <span className="text-xs text-secondary uppercase tracking-widest">Environment assessment</span>
+          <ul className="flex flex-col gap-2">
+            {environmentSignals.map((s, i) => (
+              <li key={i} className="flex items-start gap-2 text-sm text-primary">
+                <span className={`w-1.5 h-1.5 rounded-full mt-1.5 flex-shrink-0 ${signalDotClass(s.type)}`} />
+                <span className="leading-relaxed">{s.text}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
 }

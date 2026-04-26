@@ -27,6 +27,7 @@ export const MOCK_RESULT = {
     { name: "Docker", variant: "warning" },
   ] satisfies Skill[],
   contractType: "Full-time",
+  workType: "Remote",
   salary: "USD 120k-150k / year",
   benefits:
     "Health insurance, 401k matching, home office stipend, unlimited PTO",
