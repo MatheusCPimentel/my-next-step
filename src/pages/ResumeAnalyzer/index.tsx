@@ -270,6 +270,10 @@ export function ResumeAnalyzer() {
     setAnalyzing(true);
   }, []);
 
+  const handleStepClick = (step: number) => {
+    setCurrentStep(step as 1 | 2 | 3);
+  };
+
   // Re-evaluate timing: swap to adjusted summary after 1.5s and close the editor.
   useEffect(() => {
     if (!reEvaluating) return;
@@ -284,7 +288,7 @@ export function ResumeAnalyzer() {
 
   return (
     <div className="flex flex-col gap-8">
-      <Stepper steps={STEPPER_STEPS} currentStep={currentStep} />
+      <Stepper steps={STEPPER_STEPS} currentStep={currentStep} onClick={handleStepClick} />
 
       {currentStep === 1 && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">

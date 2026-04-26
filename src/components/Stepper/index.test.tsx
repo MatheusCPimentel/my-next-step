@@ -1,5 +1,6 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { Stepper } from "@/components/Stepper";
 
 const steps = [
@@ -130,6 +131,65 @@ describe("Stepper", () => {
       for (const connector of getConnectors(container)) {
         expect(connector).toHaveClass("bg-teal");
       }
+    });
+  });
+
+  describe("onClick", () => {
+    it("does not render completed circles as buttons when onClick is omitted", () => {
+      render(<Stepper steps={steps} currentStep={3} />);
+
+      expect(getCircle("Upload")).not.toHaveAttribute("type", "button");
+      expect(getCircle("Review")).not.toHaveAttribute("type", "button");
+    });
+
+    it("renders completed circles as buttons when onClick is provided", () => {
+      render(<Stepper steps={steps} currentStep={3} onClick={vi.fn()} />);
+
+      expect(getCircle("Upload").tagName).toBe("BUTTON");
+      expect(getCircle("Upload")).toHaveAttribute("type", "button");
+      expect(getCircle("Review").tagName).toBe("BUTTON");
+      expect(getCircle("Review")).toHaveAttribute("type", "button");
+    });
+
+    it("invokes onClick with the 1-indexed step number when a completed circle is clicked", async () => {
+      const user = userEvent.setup();
+      const onClick = vi.fn();
+      render(<Stepper steps={steps} currentStep={3} onClick={onClick} />);
+
+      await user.click(getCircle("Upload"));
+      expect(onClick).toHaveBeenCalledWith(1);
+
+      await user.click(getCircle("Review"));
+      expect(onClick).toHaveBeenCalledWith(2);
+      expect(onClick).toHaveBeenCalledTimes(2);
+    });
+
+    it("does not make the active circle interactive even when onClick is provided", async () => {
+      const user = userEvent.setup();
+      const onClick = vi.fn();
+      render(<Stepper steps={steps} currentStep={2} onClick={onClick} />);
+
+      const active = getCircle("Review");
+      expect(active.tagName).not.toBe("BUTTON");
+
+      await user.click(active);
+      expect(onClick).not.toHaveBeenCalled();
+    });
+
+    it("does not make pending circles interactive even when onClick is provided", async () => {
+      const user = userEvent.setup();
+      const onClick = vi.fn();
+      render(<Stepper steps={steps} currentStep={1} onClick={onClick} />);
+
+      const second = getCircle("Review");
+      const third = getCircle("Confirm");
+
+      expect(second.tagName).not.toBe("BUTTON");
+      expect(third.tagName).not.toBe("BUTTON");
+
+      await user.click(second);
+      await user.click(third);
+      expect(onClick).not.toHaveBeenCalled();
     });
   });
 });
