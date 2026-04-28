@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { format } from "date-fns";
 import {
   Dialog,
   DialogContent,
@@ -16,6 +15,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { TagInput } from "@/components/TagInput";
 import { ExpandableValue } from "@/components/ExpandableValue";
+import { HistoryDateEditor } from "@/components/JobDialog/components/HistoryDateEditor";
 import type { Job } from "@/pages/Board/types";
 
 type Mode = "create" | "view" | "edit";
@@ -27,6 +27,7 @@ interface JobDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSubmit: (job: Job) => void;
+  onJobUpdate?: (job: Job) => void;
 }
 
 const skillSchema = z.object({
@@ -143,6 +144,14 @@ export function JobDialog(props: JobDialogProps) {
     }
     onSubmit(submitted);
     onOpenChange(false);
+  };
+
+  const handleHistoryDateChange = (index: number, newIso: string) => {
+    if (!props.job) return;
+    const nextHistory = props.job.stageHistory.map((entry, i) =>
+      i === index ? { ...entry, date: newIso } : entry,
+    );
+    props.onJobUpdate?.({ ...props.job, stageHistory: nextHistory });
   };
 
   const handleCancel = () => {
@@ -357,17 +366,30 @@ export function JobDialog(props: JobDialogProps) {
               History
             </label>
             <ol className="flex flex-col divide-y divide-border">
-              {job!.stageHistory.map((entry, i) => (
-                <li
-                  key={i}
-                  className="flex items-baseline justify-between gap-3 py-2"
-                >
-                  <span className="text-sm text-primary">{entry.stage}</span>
-                  <span className="text-sm text-muted">
-                    {format(new Date(entry.date), "MMM d, yyyy")}
-                  </span>
-                </li>
-              ))}
+              {[...job!.stageHistory]
+                .sort(
+                  (a, b) =>
+                    new Date(a.date).getTime() - new Date(b.date).getTime(),
+                )
+                .map((entry) => {
+                  const storedIndex = job!.stageHistory.indexOf(entry);
+                  return (
+                    <li
+                      key={`${entry.stage}-${entry.date}`}
+                      className="flex items-baseline justify-between gap-3 py-2"
+                    >
+                      <span className="text-sm text-primary">
+                        {entry.stage}
+                      </span>
+                      <HistoryDateEditor
+                        date={entry.date}
+                        onChange={(iso) =>
+                          handleHistoryDateChange(storedIndex, iso)
+                        }
+                      />
+                    </li>
+                  );
+                })}
             </ol>
           </div>
         )}

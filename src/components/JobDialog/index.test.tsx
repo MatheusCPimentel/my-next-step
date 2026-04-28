@@ -1,9 +1,42 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
 import { useState } from "react";
-import { act, render, screen } from "@testing-library/react";
+import { act, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { JobDialog } from "@/components/JobDialog";
 import type { Job } from "@/pages/Board/types";
+
+type MatchMediaFn = (query: string) => MediaQueryList;
+const ORIGINAL_MATCH_MEDIA = window.matchMedia as MatchMediaFn | undefined;
+
+function setMatchMediaDesktop() {
+  Object.defineProperty(window, "matchMedia", {
+    configurable: true,
+    writable: true,
+    value: (query: string) =>
+      ({
+        matches: true,
+        media: query,
+        onchange: null,
+        addListener: () => {},
+        removeListener: () => {},
+        addEventListener: () => {},
+        removeEventListener: () => {},
+        dispatchEvent: () => false,
+      }) as unknown as MediaQueryList,
+  });
+}
+
+function restoreMatchMedia() {
+  if (ORIGINAL_MATCH_MEDIA) {
+    Object.defineProperty(window, "matchMedia", {
+      configurable: true,
+      writable: true,
+      value: ORIGINAL_MATCH_MEDIA,
+    });
+  } else {
+    Reflect.deleteProperty(window, "matchMedia");
+  }
+}
 
 const makeJob = (overrides: Partial<Job> = {}): Job => ({
   id: "job-1",
@@ -448,4 +481,97 @@ describe("JobDialog", () => {
     });
   });
 
+  describe("history date editing wiring", () => {
+    beforeEach(() => {
+      setMatchMediaDesktop();
+    });
+
+    afterEach(() => {
+      restoreMatchMedia();
+    });
+
+    it("calls onJobUpdate with a job whose stageHistory entry is updated to the picked ISO date", async () => {
+      const user = userEvent.setup();
+      const onJobUpdate = vi.fn();
+      const job = makeJob({
+        stageHistory: [
+          { stage: "Applied", date: "2026-04-15T12:00:00.000Z" },
+        ],
+      });
+
+      render(
+        <JobDialog
+          mode="view"
+          job={job}
+          open
+          onOpenChange={() => {}}
+          onSubmit={() => {}}
+          onJobUpdate={onJobUpdate}
+        />,
+      );
+
+      await user.click(screen.getByRole("button", { name: /edit date/i }));
+      const grid = await screen.findByRole("grid");
+      await user.click(
+        within(grid).getByRole("button", { name: /April 20th, 2026/ }),
+      );
+
+      expect(onJobUpdate).toHaveBeenCalledTimes(1);
+      const updated = onJobUpdate.mock.calls[0][0] as Job;
+      expect(updated.id).toBe(job.id);
+      expect(updated.stageHistory).toHaveLength(1);
+      expect(updated.stageHistory[0].stage).toBe("Applied");
+      expect(updated.stageHistory[0].date).toMatch(
+        /^2026-04-20T12:00:00\.000Z$/,
+      );
+    });
+
+    it("renders history entries sorted ascending by date and updates the original stored index when the first row is edited", async () => {
+      const user = userEvent.setup();
+      const onJobUpdate = vi.fn();
+      // Stored order is reversed: later date first, earlier date second.
+      const job = makeJob({
+        stageHistory: [
+          { stage: "HR Interview", date: "2026-04-25T12:00:00.000Z" },
+          { stage: "Applied", date: "2026-04-10T12:00:00.000Z" },
+        ],
+      });
+
+      render(
+        <JobDialog
+          mode="view"
+          job={job}
+          open
+          onOpenChange={() => {}}
+          onSubmit={() => {}}
+          onJobUpdate={onJobUpdate}
+        />,
+      );
+
+      // The History list should render the earlier date first.
+      const stageLabels = screen.getAllByText(/^(Applied|HR Interview)$/);
+      expect(stageLabels[0]).toHaveTextContent("Applied");
+      expect(stageLabels[1]).toHaveTextContent("HR Interview");
+
+      // Clicking the first row's pencil targets "Applied" (stored index 1).
+      const editButtons = screen.getAllByRole("button", {
+        name: /edit date/i,
+      });
+      await user.click(editButtons[0]);
+
+      const grid = await screen.findByRole("grid");
+      await user.click(
+        within(grid).getByRole("button", { name: /April 12th, 2026/ }),
+      );
+
+      expect(onJobUpdate).toHaveBeenCalledTimes(1);
+      const updated = onJobUpdate.mock.calls[0][0] as Job;
+      // Stored index 1 (Applied) should be the one updated.
+      expect(updated.stageHistory[1].stage).toBe("Applied");
+      expect(updated.stageHistory[1].date).toBe("2026-04-12T12:00:00.000Z");
+      // Stored index 0 (HR Interview) is unchanged.
+      expect(updated.stageHistory[0].stage).toBe("HR Interview");
+      expect(updated.stageHistory[0].date).toBe("2026-04-25T12:00:00.000Z");
+    });
+  });
 });

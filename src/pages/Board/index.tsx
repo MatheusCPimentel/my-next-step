@@ -531,6 +531,7 @@ export function Board() {
           if (!open) setDialog({ kind: "closed" });
         }}
         onSubmit={handleJobSubmit}
+        onJobUpdate={handleJobSubmit}
       />
     </div>
   );

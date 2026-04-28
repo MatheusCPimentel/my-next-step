@@ -22,6 +22,14 @@
   --color-muted: #888780;
   --color-border: rgba(255, 255, 255, 0.08);
   --color-border-hover: rgba(255, 255, 255, 0.15);
+  --color-popover: #1a1a18;
+  --color-popover-foreground: #F1EFE8;
+  --color-muted-foreground: #888780;
+  --color-primary-foreground: #F1EFE8;
+  --color-secondary-foreground: #F1EFE8;
+  --color-accent: rgba(83, 74, 183, 0.15);
+  --color-accent-foreground: #A89FE8;
+  --color-ring: rgba(83, 74, 183, 0.4);
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
   --radius-sm: 6px;
   --radius-md: 8px;
