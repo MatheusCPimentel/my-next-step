@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect } from "react";
 import { Plus } from "lucide-react";
+import { useDroppable } from "@dnd-kit/core";
 import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
 
 interface AddColumnButtonProps {
   onAdd: (label: string) => void;
@@ -11,6 +13,11 @@ export function AddColumnButton({ onAdd, disabled }: AddColumnButtonProps) {
   const [editing, setEditing] = useState(false);
   const [value, setValue] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const { setNodeRef, isOver, active } = useDroppable({
+    id: "add-column-placeholder",
+    data: { type: "add-column-placeholder" },
+  });
 
   useEffect(() => {
     if (editing) {
@@ -36,7 +43,10 @@ export function AddColumnButton({ onAdd, disabled }: AddColumnButtonProps) {
 
   if (editing) {
     return (
-      <div className="h-full min-h-0 w-[272px] shrink-0 bg-surface rounded-xl p-3">
+      <div
+        ref={setNodeRef}
+        className="h-full min-h-0 w-[272px] shrink-0 bg-surface rounded-xl p-3"
+      >
         <Input
           ref={inputRef}
           value={value}
@@ -58,14 +68,29 @@ export function AddColumnButton({ onAdd, disabled }: AddColumnButtonProps) {
     );
   }
 
+  const isCardOver = isOver && active?.data.current?.type === "card";
+  const buttonClass = cn(
+    "group/add h-full min-h-0 w-[272px] shrink-0 rounded-xl border border-dashed transition-colors flex flex-col items-center justify-center gap-2 p-3",
+    isCardOver
+      ? "border-purple text-purple-soft bg-purple/10"
+      : "border-border-hover text-muted hover:border-purple hover:text-purple-soft hover:bg-purple/5",
+  );
+  const innerCircleClass = cn(
+    "flex items-center justify-center w-8 h-8 rounded-full border border-dashed transition-colors",
+    isCardOver
+      ? "border-purple"
+      : "border-border-hover group-hover/add:border-purple",
+  );
+
   return (
     <button
+      ref={setNodeRef}
       type="button"
       onClick={() => setEditing(true)}
       aria-label="Add column"
-      className="group/add h-full min-h-0 w-[272px] shrink-0 rounded-xl border border-dashed border-border-hover text-muted hover:border-purple hover:text-purple-soft hover:bg-purple/5 transition-colors flex flex-col items-center justify-center gap-2 p-3"
+      className={buttonClass}
     >
-      <span className="flex items-center justify-center w-8 h-8 rounded-full border border-dashed border-border-hover group-hover/add:border-purple transition-colors">
+      <span className={innerCircleClass}>
         <Plus size={16} />
       </span>
       <span className="text-xs font-medium uppercase tracking-wide">Add column</span>

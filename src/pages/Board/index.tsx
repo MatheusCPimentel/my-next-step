@@ -58,6 +58,11 @@ export function Board() {
   const [activeDrag, setActiveDrag] = useState<ActiveDrag>(null);
   const [dragPreview, setDragPreview] = useState<DragPreview | null>(null);
   const [pendingDiscardJob, setPendingDiscardJob] = useState<Job | null>(null);
+  const [pendingNewColumn, setPendingNewColumn] = useState<{
+    columnId: string;
+    jobId: string;
+    previousColumnId: string;
+  } | null>(null);
   const [dialog, setDialog] = useState<DialogState>({ kind: "closed" });
 
   const sensors = useSensors(
@@ -161,6 +166,12 @@ export function Board() {
     [jobs, columns],
   );
 
+  const ghostInsertAt = useMemo(
+    () =>
+      columns[columns.length - 1]?.locked ? columns.length - 1 : columns.length,
+    [columns],
+  );
+
   const handleDragStart = useCallback((event: DragStartEvent) => {
     const { active } = event;
     const type = active.data.current?.type as "card" | "column" | undefined;
@@ -182,6 +193,10 @@ export function Board() {
       const activeId = String(active.id);
       const overId = String(over.id);
       if (overId === activeId) return;
+      if (overId === "add-column-placeholder" && activeType === "card") {
+        setDragPreview(null);
+        return;
+      }
       const targetColumnId = findColumnIdForOver(overId);
       if (!targetColumnId) return;
 
@@ -218,6 +233,40 @@ export function Board() {
           if (job) {
             setPendingDiscardJob(job);
           }
+        } else if (over?.id === "add-column-placeholder") {
+          if (pendingNewColumn) {
+            setActiveDrag(null);
+            setDragPreview(null);
+            return;
+          }
+          const job = jobs.find((j) => j.id === active.id);
+          if (!job) {
+            setActiveDrag(null);
+            setDragPreview(null);
+            return;
+          }
+          const newId = newColumnId();
+          const insertAt = ghostInsertAt;
+          const previousColumnId = job.columnId;
+
+          setColumns((prev) => {
+            if (prev.length >= MAX_COLUMNS) return prev;
+            const copy = [...prev];
+            copy.splice(insertAt, 0, { id: newId, label: "", locked: false });
+            return copy;
+          });
+          setJobs((prev) =>
+            prev.map((j) => (j.id === job.id ? { ...j, columnId: newId } : j)),
+          );
+          setPendingNewColumn({
+            columnId: newId,
+            jobId: job.id,
+            previousColumnId,
+          });
+
+          setActiveDrag(null);
+          setDragPreview(null);
+          return;
         } else if (dragPreview) {
           setJobs((prev) => {
             const activeIndex = prev.findIndex(
@@ -278,7 +327,7 @@ export function Board() {
       setActiveDrag(null);
       setDragPreview(null);
     },
-    [jobs, columns, dragPreview],
+    [jobs, columns, dragPreview, pendingNewColumn, ghostInsertAt],
   );
 
   const handleDragCancel = useCallback(() => {
@@ -319,10 +368,41 @@ export function Board() {
     });
   }, []);
 
-  const handleRenameColumn = useCallback((id: string, label: string) => {
-    if (!label.trim()) return;
-    setColumns((prev) => prev.map((c) => (c.id === id ? { ...c, label } : c)));
-  }, []);
+  const handleRenameColumn = useCallback(
+    (id: string, label: string) => {
+      const trimmed = label.trim();
+      if (!trimmed) return;
+      setColumns((prev) =>
+        prev.map((c) => (c.id === id ? { ...c, label: trimmed } : c)),
+      );
+      if (pendingNewColumn && pendingNewColumn.columnId === id) {
+        setJobs((prev) =>
+          prev.map((j) =>
+            j.id === pendingNewColumn.jobId
+              ? appendStageMove(j, trimmed, new Date().toISOString())
+              : j,
+          ),
+        );
+        setPendingNewColumn(null);
+      }
+    },
+    [pendingNewColumn],
+  );
+
+  const handlePendingCancel = useCallback(
+    (id: string) => {
+      if (!pendingNewColumn || pendingNewColumn.columnId !== id) return;
+      const { jobId, previousColumnId } = pendingNewColumn;
+      setJobs((prev) =>
+        prev.map((j) =>
+          j.id === jobId ? { ...j, columnId: previousColumnId } : j,
+        ),
+      );
+      setColumns((prev) => prev.filter((c) => c.id !== id));
+      setPendingNewColumn(null);
+    },
+    [pendingNewColumn],
+  );
 
   const handleDeleteColumn = useCallback((id: string) => {
     setColumns((prev) => prev.filter((c) => c.id !== id));
@@ -344,9 +424,6 @@ export function Board() {
   }, []);
 
   const addDisabled = columns.length >= MAX_COLUMNS;
-  const ghostInsertAt = columns[columns.length - 1]?.locked
-    ? columns.length - 1
-    : columns.length;
 
   const renderedSlices: React.ReactNode[] = [];
   columns.forEach((column, index) => {
@@ -359,6 +436,7 @@ export function Board() {
         />,
       );
     }
+    const isPending = pendingNewColumn?.columnId === column.id;
     renderedSlices.push(
       <BoardColumn
         key={column.id}
@@ -367,6 +445,8 @@ export function Board() {
         onRename={handleRenameColumn}
         onDelete={handleDeleteColumn}
         onJobClick={handleJobClick}
+        initialEditing={isPending}
+        onEditCancel={isPending ? handlePendingCancel : undefined}
       />,
     );
   });

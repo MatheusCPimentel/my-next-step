@@ -33,8 +33,17 @@ function renderColumn(props: {
   jobs?: Job[];
   onRename?: (id: string, label: string) => void;
   onDelete?: (id: string) => void;
+  initialEditing?: boolean;
+  onEditCancel?: (id: string) => void;
 }) {
-  const { column, jobs = [], onRename = vi.fn(), onDelete = vi.fn() } = props;
+  const {
+    column,
+    jobs = [],
+    onRename = vi.fn(),
+    onDelete = vi.fn(),
+    initialEditing,
+    onEditCancel,
+  } = props;
   return render(
     <DndContext>
       <SortableContext items={[column.id]}>
@@ -43,6 +52,8 @@ function renderColumn(props: {
           jobs={jobs}
           onRename={onRename}
           onDelete={onDelete}
+          initialEditing={initialEditing}
+          onEditCancel={onEditCancel}
         />
       </SortableContext>
     </DndContext>,
@@ -198,6 +209,146 @@ describe("BoardColumn", () => {
       });
 
       expect(screen.getByText("3")).toBeInTheDocument();
+    });
+  });
+
+  describe("pending column (initialEditing + onEditCancel)", () => {
+    it("mounts in edit mode when initialEditing is true and focuses the input", () => {
+      renderColumn({
+        column: makeColumn({ label: "" }),
+        initialEditing: true,
+        onEditCancel: vi.fn(),
+      });
+
+      const input = screen.getByRole("textbox");
+      expect(input).toBeInTheDocument();
+      expect(input).toHaveFocus();
+    });
+
+    it("calls onRename with the trimmed name on Enter and does not call onEditCancel", async () => {
+      const user = userEvent.setup();
+      const onRename = vi.fn();
+      const onEditCancel = vi.fn();
+      renderColumn({
+        column: makeColumn({ label: "" }),
+        initialEditing: true,
+        onRename,
+        onEditCancel,
+      });
+
+      const input = screen.getByRole("textbox");
+      fireEvent.change(input, { target: { value: "  Tech Screen  " } });
+      await user.keyboard("{Enter}");
+
+      expect(onRename).toHaveBeenCalledTimes(1);
+      expect(onRename).toHaveBeenCalledWith("col-1", "Tech Screen");
+      expect(onEditCancel).not.toHaveBeenCalled();
+    });
+
+    it("calls onEditCancel on Enter when the input is empty", async () => {
+      const user = userEvent.setup();
+      const onRename = vi.fn();
+      const onEditCancel = vi.fn();
+      renderColumn({
+        column: makeColumn({ label: "" }),
+        initialEditing: true,
+        onRename,
+        onEditCancel,
+      });
+
+      await user.keyboard("{Enter}");
+
+      expect(onEditCancel).toHaveBeenCalledTimes(1);
+      expect(onEditCancel).toHaveBeenCalledWith("col-1");
+      expect(onRename).not.toHaveBeenCalled();
+    });
+
+    it("calls onEditCancel on Escape", async () => {
+      const user = userEvent.setup();
+      const onRename = vi.fn();
+      const onEditCancel = vi.fn();
+      renderColumn({
+        column: makeColumn({ label: "" }),
+        initialEditing: true,
+        onRename,
+        onEditCancel,
+      });
+
+      const input = screen.getByRole("textbox");
+      fireEvent.change(input, { target: { value: "anything" } });
+      await user.keyboard("{Escape}");
+
+      expect(onEditCancel).toHaveBeenCalledTimes(1);
+      expect(onEditCancel).toHaveBeenCalledWith("col-1");
+      expect(onRename).not.toHaveBeenCalled();
+    });
+
+    it("calls onEditCancel on blur with an empty value", () => {
+      const onRename = vi.fn();
+      const onEditCancel = vi.fn();
+      renderColumn({
+        column: makeColumn({ label: "" }),
+        initialEditing: true,
+        onRename,
+        onEditCancel,
+      });
+
+      const input = screen.getByRole("textbox");
+      fireEvent.blur(input);
+
+      expect(onEditCancel).toHaveBeenCalledTimes(1);
+      expect(onEditCancel).toHaveBeenCalledWith("col-1");
+      expect(onRename).not.toHaveBeenCalled();
+    });
+
+    it("treats whitespace-only input as empty and routes to onEditCancel on Enter", async () => {
+      const user = userEvent.setup();
+      const onRename = vi.fn();
+      const onEditCancel = vi.fn();
+      renderColumn({
+        column: makeColumn({ label: "" }),
+        initialEditing: true,
+        onRename,
+        onEditCancel,
+      });
+
+      const input = screen.getByRole("textbox");
+      fireEvent.change(input, { target: { value: "   " } });
+      await user.keyboard("{Enter}");
+
+      expect(onEditCancel).toHaveBeenCalledTimes(1);
+      expect(onEditCancel).toHaveBeenCalledWith("col-1");
+      expect(onRename).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("legacy rename without onEditCancel", () => {
+    it("reverts the draft on Escape and does not call any callback", async () => {
+      const user = userEvent.setup();
+      const onRename = vi.fn();
+      renderColumn({ column: makeColumn(), onRename });
+
+      await user.dblClick(screen.getByText("Phone Screen"));
+      const input = screen.getByDisplayValue("Phone Screen");
+      fireEvent.change(input, { target: { value: "Throwaway" } });
+      await user.keyboard("{Escape}");
+
+      expect(onRename).not.toHaveBeenCalled();
+      expect(screen.getByText("Phone Screen")).toBeInTheDocument();
+    });
+
+    it("reverts to the original label when Enter is pressed on an empty input", async () => {
+      const user = userEvent.setup();
+      const onRename = vi.fn();
+      renderColumn({ column: makeColumn(), onRename });
+
+      await user.dblClick(screen.getByText("Phone Screen"));
+      const input = screen.getByDisplayValue("Phone Screen");
+      fireEvent.change(input, { target: { value: "" } });
+      await user.keyboard("{Enter}");
+
+      expect(onRename).not.toHaveBeenCalled();
+      expect(screen.getByText("Phone Screen")).toBeInTheDocument();
     });
   });
 

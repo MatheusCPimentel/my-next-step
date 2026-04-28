@@ -21,6 +21,8 @@ interface BoardColumnProps {
   onRename: (id: string, label: string) => void;
   onDelete: (id: string) => void;
   onJobClick?: (job: Job) => void;
+  initialEditing?: boolean;
+  onEditCancel?: (id: string) => void;
 }
 
 function BoardColumnComponent({
@@ -29,8 +31,10 @@ function BoardColumnComponent({
   onRename,
   onDelete,
   onJobClick,
+  initialEditing,
+  onEditCancel,
 }: BoardColumnProps) {
-  const [editing, setEditing] = useState(false);
+  const [editing, setEditing] = useState(initialEditing ?? false);
   const [draft, setDraft] = useState(column.label);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [blockDialogOpen, setBlockDialogOpen] = useState(false);
@@ -71,6 +75,8 @@ function BoardColumnComponent({
     const trimmed = draft.trim();
     if (trimmed) {
       onRename(column.id, trimmed);
+    } else if (onEditCancel) {
+      onEditCancel(column.id);
     } else {
       setDraft(column.label);
     }
@@ -78,7 +84,11 @@ function BoardColumnComponent({
   };
 
   const cancelRename = () => {
-    setDraft(column.label);
+    if (onEditCancel) {
+      onEditCancel(column.id);
+    } else {
+      setDraft(column.label);
+    }
     setEditing(false);
   };
 
