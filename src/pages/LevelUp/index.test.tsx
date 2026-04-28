@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { act, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { LevelUp } from "@/pages/LevelUp";
@@ -110,9 +110,18 @@ describe("LevelUp", () => {
       expect(getStatValue("Mastered")).toBe("2");
       expect(getStatValue("From rejections")).toBe("6");
     });
+  });
+
+  describe("with fake timers", () => {
+    beforeEach(() => {
+      vi.useFakeTimers({ shouldAdvanceTime: true });
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
 
     it("decrements From rejections when a weak point is removed", async () => {
-      vi.useFakeTimers({ shouldAdvanceTime: true });
       const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
       render(<LevelUp />);
 
@@ -128,32 +137,27 @@ describe("LevelUp", () => {
       });
 
       expect(getStatValue("From rejections")).toBe("5");
-
-      vi.useRealTimers();
-    });
-  });
-
-  it("fades out and removes a weak point when 'Remove' is clicked", async () => {
-    vi.useFakeTimers({ shouldAdvanceTime: true });
-    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
-    render(<LevelUp />);
-
-    await user.click(screen.getByRole("button", { name: /^algorithms\d*$/i }));
-
-    const removeButton = screen.getByRole("button", {
-      name: /remove "how would you find the longest substring without repeating characters\?"/i,
-    });
-    await user.click(removeButton);
-
-    await act(async () => {
-      await vi.advanceTimersByTimeAsync(250);
     });
 
-    expect(
-      screen.queryByText(/longest substring/i),
-    ).not.toBeInTheDocument();
+    it("fades out and removes a weak point when 'Remove' is clicked", async () => {
+      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+      render(<LevelUp />);
 
-    vi.useRealTimers();
+      await user.click(screen.getByRole("button", { name: /^algorithms\d*$/i }));
+
+      const removeButton = screen.getByRole("button", {
+        name: /remove "how would you find the longest substring without repeating characters\?"/i,
+      });
+      await user.click(removeButton);
+
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(250);
+      });
+
+      expect(
+        screen.queryByText(/longest substring/i),
+      ).not.toBeInTheDocument();
+    });
   });
 
   describe("edit mode", () => {

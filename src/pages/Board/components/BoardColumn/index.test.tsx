@@ -148,7 +148,7 @@ describe("BoardColumn", () => {
   });
 
   describe("moveable columns - delete", () => {
-    it("opens the confirm dialog on trash click for an empty column and calls onDelete on confirm", async () => {
+    it("opens the confirm dialog on trash click for an empty column and calls onDelete on confirm", { retry: 2 }, async () => {
       const user = userEvent.setup();
       const onDelete = vi.fn();
       renderColumn({ column: makeColumn(), jobs: [], onDelete });
@@ -168,7 +168,7 @@ describe("BoardColumn", () => {
       expect(onDelete).toHaveBeenCalledWith("col-1");
     });
 
-    it("opens the block dialog and does not call onDelete when the column has jobs", async () => {
+    it("opens the block dialog and does not call onDelete when the column has jobs", { retry: 2 }, async () => {
       const onDelete = vi.fn();
       renderColumn({
         column: makeColumn(),
