@@ -50,7 +50,7 @@ type DragPreview = {
 type DialogState =
   | { kind: "closed" }
   | { kind: "create"; columnId: string }
-  | { kind: "view-or-edit"; job: Job };
+  | { kind: "view-or-edit"; jobId: string };
 
 export function Board() {
   const [columns, setColumns] = useState<Column[]>(INITIAL_COLUMNS);
@@ -409,8 +409,16 @@ export function Board() {
   }, []);
 
   const handleJobClick = useCallback((job: Job) => {
-    setDialog({ kind: "view-or-edit", job });
+    setDialog({ kind: "view-or-edit", jobId: job.id });
   }, []);
+
+  const dialogJob = useMemo(
+    () =>
+      dialog.kind === "view-or-edit"
+        ? jobs.find((j) => j.id === dialog.jobId)
+        : undefined,
+    [dialog, jobs],
+  );
 
   const handleJobSubmit = useCallback((submitted: Job) => {
     setJobs((prev) => {
@@ -524,7 +532,7 @@ export function Board() {
       />
       <JobDialog
         mode={dialog.kind === "create" ? "create" : "view"}
-        job={dialog.kind === "view-or-edit" ? dialog.job : undefined}
+        job={dialogJob}
         columnId={dialog.kind === "create" ? dialog.columnId : undefined}
         open={dialog.kind !== "closed"}
         onOpenChange={(open) => {

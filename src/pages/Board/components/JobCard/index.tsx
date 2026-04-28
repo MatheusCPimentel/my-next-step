@@ -30,7 +30,17 @@ function JobCardComponent({ job, dragging, onClick }: JobCardProps) {
     opacity: isDragging ? 0.4 : 1,
   };
 
-  const displayed = job.updatedAt ?? job.createdAt;
+  const latestStageDate =
+    job.stageHistory && job.stageHistory.length > 0
+      ? job.stageHistory.reduce(
+          (max, entry) =>
+            new Date(entry.date).getTime() > new Date(max).getTime()
+              ? entry.date
+              : max,
+          job.stageHistory[0].date,
+        )
+      : null;
+  const displayed = latestStageDate ?? job.updatedAt ?? job.createdAt;
   const fit =
     typeof job.fitScore === "number" ? fitScoreClasses(job.fitScore) : null;
 
