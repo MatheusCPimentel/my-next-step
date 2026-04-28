@@ -204,7 +204,7 @@ export function DiscardDialog({
                 className="self-start inline-flex items-center gap-2 text-sm text-secondary hover:text-primary transition-colors"
               >
                 <Plus size={14} />
-                Add question
+                <span>Add question</span>
               </button>
             )}
             <DialogFooter className="sm:items-center">

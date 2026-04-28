@@ -393,7 +393,7 @@ export function Board() {
           className="h-9 px-3 gap-2"
         >
           <Plus size={16} />
-          Add Job
+          <span>Add Job</span>
         </Button>
       </div>
       <DndContext

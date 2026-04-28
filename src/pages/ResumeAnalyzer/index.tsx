@@ -228,7 +228,8 @@ function UploadZone({
               aria-label="Remove file"
               className="text-xs text-muted hover:text-primary transition-colors inline-flex items-center gap-1"
             >
-              <X size={14} /> Remove
+              <X size={14} />
+              <span>Remove</span>
             </button>
           </div>
         ) : (
@@ -544,14 +545,12 @@ export function ResumeAnalyzer() {
                       disabled={reEvaluating}
                       onClick={() => setReEvaluating(true)}
                     >
-                      {reEvaluating ? (
-                        <>
-                          <Loader2 size={16} className="animate-spin mr-2" />
-                          Re-evaluating...
-                        </>
-                      ) : (
-                        "Re-evaluate"
+                      {reEvaluating && (
+                        <Loader2 size={16} className="animate-spin mr-2" />
                       )}
+                      <span>
+                        {reEvaluating ? "Re-evaluating..." : "Re-evaluate"}
+                      </span>
                     </Button>
                   </div>
                 </div>
