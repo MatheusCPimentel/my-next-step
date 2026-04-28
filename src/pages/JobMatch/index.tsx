@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -62,6 +62,7 @@ export function JobMatch() {
     description: string;
     additionalContext: string;
   } | null>(null);
+  const pitchRef = useRef<HTMLDivElement | null>(null);
 
   const {
     register,
@@ -139,25 +140,37 @@ export function JobMatch() {
     return () => clearTimeout(id);
   }, [pitchLoading]);
 
+  useEffect(() => {
+    if (!showPitch) return;
+    pitchRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }, [showPitch]);
+
   const sectionLabel = "text-xs text-secondary uppercase tracking-widest";
+
+  const generateIcon = pitchLoading ? (
+    <Loader2 size={16} className="animate-spin mr-2" />
+  ) : showPitch ? (
+    <Check size={14} className="mr-2" />
+  ) : (
+    <Sparkles size={14} className="mr-2" />
+  );
+  const generateLabel = pitchLoading
+    ? "Generating..."
+    : showPitch
+      ? "Generated"
+      : "Why am I a fit?";
 
   const generateActions = (
     <div className="flex items-center gap-2">
       <Button
         variant="outline"
         size="sm"
-        disabled={pitchLoading}
+        disabled={pitchLoading || showPitch}
         onClick={handleGeneratePitch}
+        className={showPitch ? "opacity-60 cursor-not-allowed" : undefined}
       >
-        {pitchLoading ? (
-          <>
-            <Loader2 size={16} className="animate-spin mr-2" /> Generating...
-          </>
-        ) : (
-          <>
-            <Sparkles size={14} className="mr-2" /> Why am I a fit?
-          </>
-        )}
+        {generateIcon}
+        <span>{generateLabel}</span>
       </Button>
       <Tooltip>
         <TooltipTrigger asChild>
@@ -246,7 +259,8 @@ export function JobMatch() {
                     }
                     className="w-full h-11 text-base"
                   >
-                    <Sparkles size={14} className="mr-2" /> Analyze
+                    <Sparkles size={14} className="mr-2" />
+                    <span>Analyze</span>
                   </Button>
                 </form>
               </div>
@@ -269,11 +283,12 @@ export function JobMatch() {
 
         {status === "done" && (
           <div className="flex flex-col gap-6">
-            <div className="flex items-center justify-between gap-4">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
               {titleBlock}
               <div className="flex items-center gap-3 shrink-0">
                 <Button variant="outline" size="sm" onClick={handleReset}>
-                  <RotateCcw size={16} className="mr-2" /> Analyze another job
+                  <RotateCcw size={16} className="mr-2" />
+                  <span>Analyze another job</span>
                 </Button>
                 <Button
                   variant="default"
@@ -288,9 +303,7 @@ export function JobMatch() {
             <AIVerdictCard
               title="AI Final Verdict"
               verdict={MOCK_RESULT.finalVerdict}
-              action={
-                MOCK_RESULT.fitScore >= 60 ? generateActions : undefined
-              }
+              action={MOCK_RESULT.fitScore >= 60 ? generateActions : undefined}
             />
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-start">
@@ -313,6 +326,7 @@ export function JobMatch() {
                   {showPitch && (
                     <motion.div
                       key="pitch"
+                      ref={pitchRef}
                       initial={{ opacity: 0, y: 24 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.6, ease: "easeOut" }}
@@ -360,7 +374,6 @@ export function JobMatch() {
                     </p>
                   </div>
                 </motion.div>
-
               </div>
 
               <div className="md:col-span-1 flex flex-col gap-6">
@@ -399,30 +412,32 @@ export function JobMatch() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.35, delay: 5 * 0.15 }}
                 >
-                  <div className="bg-overlay rounded-lg p-4 flex gap-4">
-                    <div className="flex flex-col gap-1 flex-1">
-                      <span className="text-xs text-muted uppercase tracking-widest">
-                        Contract type
-                      </span>
-                      <span className="text-sm font-medium text-primary">
-                        {MOCK_RESULT.contractType}
-                      </span>
-                    </div>
-                    <div className="flex flex-col gap-1 flex-1">
+                  <div className="bg-overlay rounded-lg p-4 flex flex-col gap-4">
+                    <div className="flex flex-col gap-1 pb-4 border-b border-border">
                       <span className="text-xs text-muted uppercase tracking-widest">
                         Salary
                       </span>
-                      <span className="text-sm font-medium text-primary">
+                      <span className="text-lg font-medium text-primary">
                         {MOCK_RESULT.salary}
                       </span>
                     </div>
-                    <div className="flex flex-col gap-1 flex-1">
-                      <span className="text-xs text-muted uppercase tracking-widest">
-                        Work type
-                      </span>
-                      <span className="text-sm font-medium text-primary">
-                        {MOCK_RESULT.workType}
-                      </span>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                      <div className="flex flex-col gap-1">
+                        <span className="text-xs text-muted uppercase tracking-widest">
+                          Contract type
+                        </span>
+                        <span className="text-sm font-medium text-primary">
+                          {MOCK_RESULT.contractType}
+                        </span>
+                      </div>
+                      <div className="flex flex-col gap-1">
+                        <span className="text-xs text-muted uppercase tracking-widest">
+                          Work type
+                        </span>
+                        <span className="text-sm font-medium text-primary">
+                          {MOCK_RESULT.workType}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </motion.div>
@@ -434,7 +449,7 @@ export function JobMatch() {
                 >
                   <div className="bg-overlay rounded-lg p-4 flex flex-col gap-2">
                     <span className={sectionLabel}>Benefits</span>
-                    <ul className="flex flex-col gap-1">
+                    <ul className="grid grid-cols-1 lg:grid-cols-2 gap-x-4 gap-y-2">
                       {MOCK_RESULT.benefits
                         .split(",")
                         .map((b) => b.trim())
