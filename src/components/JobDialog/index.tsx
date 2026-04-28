@@ -256,7 +256,6 @@ export function JobDialog(props: JobDialogProps) {
                 <ExpandableValue value={job?.notes} />
               )}
             </div>
-
           </div>
 
           <div className={rightClass}>
@@ -322,10 +321,7 @@ export function JobDialog(props: JobDialogProps) {
             <div className="flex flex-col gap-1">
               <label className={fieldLabel}>Salary</label>
               {isEditable ? (
-                <Input
-                  {...register("salary")}
-                  placeholder="Salary or range"
-                />
+                <Input {...register("salary")} placeholder="Salary or range" />
               ) : (
                 renderValue(job?.salary)
               )}
@@ -334,10 +330,7 @@ export function JobDialog(props: JobDialogProps) {
             <div className="flex flex-col gap-1">
               <label className={fieldLabel}>Job URL</label>
               {isEditable ? (
-                <Input
-                  {...register("jobUrl")}
-                  placeholder="https://..."
-                />
+                <Input {...register("jobUrl")} placeholder="https://..." />
               ) : (
                 renderValue(job?.jobUrl)
               )}
