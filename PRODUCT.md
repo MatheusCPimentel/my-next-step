@@ -39,47 +39,32 @@ When a feature ships, remove its entry — git history is the record of what was
 
 #### Upload
 
-- Accept PDF only, max 10MB
-- Show clear error for wrong file type or oversized file
+- Show clear error for wrong file type or oversized file (current behavior silently rejects non-PDFs)
 - Prevent misuse: validate that the file looks like a resume before processing (basic check)
 
-#### AI Analysis output
+#### AI Analysis output (spec for backend, currently mocked)
+
+The analysis screen renders the items below from mocked data; the eventual real-AI version (backend, not built) must produce the same shape.
 
 - Strengths: things done well, with impact, specific achievements
 - Weaknesses: generic statements, missing impact, vague descriptions
 - Attention points: experiences with very little to say, being too generalist, having too many unrelated skills
 - ATS score: explain what ATS is, give a score and specific tips to improve it
 
-#### Post-analysis flow
-
-- Option 1: Upload a new resume (user improved based on feedback)
-- Option 2: Save profile for Job Match use
-
 #### Save profile flow
 
-- AI summarizes user profile in natural language (e.g. "You are a senior software engineer with experience in React and Node.js, worked in EdTech serving 1M+ users...")
-- Ask user to confirm or adjust the summary
-- If adjust: open a text input, user types changes, AI merges old + new info and regenerates summary
-- Repeat until user confirms
-- Also ask:
-  - Remote only or open to hybrid/on-site?
-  - Location (country/city) — used for location-based early exit in Job Match
+- Capture the user's work-type preference: remote only, or open to hybrid/on-site
+- Capture location (country/city) — used for location-based early exit in Job Match
+
+The summary-confirm/adjust loop itself is built (mocked): the AI-generated summary is shown in a modal, the user can save or open an adjust textarea, "Re-evaluate" merges feedback into a new summary. Real-AI wiring is backend work.
 
 ---
 
 ## Page: Job Match (/job-match) — formerly Job Analyzer
 
-### Gate
+### Early exits (before full analysis) — pending
 
-- If user has not completed Resume Analyzer and saved their profile: show a blurred background with a centered message explaining that the Resume Analyzer must be completed first. Show a CTA button "Analyze my resume".
-
-### Input
-
-- Job Title field (free text)
-- Job Description textarea — large, but capped at 8000 characters
-- Analyze button
-
-### Early exits (before full analysis)
+Depend on the Save-profile work-type and location capture (see Resume Analyzer).
 
 - If job is on-site or hybrid AND user only accepts remote: show early exit message, do not process further
 - If job is US-based only AND user is not in the US: show early exit message, do not process further
@@ -165,6 +150,10 @@ Items known to need improvement but deferred intentionally.
 ### Board
 
 - **Mobile kanban:** no solution implemented yet. Planned approach is one column at a time with horizontal swipe, but UX is TBD.
+
+### Design tokens
+
+- **Coral and amber are still hardcoded hex.** WeaknessesCard / AttentionPointsCard / Explainer / FeatureSteps reference `#D85A30` and `#EF9F27` as Tailwind arbitrary values (`text-[#D85A30]`, `bg-[#EF9F27]`, etc.). Per the CSS-tokens rule in CLAUDE.md they should be added to the `@theme` block in src/index.css as `bg-coral`/`text-coral` and `bg-amber`/`text-amber` and the call sites updated.
 
 ---
 

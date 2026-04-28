@@ -43,6 +43,8 @@ SidebarItem uses a fixed w-10 h-10 icon wrapper with mx-auto for centering. Labe
 
 Pages live in src/pages/<PageName>/index.tsx. Sub-components used only by that page nest under src/pages/<PageName>/components/<ComponentName>/index.tsx, with a co-located index.test.tsx when it exists. Shared page data/types stay at the page root (e.g. types.ts, mockData.ts).
 
+Helpers shared across multiple sub-components of a single page (but not generic enough to live in src/components/) go under src/pages/<PageName>/components/_shared/<HelperName>/index.tsx. ResumeAnalyzer uses this for BulletList and SectionCard. Don't promote these to src/components/ unless another page needs them.
+
 Current Board layout:
 src/pages/Board/
 components/
@@ -55,9 +57,42 @@ index.tsx
 mockData.ts
 types.ts
 
+Current ResumeAnalyzer layout:
+src/pages/ResumeAnalyzer/
+components/
+AIResumeVerdictCard/{index.tsx, index.test.tsx}
+ATSScoreCard/{index.tsx, index.test.tsx}
+AttentionPointsCard/{index.tsx, index.test.tsx}
+StrengthsCard/{index.tsx, index.test.tsx}
+SuggestionsCard/{index.tsx, index.test.tsx}
+TopSkillsCard/{index.tsx, index.test.tsx}
+WeaknessesCard/{index.tsx, index.test.tsx}
+_shared/
+BulletList/index.tsx
+SectionCard/index.tsx
+index.tsx
+index.test.tsx
+
+The analysis screen renders two sibling layouts fed by the same mock data: a mobile-only (flex md:hidden flex-col) stack and a desktop-only (hidden md:grid grid-cols-2) grid. Tailwind responsive `hidden`/`md:hidden` is CSS-only — both subtrees mount in JSDOM, so page-level tests use getAllBy* with toHaveLength(2) for content shared across both.
+
+Current JobMatch layout:
+src/pages/JobMatch/
+components/
+Explainer/index.tsx
+ScoreBar/index.tsx
+ScoreCard/{index.tsx, index.test.tsx}
+helpers.ts
+index.tsx
+index.test.tsx
+mockData.ts
+
 Shared components live in src/components/<ComponentName>/index.tsx:
 src/components/
+AIVerdictCard/{index.tsx, index.test.tsx} (used by Resume Analyzer + Job Match)
+ExpandableValue/index.tsx
+FeatureSteps/index.tsx
 JobDialog/{index.tsx, index.test.tsx}
+Stepper/{index.tsx, index.test.tsx} (currently unused — legacy from previous Resume Analyzer flow; safe to delete when confirmed)
 TagInput/{index.tsx, index.test.tsx}
 Layout/
 Sidebar/
@@ -104,7 +139,7 @@ Never use inline style for colors — always use Tailwind classes from the token
 Route Page Status
 / Dashboard in progress
 /board Board in progress
-/resume Resume Analyzer in progress (full stepper flow built)
+/resume Resume Analyzer in progress
 /job-match Job Match in progress
 /levelup LevelUp in progress
 
