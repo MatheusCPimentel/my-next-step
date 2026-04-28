@@ -148,27 +148,28 @@ describe("ResumeAnalyzer", () => {
       expect(
         screen.getByRole("button", { name: /confirm profile/i }),
       ).toBeInTheDocument();
+      // Mobile and desktop layouts both mount in JSDOM, so each card renders twice.
       expect(
-        screen.getByRole("heading", { name: /ai resume verdict/i }),
-      ).toBeInTheDocument();
+        screen.getAllByRole("heading", { name: /ai resume verdict/i }),
+      ).toHaveLength(2);
       expect(
-        screen.getByRole("heading", { name: /ats score/i }),
-      ).toBeInTheDocument();
+        screen.getAllByRole("heading", { name: /ats score/i }),
+      ).toHaveLength(2);
       expect(
-        screen.getByRole("heading", { name: /^strengths$/i }),
-      ).toBeInTheDocument();
+        screen.getAllByRole("heading", { name: /^strengths$/i }),
+      ).toHaveLength(2);
       expect(
-        screen.getByRole("heading", { name: /^weaknesses$/i }),
-      ).toBeInTheDocument();
+        screen.getAllByRole("heading", { name: /^weaknesses$/i }),
+      ).toHaveLength(2);
       expect(
-        screen.getByRole("heading", { name: /attention points/i }),
-      ).toBeInTheDocument();
+        screen.getAllByRole("heading", { name: /attention points/i }),
+      ).toHaveLength(2);
       expect(
-        screen.getByRole("heading", { name: /^suggestions$/i }),
-      ).toBeInTheDocument();
+        screen.getAllByRole("heading", { name: /^suggestions$/i }),
+      ).toHaveLength(2);
       expect(
-        screen.getByRole("heading", { name: /top skills/i }),
-      ).toBeInTheDocument();
+        screen.getAllByRole("heading", { name: /top skills/i }),
+      ).toHaveLength(2);
       expect(
         screen.queryByText(/reading your resume/i),
       ).not.toBeInTheDocument();
@@ -182,6 +183,7 @@ describe("ResumeAnalyzer", () => {
 
       await advanceToAnalysis(user);
 
+      // Mobile and desktop layouts both mount in JSDOM, so each card renders twice.
       for (const skill of [
         "React",
         "TypeScript",
@@ -190,10 +192,10 @@ describe("ResumeAnalyzer", () => {
         "Testing",
         "System design",
       ]) {
-        expect(screen.getByText(skill)).toBeInTheDocument();
+        expect(screen.getAllByText(skill)).toHaveLength(2);
       }
-      expect(screen.getByText("92%")).toBeInTheDocument();
-      expect(screen.getByText("48%")).toBeInTheDocument();
+      expect(screen.getAllByText("92%")).toHaveLength(2);
+      expect(screen.getAllByText("48%")).toHaveLength(2);
     });
 
     it("renders the ATS score, badge, and explanation paragraph", async () => {
@@ -202,11 +204,12 @@ describe("ResumeAnalyzer", () => {
 
       await advanceToAnalysis(user);
 
-      expect(screen.getByText("72")).toBeInTheDocument();
-      expect(screen.getByText("Good")).toBeInTheDocument();
+      // Mobile and desktop layouts both mount in JSDOM, so the card renders twice.
+      expect(screen.getAllByText("72")).toHaveLength(2);
+      expect(screen.getAllByText("Good")).toHaveLength(2);
       expect(
-        screen.getByText(/adding more role-specific keywords/i),
-      ).toBeInTheDocument();
+        screen.getAllByText(/adding more role-specific keywords/i),
+      ).toHaveLength(2);
     });
   });
 

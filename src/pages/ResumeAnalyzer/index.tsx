@@ -1,17 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  Activity,
-  AlertCircle,
-  AlertTriangle,
-  CheckCircle,
-  FileText,
-  Loader2,
-  Plus,
-  Sparkles,
-  Upload,
-  X,
-} from "lucide-react";
+import { CheckCircle, FileText, Loader2, Upload, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -22,7 +11,13 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { FeatureSteps } from "@/components/FeatureSteps";
-import { AIVerdictCard } from "@/components/AIVerdictCard";
+import { AIResumeVerdictCard } from "@/pages/ResumeAnalyzer/components/AIResumeVerdictCard";
+import { StrengthsCard } from "@/pages/ResumeAnalyzer/components/StrengthsCard";
+import { WeaknessesCard } from "@/pages/ResumeAnalyzer/components/WeaknessesCard";
+import { AttentionPointsCard } from "@/pages/ResumeAnalyzer/components/AttentionPointsCard";
+import { ATSScoreCard } from "@/pages/ResumeAnalyzer/components/ATSScoreCard";
+import { TopSkillsCard } from "@/pages/ResumeAnalyzer/components/TopSkillsCard";
+import { SuggestionsCard } from "@/pages/ResumeAnalyzer/components/SuggestionsCard";
 import { cn } from "@/lib/utils";
 
 const INITIAL_SUMMARY =
@@ -109,49 +104,6 @@ const WHAT_WE_ANALYZE_EXTRAS: Array<{
   { label: "Attention points", color: "amber" },
   { label: "ATS score & tips", color: "purple" },
 ];
-
-function BulletList({
-  items,
-  dotClass,
-}: {
-  items: readonly string[];
-  dotClass: string;
-}) {
-  return (
-    <ul className="flex flex-col gap-2">
-      {items.map((item) => (
-        <li key={item} className="flex items-start gap-2.5">
-          <span
-            className={`mt-2 w-1.5 h-1.5 rounded-full shrink-0 ${dotClass}`}
-          />
-          <span className="text-sm text-secondary leading-relaxed">{item}</span>
-        </li>
-      ))}
-    </ul>
-  );
-}
-
-function SectionCard({
-  title,
-  icon,
-  children,
-}: {
-  title: string;
-  icon: React.ReactNode;
-  children: React.ReactNode;
-}) {
-  return (
-    <section className="bg-surface border border-border rounded-xl p-5 flex flex-col gap-3 h-full">
-      <div className="flex items-center gap-3">
-        <div className="w-8 h-8 rounded-lg bg-overlay flex items-center justify-center">
-          {icon}
-        </div>
-        <h2 className="text-sm font-medium text-primary">{title}</h2>
-      </div>
-      {children}
-    </section>
-  );
-}
 
 function UploadZone({
   file,
@@ -362,115 +314,47 @@ export function ResumeAnalyzer() {
       )}
 
       {phase === "analysis" && (
-        <div className="flex flex-col gap-4">
-          <AIVerdictCard
-            title="AI Resume Verdict"
-            verdict={MOCK_ANALYSIS.summary}
-          />
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
-            <div className="flex flex-col gap-3">
-              <SectionCard
-                title="Strengths"
-                icon={<CheckCircle size={16} className="text-teal" />}
-              >
-                <BulletList
-                  items={MOCK_ANALYSIS.strengths}
-                  dotClass="bg-teal"
-                />
-              </SectionCard>
-              <SectionCard
-                title="Weaknesses"
-                icon={<AlertCircle size={16} className="text-[#D85A30]" />}
-              >
-                <BulletList
-                  items={MOCK_ANALYSIS.weaknesses}
-                  dotClass="bg-[#D85A30]"
-                />
-              </SectionCard>
-              <SectionCard
-                title="Attention points"
-                icon={<AlertTriangle size={16} className="text-[#EF9F27]" />}
-              >
-                <BulletList
-                  items={MOCK_ANALYSIS.attentionPoints}
-                  dotClass="bg-[#EF9F27]"
-                />
-              </SectionCard>
-            </div>
-
-            <div className="flex flex-col gap-3">
-              <SectionCard
-                title="ATS score"
-                icon={<Activity size={16} className="text-purple-mid" />}
-              >
-                <div className="flex items-baseline gap-2">
-                  <span className="text-5xl font-medium text-purple-mid">
-                    {MOCK_ANALYSIS.atsScore}
-                  </span>
-                  <span className="text-lg text-secondary">/ 100</span>
-                  <span className="ml-2 text-xs px-2 py-0.5 rounded bg-purple/10 text-purple-mid">
-                    {MOCK_ANALYSIS.atsBadge}
-                  </span>
-                </div>
-                <div className="h-2 rounded-full bg-overlay overflow-hidden">
-                  <div
-                    className="h-full bg-purple rounded-full"
-                    style={{ width: `${MOCK_ANALYSIS.atsScore}%` }}
-                  />
-                </div>
-                <p className="text-sm text-secondary leading-relaxed">
-                  {MOCK_ANALYSIS.atsExplanation}
-                </p>
-              </SectionCard>
-
-              <SectionCard
-                title="Top skills"
-                icon={<Sparkles size={16} className="text-purple-mid" />}
-              >
-                <ul className="flex flex-col gap-3">
-                  {MOCK_SKILLS.map((skill) => (
-                    <li
-                      key={skill.name}
-                      className="flex items-center gap-3"
-                    >
-                      <span className="text-sm text-primary w-32 shrink-0">
-                        {skill.name}
-                      </span>
-                      <span className="flex-1 h-1.5 bg-border rounded-full overflow-hidden">
-                        <span
-                          className="block h-full bg-purple rounded-full"
-                          style={{ width: `${skill.level}%` }}
-                        />
-                      </span>
-                      <span className="text-xs text-muted text-right w-10 shrink-0">
-                        {skill.level}%
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              </SectionCard>
-
-              <SectionCard
-                title="Suggestions"
-                icon={<Plus size={16} className="text-purple" />}
-              >
-                <ol className="flex flex-col gap-2">
-                  {MOCK_ANALYSIS.suggestions.map((item, i) => (
-                    <li key={item} className="flex items-start gap-2.5">
-                      <span className="w-5 h-5 shrink-0 rounded-full bg-purple/15 text-purple-soft text-xs flex items-center justify-center">
-                        {i + 1}
-                      </span>
-                      <span className="text-sm text-secondary leading-relaxed">
-                        {item}
-                      </span>
-                    </li>
-                  ))}
-                </ol>
-              </SectionCard>
-            </div>
+        <>
+          <div className="flex md:hidden flex-col gap-4">
+            <AIResumeVerdictCard verdict={MOCK_ANALYSIS.summary} delay={0} />
+            <ATSScoreCard
+              score={MOCK_ANALYSIS.atsScore}
+              label={MOCK_ANALYSIS.atsBadge}
+              description={MOCK_ANALYSIS.atsExplanation}
+              delay={0.15}
+            />
+            <TopSkillsCard skills={MOCK_SKILLS} delay={0.3} />
+            <StrengthsCard items={MOCK_ANALYSIS.strengths} delay={0.45} />
+            <WeaknessesCard items={MOCK_ANALYSIS.weaknesses} delay={0.6} />
+            <AttentionPointsCard
+              items={MOCK_ANALYSIS.attentionPoints}
+              delay={0.75}
+            />
+            <SuggestionsCard items={MOCK_ANALYSIS.suggestions} delay={0.9} />
           </div>
-        </div>
+
+          <div className="hidden md:grid grid-cols-2 gap-4">
+            <AIResumeVerdictCard
+              verdict={MOCK_ANALYSIS.summary}
+              delay={0}
+              className="md:col-span-2"
+            />
+            <StrengthsCard items={MOCK_ANALYSIS.strengths} delay={0.15} />
+            <ATSScoreCard
+              score={MOCK_ANALYSIS.atsScore}
+              label={MOCK_ANALYSIS.atsBadge}
+              description={MOCK_ANALYSIS.atsExplanation}
+              delay={0.3}
+            />
+            <WeaknessesCard items={MOCK_ANALYSIS.weaknesses} delay={0.45} />
+            <TopSkillsCard skills={MOCK_SKILLS} delay={0.6} />
+            <AttentionPointsCard
+              items={MOCK_ANALYSIS.attentionPoints}
+              delay={0.75}
+            />
+            <SuggestionsCard items={MOCK_ANALYSIS.suggestions} delay={0.9} />
+          </div>
+        </>
       )}
 
       {analyzing && (
