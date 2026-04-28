@@ -60,7 +60,7 @@ export function Layout() {
 
         <main className="flex-1 overflow-auto p-6 md:p-10 bg-page">
           <div
-            className={`mx-auto w-full ${fullWidth ? "h-full" : "max-w-6xl"}`}
+            className={`mx-auto w-full ${fullWidth ? "h-full" : "max-w-5xl"}`}
           >
             <Outlet />
           </div>
