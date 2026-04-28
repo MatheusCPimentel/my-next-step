@@ -150,6 +150,7 @@ Items known to need improvement but deferred intentionally.
 ### Board
 
 - **Mobile kanban:** no solution implemented yet. Planned approach is one column at a time with horizontal swipe, but UX is TBD.
+- **BoardColumn delete tests rely on `retry: 2` band-aid.** The trash button is `display: none` until the column header is hovered, and clicking it via `fireEvent.click` (the only working option — `userEvent.click` refuses hidden elements) races against Radix's portal-mount path under suite-wide CPU contention. Real fix: programmatically `mouseEnter` the header to reveal the button before clicking it (matches real user flow), or restructure the trash visibility so it's reachable in tests without the hover prerequisite. Until then, the two affected tests use Vitest's `retry: 2`.
 
 ### Design tokens
 
