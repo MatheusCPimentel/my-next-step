@@ -1,6 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { CheckCircle, FileText, Loader2, Upload, X } from "lucide-react";
+import {
+  CheckCircle,
+  FileText,
+  Loader2,
+  RotateCcw,
+  Upload,
+  X,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -274,13 +281,28 @@ export function ResumeAnalyzer() {
           </p>
         </div>
         {phase === "analysis" && (
-          <Button
-            variant="default"
-            size="sm"
-            onClick={() => setModalOpen(true)}
-          >
-            Confirm profile
-          </Button>
+          <div className="flex flex-col md:flex-row md:items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setPhase("upload");
+                setFile(null);
+              }}
+              className="w-full md:w-auto"
+            >
+              <RotateCcw size={14} className="mr-2" />
+              <span>Analyze another resume</span>
+            </Button>
+            <Button
+              variant="default"
+              size="sm"
+              onClick={() => setModalOpen(true)}
+              className="w-full md:w-auto"
+            >
+              Confirm profile
+            </Button>
+          </div>
         )}
       </div>
 
@@ -344,15 +366,15 @@ export function ResumeAnalyzer() {
               score={MOCK_ANALYSIS.atsScore}
               label={MOCK_ANALYSIS.atsBadge}
               description={MOCK_ANALYSIS.atsExplanation}
-              delay={0.3}
+              delay={0.15}
             />
-            <WeaknessesCard items={MOCK_ANALYSIS.weaknesses} delay={0.45} />
-            <TopSkillsCard skills={MOCK_SKILLS} delay={0.6} />
+            <WeaknessesCard items={MOCK_ANALYSIS.weaknesses} delay={0.3} />
+            <TopSkillsCard skills={MOCK_SKILLS} delay={0.3} />
             <AttentionPointsCard
               items={MOCK_ANALYSIS.attentionPoints}
-              delay={0.75}
+              delay={0.45}
             />
-            <SuggestionsCard items={MOCK_ANALYSIS.suggestions} delay={0.9} />
+            <SuggestionsCard items={MOCK_ANALYSIS.suggestions} delay={0.45} />
           </div>
         </>
       )}
