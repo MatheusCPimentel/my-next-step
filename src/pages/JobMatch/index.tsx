@@ -505,7 +505,7 @@ export function JobMatch() {
       </div>
 
       {!hasCompletedResumeAnalyzer && (
-        <div className="fixed inset-0 z-50 backdrop-blur-md bg-background/60 flex items-center justify-center">
+        <div className="fixed inset-0 z-50 backdrop-blur-md bg-background/60 flex items-center justify-center px-3">
           <button
             type="button"
             onClick={() => setHasCompletedResumeAnalyzer((v) => !v)}
@@ -513,7 +513,7 @@ export function JobMatch() {
           >
             Dev: bypass gate
           </button>
-          <div className="bg-surface border border-border rounded-xl p-8 max-w-sm text-center">
+          <div className="bg-surface border border-border rounded-xl p-6 md:p-8 max-w-sm text-center">
             <Lock size={32} className="text-muted mb-4 mx-auto" />
             <h2 className="text-lg font-medium text-primary">
               Analyze your resume first
@@ -523,13 +523,18 @@ export function JobMatch() {
               profile first. Complete the Resume Analyzer and we'll take care of
               the rest.
             </p>
-            <Button
-              variant="default"
-              onClick={() => navigate("/resume")}
-              className="mt-6"
-            >
-              Analyze my resume
-            </Button>
+            <div className="mt-6 flex flex-col items-center gap-3">
+              <Button variant="default" onClick={() => navigate("/resume")}>
+                Analyze my resume
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={() => navigate("/")}
+                className="text-sm text-muted border-0"
+              >
+                I'll do this later
+              </Button>
+            </div>
           </div>
         </div>
       )}
