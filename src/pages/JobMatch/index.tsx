@@ -4,6 +4,14 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { JobDialog } from "@/components/JobDialog";
 import { MOCK_RESULT, LOADING_MESSAGES, PITCH_TEXT } from "@/pages/JobMatch/mockData";
 import { jobMatchSchema, type FormValues } from "@/pages/JobMatch/types";
@@ -22,6 +30,7 @@ export function JobMatch() {
   const [pitchLoading, setPitchLoading] = useState(false);
   const [pitchCopied, setPitchCopied] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [addedToBoardOpen, setAddedToBoardOpen] = useState(false);
   const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
   const [submittedInput, setSubmittedInput] = useState<{
     title: string;
@@ -69,7 +78,6 @@ export function JobMatch() {
     try {
       await navigator.clipboard.writeText(PITCH_TEXT);
       setPitchCopied(true);
-      toast.success("Copied to clipboard.");
     } catch {
       toast.error("Could not copy. Try selecting the text manually.");
     }
@@ -77,7 +85,7 @@ export function JobMatch() {
 
   useEffect(() => {
     if (!pitchCopied) return;
-    const id = setTimeout(() => setPitchCopied(false), 2000);
+    const id = setTimeout(() => setPitchCopied(false), 5000);
     return () => clearTimeout(id);
   }, [pitchCopied]);
 
@@ -91,18 +99,19 @@ export function JobMatch() {
 
   const handleAddedToBoard = () => {
     setDialogOpen(false);
-    toast.success("Added to Board.", {
-      action: {
-        label: "Go to Board",
-        onClick: () => navigate("/board"),
-      },
-      cancel: {
-        label: "Add another job",
-        onClick: () => handleReset(),
-      },
-    });
-    // TODO(backend): on persistence failure, replace the success above with:
+    setAddedToBoardOpen(true);
+    // TODO(backend): on persistence failure, skip the modal and call:
     // toast.error("Could not add job to Board. Please try again.");
+  };
+
+  const handleAddAnotherJob = () => {
+    setAddedToBoardOpen(false);
+    handleReset();
+  };
+
+  const handleGoToBoard = () => {
+    setAddedToBoardOpen(false);
+    navigate("/board");
   };
 
   useEffect(() => {
@@ -227,6 +236,24 @@ export function JobMatch() {
           onSkip={() => navigate("/")}
         />
       )}
+
+      <Dialog open={addedToBoardOpen} onOpenChange={setAddedToBoardOpen}>
+        <DialogContent
+          showCloseButton={false}
+          onEscapeKeyDown={(e) => e.preventDefault()}
+          onInteractOutside={(e) => e.preventDefault()}
+        >
+          <DialogHeader>
+            <DialogTitle>Job added to Board!</DialogTitle>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={handleAddAnotherJob}>
+              Add another job
+            </Button>
+            <Button onClick={handleGoToBoard}>Go to Board</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
-import { act, fireEvent, render, screen, within } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
 import { toast as sonnerToast } from "sonner";
@@ -319,7 +319,7 @@ describe("JobMatch", () => {
     });
   });
 
-  describe("toasts", () => {
+  describe("Copy pitch", () => {
     type ClipboardDescriptor = PropertyDescriptor | undefined;
     let originalClipboard: ClipboardDescriptor;
 
@@ -369,23 +369,7 @@ describe("JobMatch", () => {
       });
     }
 
-    async function advanceToDone(user: ReturnType<typeof userEvent.setup>) {
-      await user.type(
-        screen.getByPlaceholderText("Senior Frontend Engineer at Acme"),
-        "Senior Frontend Engineer",
-      );
-      await user.type(
-        screen.getByPlaceholderText("Paste the full job description here..."),
-        "Build great products with React and TypeScript.",
-      );
-      await user.click(screen.getByRole("button", { name: /^analyze$/i }));
-
-      await act(async () => {
-        await vi.advanceTimersByTimeAsync(1500);
-      });
-    }
-
-    it('shows "Copied to clipboard." toast on successful copy', async () => {
+    it("calls clipboard.writeText with the pitch when the copy button is clicked", async () => {
       const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
       const writeText = vi.fn().mockResolvedValue(undefined);
       mockClipboard(writeText);
@@ -397,9 +381,11 @@ describe("JobMatch", () => {
       );
 
       expect(writeText).toHaveBeenCalledTimes(1);
+      // Successful copies use the in-place check-icon flip (5s) for feedback;
+      // no toast is fired on the happy path.
       expect(
-        await screen.findByText(/copied to clipboard/i),
-      ).toBeInTheDocument();
+        screen.queryByText(/copied to clipboard/i),
+      ).not.toBeInTheDocument();
     });
 
     it("shows error toast when clipboard write rejects", async () => {
@@ -416,6 +402,32 @@ describe("JobMatch", () => {
       expect(writeText).toHaveBeenCalledTimes(1);
       expect(await screen.findByText(/could not copy/i)).toBeInTheDocument();
     });
+  });
+
+  describe("Add to Board confirmation modal", () => {
+    beforeEach(() => {
+      vi.useFakeTimers({ shouldAdvanceTime: true });
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    async function advanceToDone(user: ReturnType<typeof userEvent.setup>) {
+      await user.type(
+        screen.getByPlaceholderText("Senior Frontend Engineer at Acme"),
+        "Senior Frontend Engineer",
+      );
+      await user.type(
+        screen.getByPlaceholderText("Paste the full job description here..."),
+        "Build great products with React and TypeScript.",
+      );
+      await user.click(screen.getByRole("button", { name: /^analyze$/i }));
+
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(1500);
+      });
+    }
 
     async function openDialogAndSave(user: ReturnType<typeof userEvent.setup>) {
       await advanceToDone(user);
@@ -427,13 +439,15 @@ describe("JobMatch", () => {
       await user.click(screen.getByRole("button", { name: /^save$/i }));
     }
 
-    it('shows "Added to Board." toast with both action buttons after JobDialog Save in the Add to Board flow', async () => {
+    it("opens a confirmation modal with both actions after JobDialog Save", async () => {
       const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
       renderJobMatch();
 
       await openDialogAndSave(user);
 
-      expect(await screen.findByText("Added to Board.")).toBeInTheDocument();
+      expect(
+        await screen.findByRole("heading", { name: /job added to board/i }),
+      ).toBeInTheDocument();
       expect(
         screen.getByRole("button", { name: /go to board/i }),
       ).toBeInTheDocument();
@@ -442,37 +456,45 @@ describe("JobMatch", () => {
       ).toBeInTheDocument();
     });
 
-    it("navigates to /board when the Go to Board action is clicked", async () => {
+    it("does not render a close (X) button on the confirmation modal", async () => {
       const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
       renderJobMatch();
 
       await openDialogAndSave(user);
 
-      const toastEl = await screen.findByText("Added to Board.");
-      const toastRoot = toastEl.closest("li") ?? toastEl.parentElement!;
-      await user.click(
-        within(toastRoot as HTMLElement).getByRole("button", {
-          name: /go to board/i,
-        }),
-      );
+      await screen.findByRole("heading", { name: /job added to board/i });
+      // shadcn DialogContent renders the X with sr-only label "Close" when
+      // showCloseButton is true. With showCloseButton={false}, no such button
+      // should exist on the confirmation modal.
+      expect(
+        screen.queryByRole("button", { name: /^close$/i }),
+      ).not.toBeInTheDocument();
+    });
+
+    it("navigates to /board when Go to Board is clicked", async () => {
+      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+      renderJobMatch();
+
+      await openDialogAndSave(user);
+
+      await screen.findByRole("heading", { name: /job added to board/i });
+      await user.click(screen.getByRole("button", { name: /go to board/i }));
 
       expect(mockNavigate).toHaveBeenCalledWith("/board");
     });
 
-    it("resets the form to idle when the Add another job cancel is clicked", async () => {
+    it("closes the modal and resets the form to idle when Add another job is clicked", async () => {
       const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
       renderJobMatch();
 
       await openDialogAndSave(user);
 
-      const toastEl = await screen.findByText("Added to Board.");
-      const toastRoot = toastEl.closest("li") ?? toastEl.parentElement!;
-      await user.click(
-        within(toastRoot as HTMLElement).getByRole("button", {
-          name: /add another job/i,
-        }),
-      );
+      await screen.findByRole("heading", { name: /job added to board/i });
+      await user.click(screen.getByRole("button", { name: /add another job/i }));
 
+      expect(
+        screen.queryByRole("heading", { name: /job added to board/i }),
+      ).not.toBeInTheDocument();
       const titleInput = screen.getByPlaceholderText(
         "Senior Frontend Engineer at Acme",
       ) as HTMLInputElement;
