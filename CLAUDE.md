@@ -17,7 +17,7 @@ pnpm lint # eslint
 pnpm test # vitest watch mode
 pnpm test:run # vitest one-shot (CI)
 
-For testing conventions, read .claude/agents/rules/testing.md before writing any test.
+For testing conventions, read .claude/rules/testing.md before writing any test.
 
 To add a shadcn component: pnpm dlx shadcn add <component> (uses radix-nova style, see components.json).
 
