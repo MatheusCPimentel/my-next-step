@@ -103,6 +103,26 @@ describe("ResumeAnalyzer", () => {
       ).toBeEnabled();
     });
 
+    it("rejects a non-PDF file: name does not appear and Analyze stays disabled", () => {
+      renderResumeAnalyzer();
+
+      const nonPdf = new File(["plain text"], "resume.txt", {
+        type: "text/plain",
+      });
+      selectFile(nonPdf);
+
+      expect(screen.queryByText("resume.txt")).not.toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: /analyze resume/i }),
+      ).toBeDisabled();
+    });
+
+    // Skipped: the 10MB size cap is not enforced in UploadZone's input change
+    // handler — only file.type is checked. Driving the limit requires a drag
+    // event we explicitly cannot simulate per the testing rules. See
+    // src/pages/ResumeAnalyzer/components/UploadZone/index.tsx.
+    it.skip("rejects a >10MB PDF (size limit not enforced on the input change handler)", () => {});
+
     it("removes the selected file and disables Analyze when the X is clicked", async () => {
       const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
       renderResumeAnalyzer();

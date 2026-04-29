@@ -77,33 +77,56 @@ describe("ScoreCard", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("shows 'Good opportunity' for scores in [70, 80)", () => {
-    render(<ScoreCard {...makeProps({ opportunityScore: 72 })} />);
+  it.each<[number, string]>([
+    [0, "Not worth applying"],
+    [49, "Not worth applying"],
+    [50, "Borderline"],
+    [55, "Borderline"],
+    [59, "Borderline"],
+    [60, "Partial opportunity"],
+    [65, "Partial opportunity"],
+    [69, "Partial opportunity"],
+    [70, "Good opportunity"],
+    [72, "Good opportunity"],
+    [79, "Good opportunity"],
+    [80, "Excellent opportunity"],
+    [92, "Excellent opportunity"],
+    [100, "Excellent opportunity"],
+  ])("opportunityScore %i shows label '%s'", (score, label) => {
+    render(<ScoreCard {...makeProps({ opportunityScore: score })} />);
 
-    expect(screen.getByText("Good opportunity")).toBeInTheDocument();
+    expect(screen.getByText(label)).toBeInTheDocument();
   });
 
-  it("shows 'Not worth applying' for scores below 50", () => {
-    render(<ScoreCard {...makeProps({ opportunityScore: 30 })} />);
+  describe("environment signals by type", () => {
+    it("renders warning signals", () => {
+      render(
+        <ScoreCard
+          {...makeProps({
+            environmentSignals: [
+              { type: "warning", text: "On-call rotation is heavy" },
+            ],
+          })}
+        />,
+      );
 
-    expect(screen.getByText("Not worth applying")).toBeInTheDocument();
-  });
+      expect(screen.getByText("On-call rotation is heavy")).toBeInTheDocument();
+    });
 
-  it("shows 'Borderline' for scores in [50, 60)", () => {
-    render(<ScoreCard {...makeProps({ opportunityScore: 55 })} />);
+    it("renders negative signals", () => {
+      render(
+        <ScoreCard
+          {...makeProps({
+            environmentSignals: [
+              { type: "negative", text: "Reports of toxic culture" },
+            ],
+          })}
+        />,
+      );
 
-    expect(screen.getByText("Borderline")).toBeInTheDocument();
-  });
-
-  it("shows 'Partial opportunity' for scores in [60, 70)", () => {
-    render(<ScoreCard {...makeProps({ opportunityScore: 65 })} />);
-
-    expect(screen.getByText("Partial opportunity")).toBeInTheDocument();
-  });
-
-  it("shows 'Excellent opportunity' for scores at or above 80", () => {
-    render(<ScoreCard {...makeProps({ opportunityScore: 92 })} />);
-
-    expect(screen.getByText("Excellent opportunity")).toBeInTheDocument();
+      expect(
+        screen.getByText("Reports of toxic culture"),
+      ).toBeInTheDocument();
+    });
   });
 });

@@ -19,8 +19,10 @@ Vitest + React Testing Library. Config in vite.config.ts, setup in src/test/setu
 ## What NOT to test
 
 - Visual styling or Tailwind classes
-- Drag and drop behavior
+- UI-level drag and drop interactions (i.e. simulating drag events through the DOM)
 - Animations
+
+State-management logic that lives inside DnD hooks (e.g. `useBoardDnd`) IS in scope: cover it via `renderHook` by passing synthesized dnd-kit event payloads (`DragStartEvent`, `DragOverEvent`, `DragEndEvent`) to the returned handlers. The "no DnD" rule targets brittle DOM-level drag tests, not pure-logic coverage.
 
 ## File location
 

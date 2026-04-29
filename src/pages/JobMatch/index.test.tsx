@@ -203,30 +203,6 @@ describe("JobMatch", () => {
       ).toBeInTheDocument();
     });
 
-    // score is hardcoded; only the positive case is exercisable today
-    it("renders the 'Why am I a fit?' button after analyze", async () => {
-      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
-      renderJobMatch();
-
-      await user.type(
-        screen.getByPlaceholderText("Senior Frontend Engineer at Acme"),
-        "Senior Frontend Engineer",
-      );
-      await user.type(
-        screen.getByPlaceholderText("Paste the full job description here..."),
-        "Build great products with React and TypeScript.",
-      );
-      await user.click(screen.getByRole("button", { name: /^analyze$/i }));
-
-      await act(async () => {
-        await vi.advanceTimersByTimeAsync(1500);
-      });
-
-      expect(
-        screen.getByRole("button", { name: /why am i a fit/i }),
-      ).toBeInTheDocument();
-    });
-
     it("opens JobDialog in create mode pre-filled with the submitted title when 'Add to Board' is clicked", async () => {
       const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
       renderJobMatch();

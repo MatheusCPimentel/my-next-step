@@ -40,22 +40,20 @@ describe("FeatureSteps", () => {
     });
   });
 
-  it("does not render a divider or extras labels when extras is omitted", () => {
-    const { container } = render(
+  it("does not render any extras label when extras is omitted or empty", () => {
+    const knownLabels = ["Strong match", "Needs work", "Optional"];
+
+    const { rerender } = render(
       <FeatureSteps title="Steps" items={makeItems()} />,
     );
+    for (const label of knownLabels) {
+      expect(screen.queryByText(label)).not.toBeInTheDocument();
+    }
 
-    expect(container.querySelectorAll("ul")).toHaveLength(0);
-    expect(container.querySelector(".border-t")).toBeNull();
-  });
-
-  it("does not render a divider or extras labels when extras is an empty array", () => {
-    const { container } = render(
-      <FeatureSteps title="Steps" items={makeItems()} extras={[]} />,
-    );
-
-    expect(container.querySelectorAll("ul")).toHaveLength(0);
-    expect(container.querySelector(".border-t")).toBeNull();
+    rerender(<FeatureSteps title="Steps" items={makeItems()} extras={[]} />);
+    for (const label of knownLabels) {
+      expect(screen.queryByText(label)).not.toBeInTheDocument();
+    }
   });
 
   it("renders every extras label when extras is provided", () => {
@@ -70,35 +68,6 @@ describe("FeatureSteps", () => {
 
     extras.forEach((extra) => {
       expect(screen.getByText(extra.label)).toBeInTheDocument();
-    });
-  });
-
-  describe("extras dot color", () => {
-    const cases = [
-      { color: "teal" as const, label: "Teal item", token: "bg-teal" },
-      { color: "coral" as const, label: "Coral item", token: "bg-coral" },
-      { color: "amber" as const, label: "Amber item", token: "bg-amber" },
-      { color: "purple" as const, label: "Purple item", token: "bg-purple" },
-      { color: "blue" as const, label: "Blue item", token: "bg-blue" },
-      { color: "gray" as const, label: "Gray item", token: "bg-muted" },
-    ];
-
-    cases.forEach(({ color, label, token }) => {
-      it(`applies the ${token} class to the ${color} dot`, () => {
-        render(
-          <FeatureSteps
-            title="Steps"
-            items={makeItems()}
-            extras={[{ label, color }]}
-          />,
-        );
-
-        const labelEl = screen.getByText(label);
-        const dot = labelEl.previousElementSibling;
-
-        expect(dot).not.toBeNull();
-        expect(dot?.className).toContain(token);
-      });
     });
   });
 });

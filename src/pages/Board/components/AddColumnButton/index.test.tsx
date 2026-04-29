@@ -144,18 +144,6 @@ describe("AddColumnButton", () => {
   });
 
   describe("droppable wiring", () => {
-    it("renders the trigger button without highlight when no card is being dragged over it", () => {
-      render(
-        <DndContext>
-          <AddColumnButton onAdd={vi.fn()} />
-        </DndContext>,
-      );
-
-      const button = screen.getByRole("button", { name: /add column/i });
-      expect(button).toBeInTheDocument();
-      expect(button.className).not.toContain("bg-purple/10");
-    });
-
     it("still enters editing mode on click when wrapped in a DndContext", async () => {
       const user = userEvent.setup();
       render(
@@ -168,72 +156,5 @@ describe("AddColumnButton", () => {
 
       expect(screen.getByPlaceholderText("Column name")).toBeInTheDocument();
     });
-  });
-});
-
-describe("AddColumnButton — droppable highlight (with mocked useDroppable)", () => {
-  it("applies the highlight classes when a card is dragged over it", async () => {
-    vi.resetModules();
-    vi.doMock("@dnd-kit/core", async () => {
-      const actual = await vi.importActual<typeof import("@dnd-kit/core")>(
-        "@dnd-kit/core",
-      );
-      return {
-        ...actual,
-        useDroppable: () => ({
-          setNodeRef: () => {},
-          isOver: true,
-          active: { data: { current: { type: "card" } } },
-          node: { current: null },
-          over: null,
-          rect: { current: null },
-        }),
-      };
-    });
-
-    const { AddColumnButton: Mocked } = await import(
-      "@/pages/Board/components/AddColumnButton"
-    );
-
-    render(<Mocked onAdd={vi.fn()} />);
-
-    const button = screen.getByRole("button", { name: /add column/i });
-    expect(button.className).toContain("border-purple");
-    expect(button.className).toContain("bg-purple/10");
-
-    vi.doUnmock("@dnd-kit/core");
-    vi.resetModules();
-  });
-
-  it("does NOT apply the highlight when the active drag is not a card", async () => {
-    vi.resetModules();
-    vi.doMock("@dnd-kit/core", async () => {
-      const actual = await vi.importActual<typeof import("@dnd-kit/core")>(
-        "@dnd-kit/core",
-      );
-      return {
-        ...actual,
-        useDroppable: () => ({
-          setNodeRef: () => {},
-          isOver: true,
-          active: { data: { current: { type: "column" } } },
-          node: { current: null },
-          over: null,
-          rect: { current: null },
-        }),
-      };
-    });
-
-    const { AddColumnButton: Mocked } = await import(
-      "@/pages/Board/components/AddColumnButton"
-    );
-
-    render(<Mocked onAdd={vi.fn()} />);
-
-    const button = screen.getByRole("button", { name: /add column/i });
-    expect(button.className).not.toContain("bg-purple/10");
-
-    vi.doUnmock("@dnd-kit/core");
-    vi.resetModules();
   });
 });

@@ -31,10 +31,26 @@ function renderCard(job: Job, onClick?: () => void) {
 }
 
 describe("JobCard", () => {
+  it("renders the title and company", () => {
+    renderCard(
+      makeJob({ company: "Stripe", title: "Senior Frontend Engineer" }),
+    );
+
+    expect(screen.getByText("Stripe")).toBeInTheDocument();
+    expect(screen.getByText("Senior Frontend Engineer")).toBeInTheDocument();
+  });
+
   it("shows the fit score pill when fitScore is set", () => {
     renderCard(makeJob({ fitScore: 78 }));
 
     expect(screen.getByText("78% fit")).toBeInTheDocument();
+    expect(screen.queryByText("Not analyzed")).not.toBeInTheDocument();
+  });
+
+  it("renders '0% fit' (not 'Not analyzed') when fitScore is exactly 0", () => {
+    renderCard(makeJob({ fitScore: 0 }));
+
+    expect(screen.getByText("0% fit")).toBeInTheDocument();
     expect(screen.queryByText("Not analyzed")).not.toBeInTheDocument();
   });
 
@@ -55,19 +71,27 @@ describe("JobCard", () => {
   });
 
   it("renders a short month-day date derived from updatedAt", () => {
-    renderCard(makeJob({ updatedAt: "2026-04-15T12:00:00.000Z" }));
+    renderCard(
+      makeJob({
+        updatedAt: "2026-04-15T12:00:00.000Z",
+        // Override default stageHistory so the latest entry doesn't dominate.
+        stageHistory: [{ stage: "Applied", date: "2026-04-15T12:00:00.000Z" }],
+        createdAt: "2026-04-15T12:00:00.000Z",
+      }),
+    );
 
-    expect(screen.getByText(/^[A-Z][a-z]{2}\s+\d{1,2}$/)).toBeInTheDocument();
+    expect(screen.getByText("Apr 15")).toBeInTheDocument();
   });
 
   it("falls back to createdAt when updatedAt is missing", () => {
     const job = makeJob({
-      createdAt: "2026-03-10T12:00:00.000Z",
+      createdAt: "2026-03-08T12:00:00.000Z",
+      stageHistory: [],
     });
     delete (job as Partial<Job>).updatedAt;
 
     renderCard(job);
 
-    expect(screen.getByText(/^[A-Z][a-z]{2}\s+\d{1,2}$/)).toBeInTheDocument();
+    expect(screen.getByText("Mar 8")).toBeInTheDocument();
   });
 });

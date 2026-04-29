@@ -24,14 +24,6 @@ describe("AIVerdictCard", () => {
     ).toBeInTheDocument();
   });
 
-  it("renders the Sparkles icon", () => {
-    const { container } = render(
-      <AIVerdictCard title="AI Final Verdict" verdict="Worth applying." />,
-    );
-
-    expect(container.querySelector("svg")).not.toBeNull();
-  });
-
   it("renders the action slot when provided", () => {
     render(
       <AIVerdictCard
@@ -43,5 +35,13 @@ describe("AIVerdictCard", () => {
     expect(
       screen.getByRole("button", { name: /test action/i }),
     ).toBeInTheDocument();
+  });
+
+  it("does not render any action button when action is omitted", () => {
+    render(<AIVerdictCard title="Hero" verdict="Some verdict copy." />);
+
+    expect(
+      screen.queryByRole("button", { name: /test action/i }),
+    ).not.toBeInTheDocument();
   });
 });

@@ -159,6 +159,34 @@ describe("JobDialog", () => {
       expect(onSubmit).not.toHaveBeenCalled();
     });
 
+    it("round-trips niceToHaveSkills: skills entered in create mode end up on the submitted job", async () => {
+      const user = userEvent.setup();
+      const onSubmit = vi.fn();
+      render(<Harness mode="create" columnId="applied" onSubmit={onSubmit} />);
+
+      await user.type(screen.getByPlaceholderText("Company name"), "Acme");
+      await user.type(
+        screen.getByPlaceholderText("Job title"),
+        "Senior Engineer",
+      );
+      await user.type(
+        screen.getByPlaceholderText("What is the role about?"),
+        "A description",
+      );
+      const skillInputs = screen.getAllByPlaceholderText("Add a skill");
+      // First input → required skills, second input → nice-to-have skills.
+      await user.type(skillInputs[0], "React{Enter}");
+      await user.type(skillInputs[1], "GraphQL{Enter}");
+
+      await user.click(screen.getByRole("button", { name: /^save$/i }));
+
+      expect(onSubmit).toHaveBeenCalledTimes(1);
+      const submitted = onSubmit.mock.calls[0][0] as Job;
+      expect(submitted.niceToHaveSkills).toEqual([
+        { name: "GraphQL", variant: "neutral" },
+      ]);
+    });
+
     it("calls onSubmit with an assembled Job (new id, columnId from prop, populated fields) when all required fields are filled", async () => {
       const user = userEvent.setup();
       const onSubmit = vi.fn();
@@ -388,6 +416,73 @@ describe("JobDialog", () => {
         "Job title",
       ) as HTMLInputElement;
       expect(reopenedTitle.value).toBe("");
+    });
+
+    it("shows the new job's title (not a leftover edited value) when reopened with a different job", async () => {
+      const user = userEvent.setup();
+      const onSubmit = vi.fn();
+
+      const jobA = makeJob({ id: "a", title: "Job A Title" });
+      const jobB = makeJob({ id: "b", title: "Job B Title" });
+
+      function Wrapper() {
+        const [open, setOpen] = useState(true);
+        const [job, setJob] = useState<Job>(jobA);
+        return (
+          <>
+            <button type="button" onClick={() => setOpen(false)}>
+              close
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setJob(jobB);
+                setOpen(true);
+              }}
+            >
+              open-b
+            </button>
+            <JobDialog
+              mode="view"
+              job={job}
+              open={open}
+              onOpenChange={setOpen}
+              onSubmit={onSubmit}
+            />
+          </>
+        );
+      }
+
+      render(<Wrapper />);
+
+      // Open as view mode for job A — click Edit, modify title, save.
+      await user.click(screen.getByRole("button", { name: /^edit$/i }));
+      const titleInput = screen.getByPlaceholderText(
+        "Job title",
+      ) as HTMLInputElement;
+      await user.clear(titleInput);
+      await user.type(titleInput, "Job A Edited");
+      await user.click(screen.getByRole("button", { name: /^save$/i }));
+
+      // Close and reopen with job B.
+      await act(async () => {
+        screen.getByText("close").click();
+      });
+      await act(async () => {
+        screen.getByText("open-b").click();
+      });
+
+      // View mode renders B's title, not A's saved-edit value.
+      expect(screen.getByText("Job B Title")).toBeInTheDocument();
+      expect(screen.queryByText("Job A Edited")).not.toBeInTheDocument();
+      expect(screen.queryByText("Job A Title")).not.toBeInTheDocument();
+
+      // After clicking Edit, the input shows B's title.
+      await user.click(screen.getByRole("button", { name: /^edit$/i }));
+      const reopenedInput = screen.getByPlaceholderText(
+        "Job title",
+      ) as HTMLInputElement;
+      expect(reopenedInput.value).toBe("Job B Title");
     });
   });
 

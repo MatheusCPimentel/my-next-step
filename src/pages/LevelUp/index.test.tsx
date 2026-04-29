@@ -139,7 +139,7 @@ describe("LevelUp", () => {
       expect(getStatValue("From rejections")).toBe("5");
     });
 
-    it("fades out and removes a weak point when 'Remove' is clicked", async () => {
+    it("removes a weak point when 'Remove' is clicked", async () => {
       const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
       render(<LevelUp />);
 

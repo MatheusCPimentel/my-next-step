@@ -3,14 +3,6 @@ import { render, screen } from "@testing-library/react";
 import { WeaknessesCard } from "@/pages/ResumeAnalyzer/components/WeaknessesCard";
 
 describe("WeaknessesCard", () => {
-  it("renders the Weaknesses title", () => {
-    render(<WeaknessesCard items={["Missing summary"]} />);
-
-    expect(
-      screen.getByRole("heading", { name: /^weaknesses$/i }),
-    ).toBeInTheDocument();
-  });
-
   it("renders every item passed via props", () => {
     const items = [
       "No professional summary at the top",

@@ -240,6 +240,30 @@ describe("HistoryDateEditor", () => {
       ).toBeInTheDocument();
     });
 
+    it("normalizes the picked date to noon UTC even when the inbound date is not noon", async () => {
+      const user = userEvent.setup();
+      const onChange = vi.fn();
+      const { container } = render(
+        <HistoryDateEditor
+          date="2026-04-15T03:30:00.000Z"
+          onChange={onChange}
+        />,
+      );
+
+      await user.click(screen.getByRole("button", { name: /edit date/i }));
+      const input = container.querySelector(
+        'input[type="date"]',
+      ) as HTMLInputElement;
+      // toYMD reads UTC parts, so inbound 03:30 still shows the same Y-M-D.
+      expect(input.value).toBe("2026-04-15");
+
+      fireEvent.change(input, { target: { value: "2026-04-22" } });
+
+      // The picked day forces noon UTC regardless of the inbound 03:30 time.
+      expect(onChange).toHaveBeenCalledTimes(1);
+      expect(onChange).toHaveBeenCalledWith("2026-04-22T12:00:00.000Z");
+    });
+
     it("does not call onChange when the input value is cleared to empty", async () => {
       const user = userEvent.setup();
       const onChange = vi.fn();

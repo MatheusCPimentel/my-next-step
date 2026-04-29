@@ -134,6 +134,27 @@ describe("TagInput", () => {
     expect(onChange).not.toHaveBeenCalled();
   });
 
+  it("ignores a click on the arrow button when the input is empty", async () => {
+    const user = userEvent.setup();
+    const onChange = vi.fn();
+    render(<Harness onChange={onChange} placeholder="Add skill" />);
+
+    await user.click(screen.getByRole("button", { name: /add tag/i }));
+
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
+  it("ignores a click on the arrow button when the input contains only whitespace", async () => {
+    const user = userEvent.setup();
+    const onChange = vi.fn();
+    render(<Harness onChange={onChange} placeholder="Add skill" />);
+
+    await user.type(screen.getByPlaceholderText("Add skill"), "   ");
+    await user.click(screen.getByRole("button", { name: /add tag/i }));
+
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
   it("removes a pill when its X button is clicked", async () => {
     const user = userEvent.setup();
     const onChange = vi.fn();

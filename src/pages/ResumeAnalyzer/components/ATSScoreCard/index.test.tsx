@@ -26,4 +26,12 @@ describe("ATSScoreCard", () => {
       screen.getByRole("heading", { name: /ats score/i }),
     ).toBeInTheDocument();
   });
+
+  it("renders a score of 0 (does not collapse to empty)", () => {
+    render(<ATSScoreCard score={0} label="Poor" description="Not readable." />);
+
+    expect(screen.getByText("0")).toBeInTheDocument();
+    expect(screen.getByText("Poor")).toBeInTheDocument();
+    expect(screen.getByText("Not readable.")).toBeInTheDocument();
+  });
 });

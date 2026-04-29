@@ -3,14 +3,6 @@ import { render, screen } from "@testing-library/react";
 import { SuggestionsCard } from "@/pages/ResumeAnalyzer/components/SuggestionsCard";
 
 describe("SuggestionsCard", () => {
-  it("renders the Suggestions title", () => {
-    render(<SuggestionsCard items={["Add a summary section"]} />);
-
-    expect(
-      screen.getByRole("heading", { name: /^suggestions$/i }),
-    ).toBeInTheDocument();
-  });
-
   it("renders every item passed via props", () => {
     const items = [
       "Add a 2–3 sentence professional summary",

@@ -19,19 +19,4 @@ describe("AIResumeVerdictCard", () => {
     expect(screen.getByText(verdict)).toBeInTheDocument();
   });
 
-  it("forwards className to the outermost wrapper", () => {
-    render(
-      <AIResumeVerdictCard
-        verdict="Anything"
-        className="md:col-span-2 custom-marker"
-      />,
-    );
-
-    const heading = screen.getByRole("heading", {
-      name: /ai resume verdict/i,
-    });
-    const wrapper = heading.closest(".custom-marker");
-    expect(wrapper).not.toBeNull();
-    expect(wrapper).toHaveClass("md:col-span-2");
-  });
 });

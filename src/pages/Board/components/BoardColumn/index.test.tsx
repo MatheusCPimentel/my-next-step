@@ -87,6 +87,17 @@ describe("BoardColumn", () => {
   });
 
   describe("moveable columns - rename", () => {
+    it("double-clicking a non-locked column's label shows an input that is auto-focused", async () => {
+      const user = userEvent.setup();
+      renderColumn({ column: makeColumn() });
+
+      await user.dblClick(screen.getByText("Phone Screen"));
+
+      const input = screen.getByDisplayValue("Phone Screen");
+      expect(input).toBeInTheDocument();
+      expect(input).toHaveFocus();
+    });
+
     it("enters edit mode on double click and commits via onRename on Enter", async () => {
       const user = userEvent.setup();
       const onRename = vi.fn();

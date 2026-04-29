@@ -28,24 +28,20 @@ describe("TopSkillsCard", () => {
     expect(screen.getByText("48%")).toBeInTheDocument();
   });
 
-  it("sets each progress bar width to match the skill level", () => {
+  it("renders boundary levels of 0% and 100%", () => {
     render(
       <TopSkillsCard
         skills={[
-          { name: "Alpha", level: 25 },
-          { name: "Beta", level: 75 },
+          { name: "Empty skill", level: 0 },
+          { name: "Mastered skill", level: 100 },
         ]}
       />,
     );
 
-    const items = screen.getAllByRole("listitem");
-    expect(items).toHaveLength(2);
-
-    const alphaBar = items[0].querySelector("span > span") as HTMLElement;
-    const betaBar = items[1].querySelector("span > span") as HTMLElement;
-
-    expect(alphaBar.style.width).toBe("25%");
-    expect(betaBar.style.width).toBe("75%");
+    expect(screen.getByText("Empty skill")).toBeInTheDocument();
+    expect(screen.getByText("0%")).toBeInTheDocument();
+    expect(screen.getByText("Mastered skill")).toBeInTheDocument();
+    expect(screen.getByText("100%")).toBeInTheDocument();
   });
 
   it("renders the title without any list items when skills is empty", () => {

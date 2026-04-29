@@ -96,15 +96,21 @@ describe("Textarea", () => {
       expect((textarea as HTMLTextAreaElement).value).toBe("abcdefgh");
     });
 
-    it("renders the counter inside the same wrapper element as the textarea", () => {
-      render(<Textarea maxLength={50} defaultValue="hi" />);
+    it("counter goes back under the cap after deleting characters past max", async () => {
+      const user = userEvent.setup();
+      render(<Textarea maxLength={5} />);
 
-      const textarea = screen.getByRole("textbox");
-      const counter = screen.getByText("2 / 50");
+      const textarea = screen.getByRole("textbox") as HTMLTextAreaElement;
+      await user.type(textarea, "abcdefgh");
+      expect(screen.getByText("8 / 5")).toBeInTheDocument();
 
-      const wrapper = textarea.parentElement;
-      expect(wrapper).not.toBeNull();
-      expect(wrapper).toContainElement(counter);
+      // Delete three characters → 5/5
+      await user.type(textarea, "{Backspace}{Backspace}{Backspace}");
+      expect(screen.getByText("5 / 5")).toBeInTheDocument();
+
+      // Delete another two → 3/5 (under the cap)
+      await user.type(textarea, "{Backspace}{Backspace}");
+      expect(screen.getByText("3 / 5")).toBeInTheDocument();
     });
   });
 
