@@ -82,6 +82,10 @@
 }
 
 @layer utilities {
+  :root {
+    --board-col-width: 272px;
+  }
+
   .board-scroll::-webkit-scrollbar {
     height: 6px;
   }

@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { TagInput } from "@/components/TagInput";
 import { ExpandableValue } from "@/components/ExpandableValue";
 import { HistoryDateEditor } from "@/components/JobDialog/components/HistoryDateEditor";
+import { genId } from "@/lib/utils";
 import type { Job } from "@/pages/Board/types";
 
 type Mode = "create" | "view" | "edit";
@@ -81,8 +82,6 @@ function descriptionForMode(mode: Mode): string {
   return "Review the details for this job.";
 }
 
-const generateJobId = () => Math.random().toString(36).slice(2, 10);
-
 export function JobDialog(props: JobDialogProps) {
   const { mode, job, open, onOpenChange, onSubmit } = props;
 
@@ -132,7 +131,7 @@ export function JobDialog(props: JobDialogProps) {
       const now = new Date().toISOString();
       submitted = {
         ...(props.job ?? {}),
-        id: generateJobId(),
+        id: genId(),
         columnId: props.columnId!,
         createdAt: now,
         updatedAt: now,

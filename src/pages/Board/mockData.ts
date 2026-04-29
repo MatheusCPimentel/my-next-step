@@ -1,6 +1,6 @@
 import type { Column, Job } from "@/pages/Board/types";
 
-export const newColumnId = () => Math.random().toString(36).slice(2, 10);
+export { genId as newColumnId } from "@/lib/utils";
 
 export const INITIAL_COLUMNS: Column[] = [
   { id: "applied", label: "Applied", locked: true },

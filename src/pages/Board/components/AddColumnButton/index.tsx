@@ -45,7 +45,7 @@ export function AddColumnButton({ onAdd, disabled }: AddColumnButtonProps) {
     return (
       <div
         ref={setNodeRef}
-        className="h-full min-h-0 w-[272px] shrink-0 bg-surface rounded-xl p-3"
+        className="h-full min-h-0 w-(--board-col-width) shrink-0 bg-surface rounded-xl p-3"
       >
         <Input
           ref={inputRef}
@@ -70,7 +70,7 @@ export function AddColumnButton({ onAdd, disabled }: AddColumnButtonProps) {
 
   const isCardOver = isOver && active?.data.current?.type === "card";
   const buttonClass = cn(
-    "group/add h-full min-h-0 w-[272px] shrink-0 rounded-xl border border-dashed transition-colors flex flex-col items-center justify-center gap-2 p-3",
+    "group/add h-full min-h-0 w-(--board-col-width) shrink-0 rounded-xl border border-dashed transition-colors flex flex-col items-center justify-center gap-2 p-3",
     isCardOver
       ? "border-purple text-purple-soft bg-purple/10"
       : "border-border-hover text-muted hover:border-purple hover:text-purple-soft hover:bg-purple/5",

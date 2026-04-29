@@ -498,7 +498,7 @@ export function Board() {
         <DragOverlay>
           {activeJob ? <JobCard job={activeJob} dragging /> : null}
           {activeColumn ? (
-            <div className="w-[272px] bg-surface rounded-xl p-3 opacity-90 shadow-lg">
+            <div className="w-(--board-col-width) bg-surface rounded-xl p-3 opacity-90 shadow-lg">
               <div className="flex items-center gap-2 px-1 py-1">
                 <span className="text-sm font-medium text-primary">
                   {activeColumn.label}
