@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { CheckCircle, Loader2, RotateCcw } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -63,7 +64,11 @@ export function ResumeAnalyzer() {
   const startAnalysis = useCallback(() => {
     setLoadingMessageIndex(0);
     setAnalyzing(true);
+    // TODO(backend): wrap analyze in try/catch; on failure call toast.error("Could not analyze your resume. Please try again.")
   }, []);
+
+  // TODO(backend): wrap save in try/catch; on failure call toast.error("Could not save your profile. Please try again.")
+  const handleSaveProfile = () => setSavedProfile(true);
 
   useEffect(() => {
     if (!reEvaluating) return;
@@ -72,6 +77,8 @@ export function ResumeAnalyzer() {
       setReEvaluating(false);
       setAdjustOpen(false);
       setAdjustText("");
+      toast.success("Profile updated.");
+      // TODO(backend): on re-evaluate failure call toast.error("Could not re-evaluate your profile. Please try again.")
     }, 1500);
     return () => clearTimeout(id);
   }, [reEvaluating]);
@@ -228,10 +235,7 @@ export function ResumeAnalyzer() {
 
               {!adjustOpen && (
                 <div className="flex flex-wrap gap-3">
-                  <Button
-                    variant="default"
-                    onClick={() => setSavedProfile(true)}
-                  >
+                  <Button variant="default" onClick={handleSaveProfile}>
                     Looks good, save
                   </Button>
                   <Button

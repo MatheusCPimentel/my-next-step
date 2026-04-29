@@ -2,7 +2,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
+import { toast as sonnerToast } from "sonner";
 import { ResumeAnalyzer } from "@/pages/ResumeAnalyzer";
+import { Toaster } from "@/components/ui/sonner";
 
 const mockNavigate = vi.fn();
 vi.mock("react-router-dom", async () => {
@@ -13,9 +15,15 @@ vi.mock("react-router-dom", async () => {
 });
 
 function renderResumeAnalyzer() {
-  return render(<ResumeAnalyzer />, {
-    wrapper: ({ children }) => <MemoryRouter>{children}</MemoryRouter>,
-  });
+  return render(
+    <>
+      <ResumeAnalyzer />
+      <Toaster />
+    </>,
+    {
+      wrapper: ({ children }) => <MemoryRouter>{children}</MemoryRouter>,
+    },
+  );
 }
 
 function makePdf(name = "resume.pdf") {
@@ -54,6 +62,7 @@ describe("ResumeAnalyzer", () => {
   });
 
   afterEach(() => {
+    sonnerToast.dismiss();
     vi.useRealTimers();
   });
 
@@ -498,6 +507,27 @@ describe("ResumeAnalyzer", () => {
           /describe what you want to change or add/i,
         ),
       ).not.toBeInTheDocument();
+    });
+
+    it('shows "Profile updated." toast after Re-evaluate completes', async () => {
+      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+      renderResumeAnalyzer();
+
+      await openModal(user);
+      await user.click(
+        screen.getByRole("button", { name: /i want to adjust/i }),
+      );
+      await user.type(
+        screen.getByPlaceholderText(/describe what you want to change or add/i),
+        "Add team collaboration context",
+      );
+      await user.click(screen.getByRole("button", { name: /^re-evaluate$/i }));
+
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(1500);
+      });
+
+      expect(await screen.findByText(/profile updated/i)).toBeInTheDocument();
     });
   });
 });
