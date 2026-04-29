@@ -9,6 +9,7 @@ import {
   X,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { SectionLabel } from "@/components/SectionLabel";
 
 const MOCK_USER = { name: "John" };
 
@@ -181,9 +182,9 @@ export function Dashboard() {
       </div>
 
       <section className="flex flex-col gap-3">
-        <h2 className="text-xs font-medium text-muted uppercase tracking-widest">
+        <SectionLabel as="h2" tone="muted" className="font-medium">
           Overview
-        </h2>
+        </SectionLabel>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <StatCard
             label="Open processes"
@@ -197,9 +198,9 @@ export function Dashboard() {
       </section>
 
       <section className="flex flex-col gap-3">
-        <h2 className="text-xs font-medium text-muted uppercase tracking-widest">
+        <SectionLabel as="h2" tone="muted" className="font-medium">
           Quick actions
-        </h2>
+        </SectionLabel>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {QUICK_ACTIONS.map((action) => (
             <QuickActionCard key={action.path} {...action} />
@@ -208,9 +209,9 @@ export function Dashboard() {
       </section>
 
       <section className="flex flex-col gap-3">
-        <h2 className="text-xs font-medium text-muted uppercase tracking-widest">
+        <SectionLabel as="h2" tone="muted" className="font-medium">
           Recent activity
-        </h2>
+        </SectionLabel>
         <div className="flex flex-col gap-2">
           {MOCK_ACTIVITIES.map((activity) => (
             <ActivityRow key={activity.id} activity={activity} />

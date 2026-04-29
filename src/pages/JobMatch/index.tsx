@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/tooltip";
 import { TagInput } from "@/components/TagInput";
 import { JobDialog } from "@/components/JobDialog";
+import { SectionLabel } from "@/components/SectionLabel";
 import {
   MOCK_RESULT,
   LOADING_MESSAGES,
@@ -144,8 +145,6 @@ export function JobMatch() {
     if (!showPitch) return;
     pitchRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
   }, [showPitch]);
-
-  const sectionLabel = "text-xs text-secondary uppercase tracking-widest";
 
   const generateIcon = pitchLoading ? (
     <Loader2 size={16} className="animate-spin mr-2" />
@@ -368,7 +367,7 @@ export function JobMatch() {
                   transition={{ duration: 0.35, delay: 1 * 0.15 }}
                 >
                   <div className="bg-overlay rounded-lg p-4 flex flex-col gap-2">
-                    <span className={sectionLabel}>Job overview</span>
+                    <SectionLabel>Job overview</SectionLabel>
                     <p className="text-sm text-primary leading-relaxed">
                       {MOCK_RESULT.jobOverview}
                     </p>
@@ -383,7 +382,7 @@ export function JobMatch() {
                   transition={{ duration: 0.35, delay: 3 * 0.15 }}
                 >
                   <div className="flex flex-col gap-2">
-                    <span className={sectionLabel}>Required skills</span>
+                    <SectionLabel>Required skills</SectionLabel>
                     <TagInput
                       value={MOCK_RESULT.requiredSkills}
                       onChange={() => {}}
@@ -398,7 +397,7 @@ export function JobMatch() {
                   transition={{ duration: 0.35, delay: 4 * 0.15 }}
                 >
                   <div className="flex flex-col gap-2">
-                    <span className={sectionLabel}>Nice to have skills</span>
+                    <SectionLabel>Nice to have skills</SectionLabel>
                     <TagInput
                       value={MOCK_RESULT.niceToHaveSkills}
                       onChange={() => {}}
@@ -414,26 +413,20 @@ export function JobMatch() {
                 >
                   <div className="bg-overlay rounded-lg p-4 flex flex-col gap-4">
                     <div className="flex flex-col gap-1 pb-4 border-b border-border">
-                      <span className="text-xs text-muted uppercase tracking-widest">
-                        Salary
-                      </span>
+                      <SectionLabel tone="muted">Salary</SectionLabel>
                       <span className="text-lg font-medium text-primary">
                         {MOCK_RESULT.salary}
                       </span>
                     </div>
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                       <div className="flex flex-col gap-1">
-                        <span className="text-xs text-muted uppercase tracking-widest">
-                          Contract type
-                        </span>
+                        <SectionLabel tone="muted">Contract type</SectionLabel>
                         <span className="text-sm font-medium text-primary">
                           {MOCK_RESULT.contractType}
                         </span>
                       </div>
                       <div className="flex flex-col gap-1">
-                        <span className="text-xs text-muted uppercase tracking-widest">
-                          Work type
-                        </span>
+                        <SectionLabel tone="muted">Work type</SectionLabel>
                         <span className="text-sm font-medium text-primary">
                           {MOCK_RESULT.workType}
                         </span>
@@ -448,7 +441,7 @@ export function JobMatch() {
                   transition={{ duration: 0.35, delay: 6 * 0.15 }}
                 >
                   <div className="bg-overlay rounded-lg p-4 flex flex-col gap-2">
-                    <span className={sectionLabel}>Benefits</span>
+                    <SectionLabel>Benefits</SectionLabel>
                     <ul className="grid grid-cols-1 lg:grid-cols-2 gap-x-4 gap-y-2">
                       {MOCK_RESULT.benefits
                         .split(",")

@@ -1,5 +1,6 @@
 import { FeatureSteps } from "@/components/FeatureSteps";
 import { ScoreBar } from "@/pages/JobMatch/components/ScoreBar";
+import { SectionLabel } from "@/components/SectionLabel";
 
 const EXTRAS = [
   { label: "Skills breakdown", dotClass: "bg-teal" },
@@ -42,9 +43,7 @@ export function Explainer() {
         <span className="text-sm font-medium text-primary">
           What you'll get
         </span>
-        <span className="text-xs text-secondary uppercase tracking-widest">
-          Example output
-        </span>
+        <SectionLabel>Example output</SectionLabel>
         <div className="flex flex-col gap-3">
           <ScoreBar
             label="Opportunity score"

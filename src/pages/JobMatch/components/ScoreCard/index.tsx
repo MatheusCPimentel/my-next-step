@@ -1,6 +1,7 @@
 import { fitScoreClasses } from "@/lib/fitScore";
 import { ScoreBar } from "@/pages/JobMatch/components/ScoreBar";
 import { signalDotClass } from "@/pages/JobMatch/helpers";
+import { SectionLabel } from "@/components/SectionLabel";
 
 interface ScoreCardProps {
   opportunityScore: number;
@@ -69,9 +70,7 @@ export function ScoreCard({
           </div>
         </div>
         <div className="flex flex-col gap-1.5 flex-1 min-w-0">
-          <span className="text-xs uppercase tracking-widest text-muted">
-            Opportunity score
-          </span>
+          <SectionLabel tone="muted">Opportunity score</SectionLabel>
           <span
             className={`inline-flex w-fit items-center px-2 py-0.5 rounded text-xs ${opportunity.badge}`}
           >
@@ -94,7 +93,7 @@ export function ScoreCard({
 
       {environmentSignals && environmentSignals.length > 0 && (
         <div className="border-t border-border mt-4 pt-4 flex flex-col gap-3">
-          <span className="text-xs text-secondary uppercase tracking-widest">Environment assessment</span>
+          <SectionLabel>Environment assessment</SectionLabel>
           <ul className="flex flex-col gap-2">
             {environmentSignals.map((s, i) => (
               <li key={i} className="flex items-start gap-2 text-sm text-primary">

@@ -15,6 +15,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { TagInput } from "@/components/TagInput";
 import { ExpandableValue } from "@/components/ExpandableValue";
+import { SectionLabel } from "@/components/SectionLabel";
 import { HistoryDateEditor } from "@/components/JobDialog/components/HistoryDateEditor";
 import { genId } from "@/lib/utils";
 import type { Job } from "@/pages/Board/types";
@@ -361,9 +362,7 @@ export function JobDialog(props: JobDialogProps) {
 
         {internalMode === "view" && (job?.stageHistory?.length ?? 0) > 0 && (
           <div className="border-t border-border mt-4 pt-4 flex flex-col gap-2">
-            <label className="text-xs text-secondary uppercase tracking-widest">
-              History
-            </label>
+            <SectionLabel as="label">History</SectionLabel>
             <ol className="flex flex-col divide-y divide-border">
               {[...job!.stageHistory]
                 .sort(

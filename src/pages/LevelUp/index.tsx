@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { ExpandableValue } from "@/components/ExpandableValue";
+import { SectionLabel } from "@/components/SectionLabel";
 import {
   INITIAL_CATEGORIES,
   INITIAL_WEAK_POINTS,
@@ -39,9 +40,7 @@ function StatCard({
         containerClassName,
       )}
     >
-      <span className="text-xs text-secondary uppercase tracking-widest">
-        {label}
-      </span>
+      <SectionLabel>{label}</SectionLabel>
       <span className={`text-2xl font-medium ${valueClass}`}>{value}</span>
     </div>
   );
@@ -356,9 +355,7 @@ export function LevelUp() {
       </div>
 
       <div className="flex flex-col gap-3">
-        <span className="text-xs text-secondary uppercase tracking-widest">
-          To review
-        </span>
+        <SectionLabel>To review</SectionLabel>
         <div className="flex flex-col gap-3">
           {INITIAL_CATEGORIES.map((category) => (
             <CategoryCard
