@@ -39,7 +39,6 @@ When a feature ships, remove its entry — git history is the record of what was
 
 #### Upload
 
-- Show clear error for wrong file type or oversized file (current behavior silently rejects non-PDFs)
 - Prevent misuse: validate that the file looks like a resume before processing (basic check)
 
 #### AI Analysis output (spec for backend, currently mocked)

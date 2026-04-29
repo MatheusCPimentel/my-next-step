@@ -2,6 +2,18 @@ import { useCallback, useRef, useState } from "react";
 import { FileText, Upload, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+const MAX_SIZE_BYTES = 10 * 1024 * 1024;
+
+function validateFile(file: File): string | null {
+  if (file.type !== "application/pdf") {
+    return "Only PDF files are supported.";
+  }
+  if (file.size > MAX_SIZE_BYTES) {
+    return "File is too large. Max size is 10MB.";
+  }
+  return null;
+}
+
 interface UploadZoneProps {
   file: File | null;
   onFileSelected: (file: File) => void;
@@ -14,6 +26,7 @@ export function UploadZone({
   onClearFile,
 }: UploadZoneProps) {
   const [isDragging, setIsDragging] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
@@ -30,9 +43,14 @@ export function UploadZone({
       e.preventDefault();
       setIsDragging(false);
       const dropped = e.dataTransfer.files[0];
-      if (dropped && dropped.type === "application/pdf") {
-        onFileSelected(dropped);
+      if (!dropped) return;
+      const validationError = validateFile(dropped);
+      if (validationError) {
+        setError(validationError);
+        return;
       }
+      setError(null);
+      onFileSelected(dropped);
     },
     [onFileSelected],
   );
@@ -40,12 +58,22 @@ export function UploadZone({
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const selected = e.target.files?.[0];
-      if (selected && selected.type === "application/pdf") {
-        onFileSelected(selected);
+      if (!selected) return;
+      const validationError = validateFile(selected);
+      if (validationError) {
+        setError(validationError);
+        return;
       }
+      setError(null);
+      onFileSelected(selected);
     },
     [onFileSelected],
   );
+
+  const handleClearFile = useCallback(() => {
+    setError(null);
+    onClearFile();
+  }, [onClearFile]);
 
   return (
     <>
@@ -75,7 +103,7 @@ export function UploadZone({
             </span>
             <button
               type="button"
-              onClick={onClearFile}
+              onClick={handleClearFile}
               aria-label="Remove file"
               className="text-xs text-muted hover:text-primary transition-colors inline-flex items-center gap-1"
             >
@@ -84,17 +112,24 @@ export function UploadZone({
             </button>
           </div>
         ) : (
-          <button
-            type="button"
-            onClick={() => inputRef.current?.click()}
-            className="flex flex-col items-center gap-3 px-6 py-10"
-          >
-            <Upload size={32} className="text-purple-mid" />
-            <span className="text-sm font-medium text-primary">
-              Drop your resume here or click to browse
-            </span>
-            <span className="text-xs text-muted">PDF only · max 10MB</span>
-          </button>
+          <div className="flex flex-col items-center gap-3 px-6 py-10">
+            <button
+              type="button"
+              onClick={() => inputRef.current?.click()}
+              className="flex flex-col items-center gap-3"
+            >
+              <Upload size={32} className="text-purple-mid" />
+              <span className="text-sm font-medium text-primary">
+                Drop your resume here or click to browse
+              </span>
+              <span className="text-xs text-muted">PDF only · max 10MB</span>
+            </button>
+            {error && (
+              <p role="alert" className="text-xs text-red-500">
+                {error}
+              </p>
+            )}
+          </div>
         )}
       </div>
     </>

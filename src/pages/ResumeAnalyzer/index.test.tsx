@@ -103,7 +103,7 @@ describe("ResumeAnalyzer", () => {
       ).toBeEnabled();
     });
 
-    it("rejects a non-PDF file: name does not appear and Analyze stays disabled", () => {
+    it("rejects a non-PDF file: shows an error, name does not appear, Analyze stays disabled", () => {
       renderResumeAnalyzer();
 
       const nonPdf = new File(["plain text"], "resume.txt", {
@@ -112,16 +112,29 @@ describe("ResumeAnalyzer", () => {
       selectFile(nonPdf);
 
       expect(screen.queryByText("resume.txt")).not.toBeInTheDocument();
+      expect(screen.getByRole("alert")).toHaveTextContent(/only pdf files/i);
       expect(
         screen.getByRole("button", { name: /analyze resume/i }),
       ).toBeDisabled();
     });
 
-    // Skipped: the 10MB size cap is not enforced in UploadZone's input change
-    // handler — only file.type is checked. Driving the limit requires a drag
-    // event we explicitly cannot simulate per the testing rules. See
-    // src/pages/ResumeAnalyzer/components/UploadZone/index.tsx.
-    it.skip("rejects a >10MB PDF (size limit not enforced on the input change handler)", () => {});
+    it("rejects a >10MB PDF: shows an error, name does not appear, Analyze stays disabled", () => {
+      renderResumeAnalyzer();
+
+      const oversized = new File(["%PDF-1.4 stub"], "big.pdf", {
+        type: "application/pdf",
+      });
+      Object.defineProperty(oversized, "size", {
+        value: 10 * 1024 * 1024 + 1,
+      });
+      selectFile(oversized);
+
+      expect(screen.queryByText("big.pdf")).not.toBeInTheDocument();
+      expect(screen.getByRole("alert")).toHaveTextContent(/too large|10\s*mb/i);
+      expect(
+        screen.getByRole("button", { name: /analyze resume/i }),
+      ).toBeDisabled();
+    });
 
     it("removes the selected file and disables Analyze when the X is clicked", async () => {
       const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
