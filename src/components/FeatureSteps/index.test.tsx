@@ -76,10 +76,10 @@ describe("FeatureSteps", () => {
   describe("extras dot color", () => {
     const cases = [
       { color: "teal" as const, label: "Teal item", token: "bg-teal" },
-      { color: "coral" as const, label: "Coral item", token: "bg-[#D85A30]" },
-      { color: "amber" as const, label: "Amber item", token: "bg-[#EF9F27]" },
+      { color: "coral" as const, label: "Coral item", token: "bg-coral" },
+      { color: "amber" as const, label: "Amber item", token: "bg-amber" },
       { color: "purple" as const, label: "Purple item", token: "bg-purple" },
-      { color: "blue" as const, label: "Blue item", token: "bg-[#378ADD]" },
+      { color: "blue" as const, label: "Blue item", token: "bg-blue" },
       { color: "gray" as const, label: "Gray item", token: "bg-muted" },
     ];
 

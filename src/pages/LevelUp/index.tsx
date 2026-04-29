@@ -12,11 +12,11 @@ import type { WeakPoint, WeakPointCategory } from "@/pages/LevelUp/types";
 import { cn } from "@/lib/utils";
 
 const COLOR_DOT: Record<WeakPointCategory["color"], string> = {
-  coral: "bg-[#D85A30]",
+  coral: "bg-coral",
   purple: "bg-purple",
   teal: "bg-teal",
-  amber: "bg-[#EF9F27]",
-  blue: "bg-[#378ADD]",
+  amber: "bg-amber",
+  blue: "bg-blue",
 };
 
 interface StatCardProps {

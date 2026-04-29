@@ -19,10 +19,10 @@ export function AttentionPointsCard({
     >
       <SectionCard
         title="Attention points"
-        icon={<AlertTriangle size={16} className="text-[#EF9F27]" />}
+        icon={<AlertTriangle size={16} className="text-amber" />}
         className="h-full"
       >
-        <BulletList items={items} dotClass="bg-[#EF9F27]" />
+        <BulletList items={items} dotClass="bg-amber" />
       </SectionCard>
     </motion.div>
   );

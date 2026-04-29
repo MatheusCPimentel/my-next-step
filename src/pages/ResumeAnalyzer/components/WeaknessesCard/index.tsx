@@ -19,10 +19,10 @@ export function WeaknessesCard({
     >
       <SectionCard
         title="Weaknesses"
-        icon={<AlertCircle size={16} className="text-[#D85A30]" />}
+        icon={<AlertCircle size={16} className="text-coral" />}
         className="h-full"
       >
-        <BulletList items={items} dotClass="bg-[#D85A30]" />
+        <BulletList items={items} dotClass="bg-coral" />
       </SectionCard>
     </motion.div>
   );

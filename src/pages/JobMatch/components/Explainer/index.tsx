@@ -3,7 +3,7 @@ import { ScoreBar } from "@/pages/JobMatch/components/ScoreBar";
 
 const EXTRAS = [
   { label: "Skills breakdown", dotClass: "bg-teal" },
-  { label: "Environment signals", dotClass: "bg-[#EF9F27]" },
+  { label: "Environment signals", dotClass: "bg-amber" },
   { label: "Contract & salary", dotClass: "bg-muted" },
   { label: "Benefits", dotClass: "bg-muted" },
   { label: "Final verdict", dotClass: "bg-purple" },

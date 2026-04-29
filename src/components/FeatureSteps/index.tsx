@@ -1,9 +1,9 @@
 const DOT_COLOR_CLASS = {
   teal: "bg-teal",
-  coral: "bg-[#D85A30]",
-  amber: "bg-[#EF9F27]",
+  coral: "bg-coral",
+  amber: "bg-amber",
   purple: "bg-purple",
-  blue: "bg-[#378ADD]",
+  blue: "bg-blue",
   gray: "bg-muted",
 } as const;
 
