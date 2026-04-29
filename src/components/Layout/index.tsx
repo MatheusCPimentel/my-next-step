@@ -3,6 +3,7 @@ import { Outlet, useLocation } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { Menu } from "lucide-react";
 import { Sidebar } from "../Sidebar";
+import { Toaster } from "@/components/ui/sonner";
 
 export function Layout() {
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -11,6 +12,8 @@ export function Layout() {
 
   return (
     <div className="flex h-screen overflow-hidden">
+      <Toaster />
+
       <div className="hidden md:block shrink-0">
         <Sidebar />
       </div>
