@@ -2,22 +2,14 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2 } from "lucide-react";
+import { Loader2, Lock, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { ConfirmationModal } from "@/components/ConfirmationModal";
 import { JobDialog } from "@/components/JobDialog";
 import { MOCK_RESULT, LOADING_MESSAGES, PITCH_TEXT } from "@/pages/JobMatch/mockData";
 import { jobMatchSchema, type FormValues } from "@/pages/JobMatch/types";
 import { JobMatchForm } from "@/pages/JobMatch/components/JobMatchForm";
 import { JobMatchResult } from "@/pages/JobMatch/components/JobMatchResult";
-import { ResumeAnalyzerGate } from "@/pages/JobMatch/components/ResumeAnalyzerGate";
 
 type Status = "idle" | "loading" | "done";
 
@@ -230,30 +222,38 @@ export function JobMatch() {
       </div>
 
       {!hasCompletedResumeAnalyzer && (
-        <ResumeAnalyzerGate
-          onBypass={() => setHasCompletedResumeAnalyzer((v) => !v)}
-          onAnalyzeResume={() => navigate("/resume")}
-          onSkip={() => navigate("/")}
-        />
+        <>
+          <button
+            type="button"
+            onClick={() => setHasCompletedResumeAnalyzer((v) => !v)}
+            className="fixed top-4 left-4 z-[60] text-xs text-muted hover:text-primary transition-colors"
+          >
+            Dev: bypass gate
+          </button>
+          <ConfirmationModal
+            icon={<Lock size={32} className="text-muted" />}
+            title="Analyze your resume first"
+            description="To get accurate job match results, we need to understand your profile first. Complete the Resume Analyzer and we'll take care of the rest."
+            primaryButtonText="Analyze my resume"
+            secondaryButtonText="I'll do this later"
+            onConfirm={() => navigate("/resume")}
+            onCancel={() => navigate("/")}
+            areButtonsColumn
+          />
+        </>
       )}
 
-      <Dialog open={addedToBoardOpen} onOpenChange={setAddedToBoardOpen}>
-        <DialogContent
-          showCloseButton={false}
-          onEscapeKeyDown={(e) => e.preventDefault()}
-          onInteractOutside={(e) => e.preventDefault()}
-        >
-          <DialogHeader>
-            <DialogTitle>Job added to Board!</DialogTitle>
-          </DialogHeader>
-          <DialogFooter>
-            <Button variant="outline" onClick={handleAddAnotherJob}>
-              Add another job
-            </Button>
-            <Button onClick={handleGoToBoard}>Go to Board</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {addedToBoardOpen && (
+        <ConfirmationModal
+          icon={<CheckCircle size={32} className="text-teal" />}
+          title="Job added to Board!"
+          description="Your application has been added to the Applied column."
+          primaryButtonText="Go to Board"
+          secondaryButtonText="Add another job"
+          onConfirm={handleGoToBoard}
+          onCancel={handleAddAnotherJob}
+        />
+      )}
     </div>
   );
 }

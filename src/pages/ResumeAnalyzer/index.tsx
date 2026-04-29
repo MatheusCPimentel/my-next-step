@@ -288,7 +288,7 @@ export function ResumeAnalyzer() {
 
           {savedProfile && (
             <div className="flex flex-col items-center text-center p-2">
-              <CheckCircle size={32} className="text-teal mb-3" />
+              <CheckCircle size={32} className="text-teal mb-4" />
               <h2 className="text-lg font-medium text-primary">
                 Profile saved
               </h2>

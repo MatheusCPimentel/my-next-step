@@ -85,7 +85,6 @@ components/
 Explainer/index.tsx
 JobMatchForm/index.tsx
 JobMatchResult/index.tsx
-ResumeAnalyzerGate/index.tsx
 ScoreBar/index.tsx
 ScoreCard/{index.tsx, index.test.tsx}
 StaggerItem/index.tsx (page-scoped motion helper for the result-view stagger; transition differs from ResumeAnalyzer's SectionCard)
@@ -109,6 +108,7 @@ types.ts
 Shared components live in src/components/<ComponentName>/index.tsx:
 src/components/
 AIVerdictCard/{index.tsx, index.test.tsx} (used by Resume Analyzer + Job Match)
+ConfirmationModal/{index.tsx, index.test.tsx}
 ExpandableValue/index.tsx
 FeatureSteps/index.tsx
 JobDialog/{index.tsx, index.test.tsx}
