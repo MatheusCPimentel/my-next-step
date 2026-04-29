@@ -1,6 +1,6 @@
-import { motion } from "framer-motion";
 import type { LucideIcon } from "lucide-react";
 import { NavLink } from "react-router-dom";
+import { CollapsibleLabel } from "./CollapsibleLabel";
 
 interface SidebarItemProps {
   label: string;
@@ -33,17 +33,12 @@ export function SidebarItem({
           <div className="w-10 h-10 flex items-center justify-center shrink-0 mx-auto">
             <Icon size={18} className={isActive ? "text-purple-mid" : ""} />
           </div>
-          <motion.span
-            animate={{
-              maxWidth: collapsed ? 0 : 200,
-              opacity: collapsed ? 0 : 1,
-            }}
-            transition={{ type: "tween", duration: 0.22, ease: "easeInOut" }}
+          <CollapsibleLabel
+            collapsed={collapsed}
             className="whitespace-nowrap overflow-hidden flex-1"
-            style={{ pointerEvents: collapsed ? "none" : "auto" }}
           >
             {label}
-          </motion.span>
+          </CollapsibleLabel>
         </>
       )}
     </NavLink>

@@ -13,6 +13,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { SidebarItem } from "./SidebarItem";
+import { CollapsibleLabel } from "./CollapsibleLabel";
 
 const NAV_ITEMS = [
   { label: "Dashboard", path: "/", icon: Home },
@@ -101,17 +102,12 @@ export function Sidebar({
               <User size={14} className="text-purple-soft" />
             </div>
           </div>
-          <motion.span
-            animate={{
-              maxWidth: effectivelyCollapsed ? 0 : 200,
-              opacity: effectivelyCollapsed ? 0 : 1,
-            }}
-            transition={{ type: "tween", duration: 0.22, ease: "easeInOut" }}
+          <CollapsibleLabel
+            collapsed={effectivelyCollapsed}
             className="whitespace-nowrap overflow-hidden flex-1 text-[13px] text-muted"
-            style={{ pointerEvents: effectivelyCollapsed ? "none" : "auto" }}
           >
             John Doe
-          </motion.span>
+          </CollapsibleLabel>
         </div>
 
         <button className="w-full bg-transparent border-0 cursor-pointer p-0">
@@ -119,17 +115,12 @@ export function Sidebar({
             <div className="w-10 h-10 flex items-center justify-center shrink-0 mx-auto">
               <LogOut size={16} />
             </div>
-            <motion.span
-              animate={{
-                maxWidth: effectivelyCollapsed ? 0 : 200,
-                opacity: effectivelyCollapsed ? 0 : 1,
-              }}
-              transition={{ type: "tween", duration: 0.22, ease: "easeInOut" }}
+            <CollapsibleLabel
+              collapsed={effectivelyCollapsed}
               className="text-left whitespace-nowrap overflow-hidden flex-1"
-              style={{ pointerEvents: effectivelyCollapsed ? "none" : "auto" }}
             >
               Logout
-            </motion.span>
+            </CollapsibleLabel>
           </div>
         </button>
       </footer>
