@@ -20,7 +20,7 @@ import { BoardColumn } from "@/pages/Board/components/BoardColumn";
 import { JobCard } from "@/pages/Board/components/JobCard";
 import { AddColumnButton } from "@/pages/Board/components/AddColumnButton";
 import { DiscardZone } from "@/pages/Board/components/DiscardZone";
-import { DiscardDialog, type DiscardOption } from "@/pages/Board/components/DiscardDialog";
+import { DiscardDialog } from "@/pages/Board/components/DiscardDialog";
 import { JobDialog } from "@/components/JobDialog";
 import {
   INITIAL_COLUMNS,
@@ -335,25 +335,12 @@ export function Board() {
     setDragPreview(null);
   }, []);
 
-  const handleConfirmDiscard = useCallback(
-    (option: DiscardOption) => {
-      if (pendingDiscardJob) {
-        const payload =
-          option.kind === "rejected"
-            ? {
-                kind: option.kind,
-                stageId: option.stageId,
-                questions: option.questions,
-                jobId: pendingDiscardJob.id,
-              }
-            : { kind: option.kind, jobId: pendingDiscardJob.id };
-        console.log("discard", payload);
-        setJobs((prev) => prev.filter((j) => j.id !== pendingDiscardJob.id));
-      }
-      setPendingDiscardJob(null);
-    },
-    [pendingDiscardJob],
-  );
+  const handleConfirmDiscard = useCallback(() => {
+    if (pendingDiscardJob) {
+      setJobs((prev) => prev.filter((j) => j.id !== pendingDiscardJob.id));
+    }
+    setPendingDiscardJob(null);
+  }, [pendingDiscardJob]);
 
   const handleAddColumn = useCallback((insertAt: number, label: string) => {
     setColumns((prev) => {

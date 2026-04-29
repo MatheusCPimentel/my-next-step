@@ -225,7 +225,6 @@ export function ResumeAnalyzer() {
   const [adjustText, setAdjustText] = useState("");
   const [reEvaluating, setReEvaluating] = useState(false);
 
-  // Loading-overlay timing: cycle text every 600ms, advance to analysis phase after 2.5s.
   useEffect(() => {
     if (!analyzing) return;
     const intervalId = setInterval(() => {
@@ -246,7 +245,6 @@ export function ResumeAnalyzer() {
     setAnalyzing(true);
   }, []);
 
-  // Re-evaluate timing: swap to adjusted summary after 1.5s and close the editor.
   useEffect(() => {
     if (!reEvaluating) return;
     const id = setTimeout(() => {

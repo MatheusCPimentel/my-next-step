@@ -287,7 +287,7 @@ export function JobDialog(props: JobDialogProps) {
               />
               {isEditable && errors.requiredSkills && (
                 <p className={errorText}>
-                  {errors.requiredSkills.message as string}
+                  {errors.requiredSkills.message}
                 </p>
               )}
             </div>

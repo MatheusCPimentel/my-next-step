@@ -92,7 +92,6 @@ AIVerdictCard/{index.tsx, index.test.tsx} (used by Resume Analyzer + Job Match)
 ExpandableValue/index.tsx
 FeatureSteps/index.tsx
 JobDialog/{index.tsx, index.test.tsx}
-Stepper/{index.tsx, index.test.tsx} (currently unused — legacy from previous Resume Analyzer flow; safe to delete when confirmed)
 TagInput/{index.tsx, index.test.tsx}
 Layout/
 Sidebar/
