@@ -152,10 +152,6 @@ Items known to need improvement but deferred intentionally.
 - **Mobile kanban:** no solution implemented yet. Planned approach is one column at a time with horizontal swipe, but UX is TBD.
 - **BoardColumn delete tests rely on `retry: 2` band-aid.** The trash button is `display: none` until the column header is hovered, and clicking it via `fireEvent.click` (the only working option — `userEvent.click` refuses hidden elements) races against Radix's portal-mount path under suite-wide CPU contention. Real fix: programmatically `mouseEnter` the header to reveal the button before clicking it (matches real user flow), or restructure the trash visibility so it's reachable in tests without the hover prerequisite. Until then, the two affected tests use Vitest's `retry: 2`.
 
-### Design tokens
-
-- **Coral and amber are still hardcoded hex.** WeaknessesCard / AttentionPointsCard / Explainer / FeatureSteps reference `#D85A30` and `#EF9F27` as Tailwind arbitrary values (`text-[#D85A30]`, `bg-[#EF9F27]`, etc.). Per the CSS-tokens rule in CLAUDE.md they should be added to the `@theme` block in src/index.css as `bg-coral`/`text-coral` and `bg-amber`/`text-amber` and the call sites updated.
-
 ---
 
 ## V2 Ideas (not planned yet)

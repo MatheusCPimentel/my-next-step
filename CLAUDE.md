@@ -55,7 +55,9 @@ DiscardZone/index.tsx
 JobCard/index.tsx
 index.tsx
 mockData.ts
+stageHistory.ts
 types.ts
+useBoardDnd.ts (page-scoped hook owning all dnd-kit state, sensors, and drag handlers; the page wires `onDiscard` to its discard dialog)
 
 Current ResumeAnalyzer layout:
 src/pages/ResumeAnalyzer/
@@ -66,12 +68,14 @@ AttentionPointsCard/{index.tsx, index.test.tsx}
 StrengthsCard/{index.tsx, index.test.tsx}
 SuggestionsCard/{index.tsx, index.test.tsx}
 TopSkillsCard/{index.tsx, index.test.tsx}
+UploadZone/index.tsx
 WeaknessesCard/{index.tsx, index.test.tsx}
 _shared/
 BulletList/index.tsx
-SectionCard/index.tsx
+SectionCard/index.tsx (renders a motion.section; cards pass an optional `delay` and skip their own motion wrapper)
 index.tsx
 index.test.tsx
+mockData.ts
 
 The analysis screen renders two sibling layouts fed by the same mock data: a mobile-only (flex md:hidden flex-col) stack and a desktop-only (hidden md:grid grid-cols-2) grid. Tailwind responsive `hidden`/`md:hidden` is CSS-only — both subtrees mount in JSDOM, so page-level tests use getAllBy* with toHaveLength(2) for content shared across both.
 
@@ -79,12 +83,28 @@ Current JobMatch layout:
 src/pages/JobMatch/
 components/
 Explainer/index.tsx
+JobMatchForm/index.tsx
+JobMatchResult/index.tsx
+ResumeAnalyzerGate/index.tsx
 ScoreBar/index.tsx
 ScoreCard/{index.tsx, index.test.tsx}
+StaggerItem/index.tsx (page-scoped motion helper for the result-view stagger; transition differs from ResumeAnalyzer's SectionCard)
 helpers.ts
 index.tsx
 index.test.tsx
 mockData.ts
+types.ts (jobMatchSchema + FormValues — shared between page and JobMatchForm)
+
+Current LevelUp layout:
+src/pages/LevelUp/
+components/
+CategoryCard/index.tsx (owns the COLOR_DOT map)
+StatCard/index.tsx
+WeakPointItem/index.tsx
+index.tsx
+index.test.tsx
+mockData.ts
+types.ts
 
 Shared components live in src/components/<ComponentName>/index.tsx:
 src/components/
@@ -92,9 +112,10 @@ AIVerdictCard/{index.tsx, index.test.tsx} (used by Resume Analyzer + Job Match)
 ExpandableValue/index.tsx
 FeatureSteps/index.tsx
 JobDialog/{index.tsx, index.test.tsx}
+SectionLabel/index.tsx (polymorphic `as`; tone="secondary" | "muted"; standardizes the `text-xs uppercase tracking-widest` label pattern)
 TagInput/{index.tsx, index.test.tsx}
 Layout/
-Sidebar/
+Sidebar/ (CollapsibleLabel.tsx houses the maxWidth/opacity collapse animation shared by SidebarItem and the footer rows)
 ui/ (shadcn primitives)
 
 ### CSS / Design tokens
@@ -112,8 +133,12 @@ bg-purple / text-purple — #534AB7 (primary action)
 text-purple-mid — #7B6FD4 (accent icon)
 text-purple-soft — #A89FE8 (active nav text)
 bg-teal / text-teal — #1D9E75 (progress/success)
+bg-coral / text-coral — #D85A30 (weaknesses, algorithms category)
+bg-amber / text-amber — #EF9F27 (attention points, warnings, system-design category)
+bg-blue / text-blue — #378ADD (general-purpose category dot)
 border-border — rgba(255,255,255,0.08)
 border-border-hover — rgba(255,255,255,0.15)
+--board-col-width — 272px (consume via `w-(--board-col-width)` / `min-w-(--board-col-width)`)
 
 Use opacity modifiers for tints: bg-purple/15 = 15% purple.
 Never use inline style for colors — always use Tailwind classes from the tokens above.
