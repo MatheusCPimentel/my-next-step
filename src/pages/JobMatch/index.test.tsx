@@ -1,9 +1,11 @@
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
-import { act, fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
+import { toast as sonnerToast } from "sonner";
 import { JobMatch } from "@/pages/JobMatch";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { Toaster } from "@/components/ui/sonner";
 
 const mockNavigate = vi.fn();
 vi.mock("react-router-dom", async () => {
@@ -15,20 +17,42 @@ vi.mock("react-router-dom", async () => {
 
 beforeAll(() => {
   Element.prototype.scrollIntoView = vi.fn();
+  // Sonner's swipe-to-dismiss calls setPointerCapture/releasePointerCapture on
+  // pointerdown; JSDOM does not implement these. Stub them to avoid unhandled
+  // errors when interacting with toast action buttons.
+  if (!Element.prototype.setPointerCapture) {
+    Element.prototype.setPointerCapture = vi.fn();
+  }
+  if (!Element.prototype.releasePointerCapture) {
+    Element.prototype.releasePointerCapture = vi.fn();
+  }
+  if (!Element.prototype.hasPointerCapture) {
+    Element.prototype.hasPointerCapture = vi.fn(() => false);
+  }
 });
 
 beforeEach(() => {
   mockNavigate.mockClear();
 });
 
+afterEach(() => {
+  sonnerToast.dismiss();
+});
+
 function renderJobMatch() {
-  return render(<JobMatch />, {
-    wrapper: ({ children }) => (
-      <MemoryRouter>
-        <TooltipProvider>{children}</TooltipProvider>
-      </MemoryRouter>
-    ),
-  });
+  return render(
+    <>
+      <JobMatch />
+      <Toaster />
+    </>,
+    {
+      wrapper: ({ children }) => (
+        <MemoryRouter>
+          <TooltipProvider>{children}</TooltipProvider>
+        </MemoryRouter>
+      ),
+    },
+  );
 }
 
 describe("JobMatch", () => {
@@ -292,6 +316,170 @@ describe("JobMatch", () => {
         /Anything the job description doesn't cover/i,
       ) as HTMLTextAreaElement;
       expect(additional.value).toBe("");
+    });
+  });
+
+  describe("toasts", () => {
+    type ClipboardDescriptor = PropertyDescriptor | undefined;
+    let originalClipboard: ClipboardDescriptor;
+
+    function mockClipboard(writeText: ReturnType<typeof vi.fn>) {
+      Object.defineProperty(navigator, "clipboard", {
+        value: { writeText },
+        configurable: true,
+      });
+    }
+
+    beforeEach(() => {
+      originalClipboard = Object.getOwnPropertyDescriptor(
+        navigator,
+        "clipboard",
+      );
+      vi.useFakeTimers({ shouldAdvanceTime: true });
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+      if (originalClipboard) {
+        Object.defineProperty(navigator, "clipboard", originalClipboard);
+      } else {
+        Reflect.deleteProperty(navigator as object, "clipboard");
+      }
+    });
+
+    async function advanceToPitchReady(user: ReturnType<typeof userEvent.setup>) {
+      await user.type(
+        screen.getByPlaceholderText("Senior Frontend Engineer at Acme"),
+        "Senior Frontend Engineer",
+      );
+      await user.type(
+        screen.getByPlaceholderText("Paste the full job description here..."),
+        "Build great products with React and TypeScript.",
+      );
+      await user.click(screen.getByRole("button", { name: /^analyze$/i }));
+
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(1500);
+      });
+
+      await user.click(screen.getByRole("button", { name: /why am i a fit/i }));
+
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(1000);
+      });
+    }
+
+    async function advanceToDone(user: ReturnType<typeof userEvent.setup>) {
+      await user.type(
+        screen.getByPlaceholderText("Senior Frontend Engineer at Acme"),
+        "Senior Frontend Engineer",
+      );
+      await user.type(
+        screen.getByPlaceholderText("Paste the full job description here..."),
+        "Build great products with React and TypeScript.",
+      );
+      await user.click(screen.getByRole("button", { name: /^analyze$/i }));
+
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(1500);
+      });
+    }
+
+    it('shows "Copied to clipboard." toast on successful copy', async () => {
+      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+      const writeText = vi.fn().mockResolvedValue(undefined);
+      mockClipboard(writeText);
+      renderJobMatch();
+      await advanceToPitchReady(user);
+
+      await user.click(
+        screen.getByRole("button", { name: /copy pitch to clipboard/i }),
+      );
+
+      expect(writeText).toHaveBeenCalledTimes(1);
+      expect(
+        await screen.findByText(/copied to clipboard/i),
+      ).toBeInTheDocument();
+    });
+
+    it("shows error toast when clipboard write rejects", async () => {
+      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+      const writeText = vi.fn().mockRejectedValue(new Error("denied"));
+      mockClipboard(writeText);
+      renderJobMatch();
+      await advanceToPitchReady(user);
+
+      await user.click(
+        screen.getByRole("button", { name: /copy pitch to clipboard/i }),
+      );
+
+      expect(writeText).toHaveBeenCalledTimes(1);
+      expect(await screen.findByText(/could not copy/i)).toBeInTheDocument();
+    });
+
+    async function openDialogAndSave(user: ReturnType<typeof userEvent.setup>) {
+      await advanceToDone(user);
+      await user.click(screen.getByRole("button", { name: /add to board/i }));
+
+      // The JobDialog opens pre-filled with the submitted title, description,
+      // and MOCK_RESULT.requiredSkills — only company is missing.
+      await user.type(screen.getByPlaceholderText("Company name"), "Acme");
+      await user.click(screen.getByRole("button", { name: /^save$/i }));
+    }
+
+    it('shows "Added to Board." toast with both action buttons after JobDialog Save in the Add to Board flow', async () => {
+      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+      renderJobMatch();
+
+      await openDialogAndSave(user);
+
+      expect(await screen.findByText("Added to Board.")).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: /go to board/i }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: /add another job/i }),
+      ).toBeInTheDocument();
+    });
+
+    it("navigates to /board when the Go to Board action is clicked", async () => {
+      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+      renderJobMatch();
+
+      await openDialogAndSave(user);
+
+      const toastEl = await screen.findByText("Added to Board.");
+      const toastRoot = toastEl.closest("li") ?? toastEl.parentElement!;
+      await user.click(
+        within(toastRoot as HTMLElement).getByRole("button", {
+          name: /go to board/i,
+        }),
+      );
+
+      expect(mockNavigate).toHaveBeenCalledWith("/board");
+    });
+
+    it("resets the form to idle when the Add another job cancel is clicked", async () => {
+      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+      renderJobMatch();
+
+      await openDialogAndSave(user);
+
+      const toastEl = await screen.findByText("Added to Board.");
+      const toastRoot = toastEl.closest("li") ?? toastEl.parentElement!;
+      await user.click(
+        within(toastRoot as HTMLElement).getByRole("button", {
+          name: /add another job/i,
+        }),
+      );
+
+      const titleInput = screen.getByPlaceholderText(
+        "Senior Frontend Engineer at Acme",
+      ) as HTMLInputElement;
+      expect(titleInput.value).toBe("");
+      expect(
+        screen.getByRole("button", { name: /^analyze$/i }),
+      ).toBeInTheDocument();
     });
   });
 

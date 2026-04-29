@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import { JobDialog } from "@/components/JobDialog";
 import { MOCK_RESULT, LOADING_MESSAGES, PITCH_TEXT } from "@/pages/JobMatch/mockData";
 import { jobMatchSchema, type FormValues } from "@/pages/JobMatch/types";
@@ -56,15 +57,22 @@ export function JobMatch() {
     setShowPitch(false);
     setPitchLoading(false);
     setStatus("loading");
+    // TODO(backend): wrap analyze in try/catch; on failure call toast.error("Could not analyze the job. Please try again.")
   };
 
   const handleGeneratePitch = () => {
     setPitchLoading(true);
+    // TODO(backend): wrap pitch generation in try/catch; on failure call toast.error("Could not generate pitch. Please try again.")
   };
 
   const handleCopyPitch = async () => {
-    await navigator.clipboard.writeText(PITCH_TEXT);
-    setPitchCopied(true);
+    try {
+      await navigator.clipboard.writeText(PITCH_TEXT);
+      setPitchCopied(true);
+      toast.success("Copied to clipboard.");
+    } catch {
+      toast.error("Could not copy. Try selecting the text manually.");
+    }
   };
 
   useEffect(() => {
@@ -79,6 +87,22 @@ export function JobMatch() {
     setPitchLoading(false);
     setSubmittedInput(null);
     reset({ title: "", description: "", additionalContext: "" });
+  };
+
+  const handleAddedToBoard = () => {
+    setDialogOpen(false);
+    toast.success("Added to Board.", {
+      action: {
+        label: "Go to Board",
+        onClick: () => navigate("/board"),
+      },
+      cancel: {
+        label: "Add another job",
+        onClick: () => handleReset(),
+      },
+    });
+    // TODO(backend): on persistence failure, replace the success above with:
+    // toast.error("Could not add job to Board. Please try again.");
   };
 
   useEffect(() => {
@@ -168,7 +192,7 @@ export function JobMatch() {
           columnId="applied"
           open={dialogOpen}
           onOpenChange={setDialogOpen}
-          onSubmit={() => setDialogOpen(false)}
+          onSubmit={handleAddedToBoard}
           job={{
             id: "",
             columnId: "applied",
