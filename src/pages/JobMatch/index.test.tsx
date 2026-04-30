@@ -55,10 +55,25 @@ function renderJobMatch() {
   );
 }
 
+// The gate is a Radix Dialog. When open it marks everything outside it as
+// aria-hidden and applies pointer-events: none to the page beneath, so RTL's
+// default getByRole won't see the dev bypass button and userEvent.click won't
+// fire on it. Tests dismiss the gate by reaching past both protections with
+// { hidden: true } and fireEvent.click — matching how a sighted developer
+// actually uses the dev affordance.
+function bypassGate() {
+  const button = screen.getByRole("button", {
+    name: /dev: bypass gate/i,
+    hidden: true,
+  });
+  fireEvent.click(button);
+}
+
 describe("JobMatch", () => {
   it("shows both validation errors and does not enter loading when submitting empty", async () => {
     const user = userEvent.setup();
     renderJobMatch();
+    bypassGate();
 
     await user.click(screen.getByRole("button", { name: /^analyze$/i }));
 
@@ -72,6 +87,7 @@ describe("JobMatch", () => {
 
   it("renders the Additional context textarea on idle", () => {
     renderJobMatch();
+    bypassGate();
     expect(
       screen.getByPlaceholderText(
         /Anything the job description doesn't cover/i,
@@ -81,11 +97,13 @@ describe("JobMatch", () => {
 
   it("renders the explainer with 'How it works' on idle", () => {
     renderJobMatch();
+    bypassGate();
     expect(screen.getByText("How it works")).toBeInTheDocument();
   });
 
   it("disables the Analyze button when description exceeds 8000 characters", () => {
     renderJobMatch();
+    bypassGate();
 
     const description = screen.getByPlaceholderText(
       "Paste the full job description here...",
@@ -107,6 +125,7 @@ describe("JobMatch", () => {
     it("shows the loading state then reveals the result section", async () => {
       const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
       renderJobMatch();
+      bypassGate();
 
       await user.type(
         screen.getByPlaceholderText("Senior Frontend Engineer at Acme"),
@@ -145,6 +164,7 @@ describe("JobMatch", () => {
     it("returns to the form and clears input when 'Analyze another job' is clicked", async () => {
       const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
       renderJobMatch();
+      bypassGate();
 
       await user.type(
         screen.getByPlaceholderText("Senior Frontend Engineer at Acme"),
@@ -178,6 +198,7 @@ describe("JobMatch", () => {
     it("renders the Add to Board button at the top of the result after analyze", async () => {
       const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
       renderJobMatch();
+      bypassGate();
 
       await user.type(
         screen.getByPlaceholderText("Senior Frontend Engineer at Acme"),
@@ -204,6 +225,7 @@ describe("JobMatch", () => {
     it("renders the Info trigger beside Why am I a fit", async () => {
       const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
       renderJobMatch();
+      bypassGate();
 
       await user.type(
         screen.getByPlaceholderText("Senior Frontend Engineer at Acme"),
@@ -230,6 +252,7 @@ describe("JobMatch", () => {
     it("opens JobDialog in create mode pre-filled with the submitted title when 'Add to Board' is clicked", async () => {
       const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
       renderJobMatch();
+      bypassGate();
 
       const submittedTitle = "Senior Frontend Engineer";
       await user.type(
@@ -258,6 +281,7 @@ describe("JobMatch", () => {
     it("renders the pitch text after Why am I a fit completes", async () => {
       const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
       renderJobMatch();
+      bypassGate();
 
       await user.type(
         screen.getByPlaceholderText("Senior Frontend Engineer at Acme"),
@@ -287,6 +311,7 @@ describe("JobMatch", () => {
     it("clears the Additional context textarea on 'Analyze another job'", async () => {
       const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
       renderJobMatch();
+      bypassGate();
 
       await user.type(
         screen.getByPlaceholderText("Senior Frontend Engineer at Acme"),
@@ -348,6 +373,7 @@ describe("JobMatch", () => {
     });
 
     async function advanceToPitchReady(user: ReturnType<typeof userEvent.setup>) {
+      bypassGate();
       await user.type(
         screen.getByPlaceholderText("Senior Frontend Engineer at Acme"),
         "Senior Frontend Engineer",
@@ -414,6 +440,7 @@ describe("JobMatch", () => {
     });
 
     async function advanceToDone(user: ReturnType<typeof userEvent.setup>) {
+      bypassGate();
       await user.type(
         screen.getByPlaceholderText("Senior Frontend Engineer at Acme"),
         "Senior Frontend Engineer",

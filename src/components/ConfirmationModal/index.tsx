@@ -1,5 +1,11 @@
 import type { ReactNode } from "react";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 interface ConfirmationModalProps {
   icon?: ReactNode;
@@ -23,15 +29,22 @@ export function ConfirmationModal({
   areButtonsColumn = false,
 }: ConfirmationModalProps) {
   return (
-    <div className="fixed inset-0 z-50 backdrop-blur-md bg-background/60 flex items-center justify-center px-3">
-      <div className="bg-surface border border-border rounded-xl p-6 md:p-8 max-w-sm text-center">
+    <Dialog open>
+      <DialogContent
+        showCloseButton={false}
+        onEscapeKeyDown={(e) => e.preventDefault()}
+        onInteractOutside={(e) => e.preventDefault()}
+        className="block max-w-sm p-6 md:p-8 gap-0 text-center"
+      >
         {icon && (
           <div className="size-8 mb-4 mx-auto flex items-center justify-center">
             {icon}
           </div>
         )}
-        <h2 className="text-lg font-medium text-primary">{title}</h2>
-        <p className="text-sm text-secondary mt-2">{description}</p>
+        <DialogTitle className="text-lg leading-normal text-primary">
+          {title}
+        </DialogTitle>
+        <DialogDescription className="mt-2">{description}</DialogDescription>
         {areButtonsColumn ? (
           <div className="mt-6 flex flex-col items-center gap-3">
             <Button variant="default" onClick={onConfirm}>
@@ -55,7 +68,7 @@ export function ConfirmationModal({
             </Button>
           </div>
         )}
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }

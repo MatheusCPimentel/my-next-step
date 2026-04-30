@@ -223,13 +223,15 @@ export function JobMatch() {
 
       {!hasCompletedResumeAnalyzer && (
         <>
-          <button
-            type="button"
-            onClick={() => setHasCompletedResumeAnalyzer((v) => !v)}
-            className="fixed top-4 left-4 z-[60] text-xs text-muted hover:text-primary transition-colors"
-          >
-            Dev: bypass gate
-          </button>
+          {import.meta.env.DEV && (
+            <button
+              type="button"
+              onClick={() => setHasCompletedResumeAnalyzer((v) => !v)}
+              className="fixed top-4 left-4 z-[60] text-xs text-muted hover:text-primary transition-colors"
+            >
+              Dev: bypass gate
+            </button>
+          )}
           <ConfirmationModal
             icon={<Lock size={32} className="text-muted" />}
             title="Analyze your resume first"
